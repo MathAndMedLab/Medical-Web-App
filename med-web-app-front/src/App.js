@@ -9,7 +9,6 @@ import Login from "./components/login.component";
 import Register from "./components/register.component";
 import Home from "./components/home.component";
 import Profile from "./components/profile.component";
-import Search from "./components/search.component";
 import ViewAttachmentsComponent from "./components/view-attachments.component";
 import UploadAttachmentsComponent from "./components/upload-attachments.component";
 import PipelinesComponent from "./components/pipelines.component";
@@ -86,11 +85,6 @@ class App extends Component {
             {currentUser ? (
                 <div className="navbar-nav ml-auto">
                   <li className="nav-item">
-                    <Link to={"/search"} className="nav-link color-dark-blue">
-                      Поиск
-                    </Link>
-                  </li>
-                  <li className="nav-item">
                     <Link to={"/profile"} className="nav-link color-dark-blue">
                       Мой профиль
                     </Link>
@@ -126,7 +120,6 @@ class App extends Component {
               <Route exact path={["/", "/home"]} component={Home} />
               <Route exact path="/login" component={Login} />
               <Route exact path="/register" component={Register} />
-              <Route exact path="/search" component={Search} />
               <Route exact path="/profile" component={Profile} />
               <Route exact path="/pipelines/create" component={PipelinesComponent}/>
               <Route exact path="/pipelines/results" component={PipelineResultsComponent}/>

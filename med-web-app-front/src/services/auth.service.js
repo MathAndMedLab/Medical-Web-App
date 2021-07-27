@@ -23,19 +23,16 @@ class AuthService {
         localStorage.removeItem("user");
     }
 
-    register(username, initials, firstname, lastname, password, chosenRole) {
+    register(username, password, chosenRole) {
         return axios.post(API_URL + "signup", {
             username,
-            initials,
-            firstname,
-            lastname,
             password,
             chosenRole
         });
     }
 
     checkTokenIsExpired(token) {
-        return axios.get(API_URL + "checktoken", {params: {"token": token}})
+        return axios.get(API_URL + "checktoken",  {params: {"token": token}})
     }
 
     getCurrentUser() {

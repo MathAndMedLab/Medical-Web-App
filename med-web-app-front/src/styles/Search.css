@@ -40,22 +40,8 @@
 }
 
 .tr-search {
-    /*border: 2px solid #1B435D;*/
+    border: 2px solid #1B435D;
     background: #F9F0DA;
-    height: 30px;
-    width: 600px;
-}
-
-.td-search-notnullInitials {
-    border: 1px solid #1B435D;
-    /*background: #F9F0DA;*/
-    height: 30px;
-    width: 300px;
-}
-
-.td-search-nullInitials {
-    border: 1px solid #1B435D;
-    /*background: #F9F0DA;*/
     height: 30px;
     width: 600px;
 }

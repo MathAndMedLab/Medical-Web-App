@@ -31,7 +31,13 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
 
+//    public List<User> getByInitials(String lastname, String firstname) {
+//        System.out.println(userRepository.findByFirstnameOrLastnameContainingOrderByLastnameAscAllIgnoreCase(firstname, lastname));
+//        return userRepository.findByFirstnameOrLastnameContainingOrderByLastnameAscAllIgnoreCase(firstname, lastname);
+//    }
+
     public List<User> getByInitials(String initials) {
+        System.out.println(userRepository.findByInitialsContainingOrderByInitialsAscAllIgnoreCase(initials));
         return userRepository.findByInitialsContainingOrderByInitialsAscAllIgnoreCase(initials);
     }
 

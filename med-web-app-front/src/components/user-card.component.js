@@ -9,23 +9,9 @@ export default class UserCard extends Component {
 
     render() {
         return (
-            <div>
-                {this.user.initials !== null &&
-                <td className="td-search-notnullInitials">
-                    {this.user.initials + " "}
-                </td>}
-                {this.user.initials !== null &&
-                <td className="td-search-notnullInitials">
-                    {this.user.username}
-                </td>
-                }
-
-                {this.user.initials === null &&
-                <td className="td-search-nullInitials">
-                    {this.user.username}
-                </td>
-                }
-            </div>
+            <td>
+                {this.user.initials} &nbsp; {this.user.username}
+            </td>
         )
     }
 }

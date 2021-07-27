@@ -53,6 +53,8 @@ public class UserController {
     @GetMapping("/all/usersByInitials")
     public ResponseEntity<?> getAllUsersByInitials(
             @RequestParam(name = "initials", required = false, defaultValue = "empty") String initials
+//            @RequestParam(name = "lastname", required = false, defaultValue = "empty") String lastname,
+//            @RequestParam(name = "firstname", required = false, defaultValue = "empty") String firstname
     ) {
         try {
             if (initials.equals("empty")) {
@@ -61,7 +63,13 @@ public class UserController {
                 return ResponseEntity.ok().body(responseBody);
             } else {
                 List<User> responseBody;
+//                List<Optional<User>> responseBody2 = new ArrayList<>();
                 responseBody = userService.getByInitials(initials);
+//                if (responseBody.isPresent()) {
+//                    responseBody2.add(responseBody);
+//                }
+                System.out.println(initials);
+                System.out.println(responseBody);
                 return ResponseEntity.ok().body(responseBody);
             }
         } catch (Exception e) {

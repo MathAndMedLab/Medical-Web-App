@@ -44,6 +44,9 @@ public class FileObject {
     @Column(name = "study_instance_uid")
     private String UID;
 
+    @Column(name = "deleted")
+    private boolean deleted;
+
     @Transient
     private String downloadLink;
 

@@ -11,9 +11,11 @@ import com.app.medicalwebapp.services.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.Array;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -74,9 +76,9 @@ public class ChatMessageService {
             chatId = (recipientUsername + senderUsername);
         }
         List<ChatMessage> messages;
-        Optional<List<ChatMessage>> messagesOptional = chatMessageRepository.findByChatId(chatId);
+        Optional<List<ChatMessage>> messagesOptional = chatMessageRepository.findByChatIdAndDeleted(chatId, false);
         messages = messagesOptional.orElseGet(ArrayList::new);
-        messages = messages.stream().filter(msg -> !msg.isDeleted()).collect(Collectors.toList());
+//        messages = messages.stream().filter(msg -> !msg.isDeleted()).collect(Collectors.toList());
         if (messages.size() > 0) {
             getImages(messages);
         }

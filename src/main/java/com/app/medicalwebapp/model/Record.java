@@ -2,18 +2,7 @@ package com.app.medicalwebapp.model;
 
 import lombok.*;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -65,9 +54,10 @@ public class Record {
     )
     Set<Topic> topics = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.EAGER, 
-                cascade = { CascadeType.PERSIST, CascadeType.DETACH,
-                        CascadeType.MERGE, CascadeType.REFRESH} )
+    @ManyToMany(fetch = FetchType.EAGER
+//                cascade = { CascadeType.PERSIST, CascadeType.DETACH,
+//                        CascadeType.MERGE, CascadeType.REFRESH}
+    )
     @JoinTable(
             name = "record_to_file",
             joinColumns = { @JoinColumn(name = "record_id") },

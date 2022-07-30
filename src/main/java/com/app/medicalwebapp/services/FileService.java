@@ -11,8 +11,6 @@ import com.app.medicalwebapp.utils.saving.FileSaverStrategyResolver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.ByteArrayInputStream;
-
 @Service
 public class FileService {
 
@@ -45,8 +43,8 @@ public class FileService {
         var fileToDelete = fileObjectRepository.findById(fileId).orElse(null);
         if (fileToDelete == null) return false;
 
-        System.out.println(fileToDelete);
-        fileObjectRepository.delete(fileToDelete);
+        fileToDelete.setDeleted(true);
+        fileObjectRepository.save(fileToDelete);
         return true;
     }
 

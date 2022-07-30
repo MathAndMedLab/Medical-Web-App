@@ -27,6 +27,25 @@ const useStyles = theme => ({
             color: "black"
         }
     },
+    inputSearchContacts: {
+        width: 305,
+        margin: 6,
+        marginRight: 6,
+        marginTop: 8,
+        "& .MuiFormLabel-root": {
+            margin: 0,
+            color: "black"
+        }
+    },
+    inputSearchMsg: {
+        width: 650,
+        marginTop: theme.spacing(-2),
+        marginBottom: theme.spacing(1),
+        "& .MuiFormLabel-root": {
+            margin: 0,
+            color: "black"
+        }
+    },
     paper: {
         marginTop: theme.spacing(3),
         marginRight: theme.spacing(2),
@@ -272,6 +291,7 @@ function Chat(props) {
             setSearchContentPresence(false)
         }
     }
+
     function onChangeSearchContacts(e) {
         let str = e.target.value
         str = str.replace(/ {2,}/g, ' ').trim()
@@ -480,60 +500,60 @@ function Chat(props) {
                 return (nameAndSurname[0] + " " + nameAndSurname[1]).includes(searchContacts)
             })
             .map((userAndLastMsg, index) => (
-            <Grid key={index}>
-                <Link onClick={() => selectUser(userAndLastMsg.first)}
-                      to={"/msg/" + userAndLastMsg.first.username}
-                      style={{textDecoration: 'none'}}>
-                    <ListItemButton
-                        value={userAndLastMsg.first}
-                        selected={selectedUser && selectedUser.username === userAndLastMsg.first.username}
-                        title={userAndLastMsg.first.lastname + " " + userAndLastMsg.first.firstname}
-                    >
-                        <Grid className={classes.flex} xs={12} item>
-                            <Grid xs={2} item>
-                                <Avatar className={classes.avatar} src={userAndLastMsg.first.avatar}>
-                                    <PhotoCameraOutlinedIcon/>
-                                </Avatar>
-                            </Grid>
-                            <Grid xs={10} item>
-                                <Grid className={classes.gridFullWidth}>
-                                    <Grid className={classes.flex} xs={12} item>
-                                        <Grid xs={9} item>
-                                            <UserCardMessage user={userAndLastMsg.first}
-                                            />
-                                        </Grid>
-                                        <Grid xs={3} item>
-                                            <Grid className={classes.lastMsgTimeContent}>
-                                                {
-                                                    userAndLastMsg.sendDateInCurrentTimeZone && processTimeSend(userAndLastMsg.sendDateInCurrentTimeZone)
-                                                }
+                <Grid key={index}>
+                    <Link onClick={() => selectUser(userAndLastMsg.first)}
+                          to={"/msg/" + userAndLastMsg.first.username}
+                          style={{textDecoration: 'none'}}>
+                        <ListItemButton
+                            value={userAndLastMsg.first}
+                            selected={selectedUser && selectedUser.username === userAndLastMsg.first.username}
+                            title={userAndLastMsg.first.lastname + " " + userAndLastMsg.first.firstname}
+                        >
+                            <Grid className={classes.flex} xs={12} item>
+                                <Grid xs={2} item>
+                                    <Avatar className={classes.avatar} src={userAndLastMsg.first.avatar}>
+                                        <PhotoCameraOutlinedIcon/>
+                                    </Avatar>
+                                </Grid>
+                                <Grid xs={10} item>
+                                    <Grid className={classes.gridFullWidth}>
+                                        <Grid className={classes.flex} xs={12} item>
+                                            <Grid xs={9} item>
+                                                <UserCardMessage user={userAndLastMsg.first}
+                                                />
+                                            </Grid>
+                                            <Grid xs={3} item>
+                                                <Grid className={classes.lastMsgTimeContent}>
+                                                    {
+                                                        userAndLastMsg.sendDateInCurrentTimeZone && processTimeSend(userAndLastMsg.sendDateInCurrentTimeZone)
+                                                    }
+                                                </Grid>
                                             </Grid>
                                         </Grid>
                                     </Grid>
-                                </Grid>
-                                <Grid className={classes.flex} xs={12} item>
-                                    <Grid xs={10} item
-                                          className={classes.lastMsgTextContent}>{
-                                        (userAndLastMsg.second && userAndLastMsg.second.content && userAndLastMsg.second.content.length < 25 && userAndLastMsg.second.content.length > 0 && userAndLastMsg.second.content)
-                                        || (userAndLastMsg.second && userAndLastMsg.second.content && userAndLastMsg.second.content.length > 25 && userAndLastMsg.second.content.slice(0, 25) + "...")
-                                        || (userAndLastMsg.second && userAndLastMsg.second.content !== null &&
-                                            <Typography style={{fontSize: 14, color: '#227ba2'}}>Файл</Typography>)
-                                    }
+                                    <Grid className={classes.flex} xs={12} item>
+                                        <Grid xs={10} item
+                                              className={classes.lastMsgTextContent}>{
+                                            (userAndLastMsg.second && userAndLastMsg.second.content && userAndLastMsg.second.content.length < 25 && userAndLastMsg.second.content.length > 0 && userAndLastMsg.second.content)
+                                            || (userAndLastMsg.second && userAndLastMsg.second.content && userAndLastMsg.second.content.length > 25 && userAndLastMsg.second.content.slice(0, 25) + "...")
+                                            || (userAndLastMsg.second && userAndLastMsg.second.content !== null &&
+                                                <Typography style={{fontSize: 14, color: '#227ba2'}}>Файл</Typography>)
+                                        }
+                                        </Grid>
+                                        {allMessages.get(userAndLastMsg.first.username) && (allMessages.get(userAndLastMsg.first.username).unRead > 0)
+                                        && <Grid>
+                                            <Paper
+                                                className={classes.noticeMsg}>{allMessages.get(userAndLastMsg.first.username).unRead}
+                                            </Paper>
+                                        </Grid>}
                                     </Grid>
-                                    {allMessages.get(userAndLastMsg.first.username) && (allMessages.get(userAndLastMsg.first.username).unRead > 0)
-                                    && <Grid>
-                                        <Paper
-                                            className={classes.noticeMsg}>{allMessages.get(userAndLastMsg.first.username).unRead}
-                                        </Paper>
-                                    </Grid>}
                                 </Grid>
                             </Grid>
-                        </Grid>
-                    </ListItemButton>
-                    <Divider/>
-                </Link>
-            </Grid>
-        )))
+                        </ListItemButton>
+                        <Divider/>
+                    </Link>
+                </Grid>
+            )))
     }
 
     function updateStatusMsg() {
@@ -600,19 +620,17 @@ function Chat(props) {
                 <Card className={classes.paper}>
                     <TextField
                         fullWidth
-                        className={classes.root}
+                        className={classes.inputSearchContacts}
                         minRows={1}
                         maxRows={6}
                         variant="outlined"
                         size="small"
-
                         id="searchContacts"
                         label="Поиск по контактам..."
                         name="searchContacts"
                         autoComplete="off"
                         value={searchContacts}
                         onChange={(searchContacts) => onChangeSearchContacts(searchContacts)}
-                        // onKeyPress={(key) => checkKey(key)}
                     />
                     <List className={classes.itemButton}>
                         {usersWithLastMsg && sortContacts()}
@@ -622,22 +640,23 @@ function Chat(props) {
 
             <Grid xs={9} item>
                 <Card className={classes.paper2}>
-                    {selectedUser && <Grid>
+                    {selectedUser &&
+                    <Grid>
                         <Grid container>
-                            <Grid xs={2}><UserCardMessage user={selectedUser}/></Grid>
-
-                            <Grid xs={10}><TextField size="small"
-                                             fullWidth
-                                             className={classes.root}
-                                             variant="outlined"
-                                             id="searchContent"
-                                             label="Поиск по сообщениям..."
-                                             name="searchContent"
-                                             autoComplete="off"
-                                             value={searchContent}
-                                             onChange={(searchContent) => onChangeSearchContent(searchContent)}
-                                             onKeyPress={(key) => checkKey(key)}
-                            /></Grid>
+                            {/*<Grid xs={2}><UserCardMessage user={selectedUser}/></Grid>*/}
+                            <Grid >
+                                <TextField size="small"
+                                           fullWidth
+                                           className={classes.inputSearchMsg}
+                                           variant="outlined"
+                                           id="searchContent"
+                                           label="Поиск по сообщениям..."
+                                           name="searchContent"
+                                           autoComplete="off"
+                                           value={searchContent}
+                                           onChange={(searchContent) => onChangeSearchContent(searchContent)}
+                                />
+                            </Grid>
                         </Grid>
                         <Paper
 
@@ -676,9 +695,9 @@ function Chat(props) {
                                         color="primary"
                                         onClick={selectFile}
                                         disabled={(!selectedUser)}
-                                        title = {"Прикрепить файл"}
+                                        title={"Прикрепить файл"}
                                 >
-                                    <AttachFileIcon />
+                                    <AttachFileIcon/>
 
                                 </Button>
                             </Grid>
@@ -689,7 +708,6 @@ function Chat(props) {
                                     minRows={1}
                                     maxRows={6}
                                     variant="outlined"
-
                                     id="content"
                                     label="Напишите сообщение..."
                                     name="content"

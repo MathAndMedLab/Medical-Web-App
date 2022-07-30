@@ -49,7 +49,7 @@ public class FileObjectController {
     @GetMapping("{username}")
     public ResponseEntity<?> getAllFilesForUser(@PathVariable String username) {
         if (username.equals(getAuthenticatedUser().getUsername())) {
-            List<FileObject> filesInfo = fileObjectRepository.findByOwner(getAuthenticatedUser().getId());
+            List<FileObject> filesInfo = fileObjectRepository.findByOwnerAndDeleted(getAuthenticatedUser().getId(), false);
             filesInfo.stream().forEach(fileInfo -> fileInfo.setDownloadLink(
                     MvcUriComponentsBuilder
                             .fromMethodName(FileObjectController.class, "downloadFile", fileInfo.getId())

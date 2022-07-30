@@ -5,11 +5,9 @@ import com.app.medicalwebapp.model.FileObject;
 import com.app.medicalwebapp.model.FileObjectFormat;
 import com.app.medicalwebapp.services.FileObjectService;
 import com.app.medicalwebapp.services.RecordService;
-import com.app.medicalwebapp.utils.saving.FileSaverStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.InputStream;
 import java.time.LocalDateTime;
 
 @Component
@@ -39,6 +37,7 @@ public class PacsSaverStrategy implements FileSaverStrategy {
         fileObject.setInitialName(initialName);
         fileObject.setCreationTime(LocalDateTime.now());
         fileObject.setUID(UID);
+        fileObject.setDeleted(false);
         fileObjectService.saveFileObject(fileObject);
         return fileObject;
     }

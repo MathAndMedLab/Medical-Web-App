@@ -15,6 +15,8 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
 
     Optional<List<ChatMessage>> findByChatId(String chatId);
 
+    Optional<List<ChatMessage>> findByChatIdAndDeleted(String chatId, boolean deleted);
+
     Optional<ChatMessage> findFirstByChatIdAndDeleted_IsFalseOrderByIdDesc(String chatId);
 
     Optional<List<ChatMessage>> findByRecipientIdAndStatusMessage(Long recipientId, StatusMessage UNREAD);

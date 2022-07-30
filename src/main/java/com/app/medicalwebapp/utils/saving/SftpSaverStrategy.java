@@ -4,15 +4,12 @@ import com.app.medicalwebapp.clients.sftp.SftpClient;
 import com.app.medicalwebapp.model.FileObject;
 import com.app.medicalwebapp.model.FileObjectFormat;
 import com.app.medicalwebapp.services.FileObjectService;
-import com.app.medicalwebapp.utils.saving.FileSaverStrategy;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.InputStream;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -44,6 +41,7 @@ public class SftpSaverStrategy implements FileSaverStrategy {
         fileObject.setFormat(format);
         fileObject.setInitialName(initialName);
         fileObject.setCreationTime(LocalDateTime.now());
+        fileObject.setDeleted(false);
         fileObjectService.saveFileObject(fileObject);
         return fileObject;
     }

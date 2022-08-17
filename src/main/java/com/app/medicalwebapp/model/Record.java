@@ -46,7 +46,7 @@ public class Record {
     @Column(name="edited")
     private Boolean edited;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "record_to_topic",
             joinColumns = { @JoinColumn(name = "record_id") },
@@ -54,7 +54,7 @@ public class Record {
     )
     Set<Topic> topics = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.EAGER
+    @ManyToMany(fetch = FetchType.LAZY
 //                cascade = { CascadeType.PERSIST, CascadeType.DETACH,
 //                        CascadeType.MERGE, CascadeType.REFRESH}
     )

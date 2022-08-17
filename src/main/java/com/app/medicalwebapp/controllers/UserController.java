@@ -1,17 +1,15 @@
 package com.app.medicalwebapp.controllers;
 
-import com.app.medicalwebapp.controllers.requestbody.messenger.ContactsResponse;
 import com.app.medicalwebapp.controllers.requestbody.MessageResponse;
 import com.app.medicalwebapp.controllers.requestbody.messenger.ContactsRequest;
+import com.app.medicalwebapp.controllers.requestbody.messenger.ContactsResponse;
 import com.app.medicalwebapp.model.User;
 import com.app.medicalwebapp.model.messenger_models.ChatMessage;
 import com.app.medicalwebapp.model.messenger_models.Contact;
 import com.app.medicalwebapp.security.UserDetailsImpl;
+import com.app.medicalwebapp.services.UserService;
 import com.app.medicalwebapp.services.messenger_services.ChatMessageService;
 import com.app.medicalwebapp.services.messenger_services.ContactsService;
-import com.app.medicalwebapp.services.UserService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpStatus;
@@ -20,22 +18,24 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @CrossOrigin(origins = "*", maxAge = 604800)
 @RestController
 @RequestMapping("/api/search")
 public class UserController {
-    Logger log = LoggerFactory.getLogger(UserController.class);
+    private final UserService userService;
+    private final ContactsService contactsService;
+    private final ChatMessageService chatMessageService;
 
     @Autowired
-    UserService userService;
-
-    @Autowired
-    ContactsService contactsService;
-
-    @Autowired
-    private ChatMessageService chatMessageService;
+    public UserController(UserService userService, ContactsService contactsService, ChatMessageService chatMessageService) {
+        this.userService = userService;
+        this.contactsService = contactsService;
+        this.chatMessageService = chatMessageService;
+    }
 
     @GetMapping("/all/username")
     public ResponseEntity<?> getAllByUsername(

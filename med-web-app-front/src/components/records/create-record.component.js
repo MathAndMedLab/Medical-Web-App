@@ -136,7 +136,7 @@ class CreateRecordComponent extends Component {
     handleTopics(e) {
         let topicIds = [];
         this.state.availableTopics.map(topic => {
-            if (e.target.value.indexOf(topic.label) !== -1) {
+            if (e.target.value.find(x => x.value === topic.value)) {
                 topicIds.push(topic.value)
             }
         });
@@ -151,7 +151,7 @@ class CreateRecordComponent extends Component {
     handleFiles(e) {
         let filesIds = [];
         this.state.availableFiles.map(file => {
-            if (e.target.value.indexOf(file.label) !== -1) {
+            if (e.target.value.find(x => x.value === file.value)) {
                 filesIds.push(file.value)
             }
         });
@@ -284,14 +284,14 @@ class CreateRecordComponent extends Component {
                                     renderValue={(selected) => (
                                         <div className={classes.chips}>
                                             {selected.map((value) => (
-                                                <Chip key={value} label={value} className={classes.chip}/>
+                                                <Chip key={value} label={value.label} className={classes.chip}/>
                                             ))}
                                         </div>
                                     )}
                                     MenuProps={MenuProps}
                                 >
                                     {this.state.availableTopics.map(x => (
-                                        <MenuItem key={x.value} value={x.label} id={x.value}>
+                                        <MenuItem key={x.value} value={x} id={x.value}>
                                             {x.label}
                                         </MenuItem>
                                     ))}
@@ -312,7 +312,7 @@ class CreateRecordComponent extends Component {
                                     renderValue={(selected) => (
                                         <div className={classes.chips}>
                                             {selected.map((value) => (
-                                                <Chip key={value} label={value} className={classes.chip}/>
+                                                <Chip key={value} label={value.label} className={classes.chip}/>
                                             ))}
                                         </div>
                                     )}
@@ -320,7 +320,7 @@ class CreateRecordComponent extends Component {
                                 >
 
                                     {this.state.availableFiles.map(x => (
-                                        <MenuItem key={x.value} value={x.label} id={x.value}>
+                                        <MenuItem key={x.value} value={x} id={x.value}>
                                             {x.label}
                                         </MenuItem>
                                     ))}

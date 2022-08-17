@@ -23,18 +23,18 @@ import java.util.List;
 
 @Service
 public class PipelineExecutor {
+    private final FileExtractorStrategyResolver extractorStrategyResolver;
+    private final MirfOrchestratorClient mirfOrchestrator;
+    private final MirfRepositoryClient mirfRepository;
+    private final PipelineJobRepository pipelineJobRepository;
 
     @Autowired
-    FileExtractorStrategyResolver extractorStrategyResolver;
-
-    @Autowired
-    MirfOrchestratorClient mirfOrchestrator;
-
-    @Autowired
-    MirfRepositoryClient mirfRepository;
-
-    @Autowired
-    PipelineJobRepository pipelineJobRepository;
+    public PipelineExecutor(FileExtractorStrategyResolver extractorStrategyResolver, MirfOrchestratorClient mirfOrchestrator, MirfRepositoryClient mirfRepository, PipelineJobRepository pipelineJobRepository) {
+        this.extractorStrategyResolver = extractorStrategyResolver;
+        this.mirfOrchestrator = mirfOrchestrator;
+        this.mirfRepository = mirfRepository;
+        this.pipelineJobRepository = pipelineJobRepository;
+    }
 
     public void triggerPipeline() throws Exception {
         InputStream inputStream = PipelineExecutor.class.getClassLoader().getResourceAsStream("image-000002.dcm");

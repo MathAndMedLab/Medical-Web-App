@@ -16,7 +16,9 @@ import SendIcon from '@mui/icons-material/Send';
 import DicomAnonymizerService from "../../services/dicom-anonymizer.service";
 import PhotoCameraOutlinedIcon from '@mui/icons-material/PhotoCameraOutlined';
 
-
+/**
+ * Стили для компонентов mui и react.
+ */
 const useStyles = theme => ({
     root: {
         width: 510,
@@ -154,7 +156,7 @@ function Chat(props) {
     const {setUsersWithLastMsg} = props
     const {allMessages} = props
     const {setAllMessages} = props
-    const {selected} = useParams()
+    const {selected} = useParams() // Для selected устанавливается строка с логином, полученным из url. Например medwebapp.ru/msg/SELECTED_USERNAME
     const [processedUnreadMessages, setProcessedUnreadMessages] = useState([])
     const [content, setContent] = useState("")
     const [contentPresence, setContentPresence] = useState(false)
@@ -177,6 +179,9 @@ function Chat(props) {
         getContacts();
     }, [])
 
+    /**
+     * Функция добавляет выбранного пользователя в контакты.
+     */
     function updateContacts() {
         UserService.pushContacts(AuthService.getCurrentUser().username, selected)
             .then(async (response) => {
@@ -186,15 +191,15 @@ function Chat(props) {
                     const blob = await base64Response.blob()
                     user.avatar = URL.createObjectURL(blob)
                 }
-                // let userWithLastMsg = {first: user, second: null}
-                // setUsersWithLastMsg(prev => prev.set(user.username, userWithLastMsg))
-                // selectUser(user)
             })
             .catch((e) => {
                 console.log(e)
             })
     }
 
+    /**
+     * Функция выбирает пользователя, которого нет в контактах, чтобы ему написать.
+     */
     function selectNotInContactsUser() {
         UserService.getUserByUsername(selected)
             .then(async (response) => {
@@ -214,6 +219,11 @@ function Chat(props) {
         messagesEndRef.current?.scrollIntoView({behavior: "auto"})
     }
 
+    /**
+     * Удаление сообщения из MAP на клиенте, чтобы лишний раз не
+     * делать запросы на сервер для обновления данных и получения сообщений.
+     * @param msg
+     */
     function deleteMsgClient(msg) {
         let newMsgArray;
         if (msg.id) {
@@ -234,6 +244,10 @@ function Chat(props) {
         setRefresh({})
     }
 
+    /**
+     * Получение списка контактов для текущего
+     * пользователя из базы данных
+     */
     function getContacts() {
         UserService.getContacts(AuthService.getCurrentUser().username)
             .then((response) => {
@@ -248,13 +262,13 @@ function Chat(props) {
                     setRefresh({})
                 })
                 const user = userWithLastMsgArray.find(user => user.first.username === selected)
+                // Проверка есть ли выбранный пользователь в списке контактов, иначе он будет добавлен.
                 if (selected && !user) {
-                    // updateContacts();
                     selectNotInContactsUser()
                 } else if (selected && user) {
                     selectUser(user.first)
                 }
-                // This state update is artificial, for forced rendering contacts list.
+                // Данное состояние обновляется для принудительного рендеринга страницы.
                 setRefresh({})
             })
             .catch((e) => {
@@ -313,6 +327,9 @@ function Chat(props) {
         }
     }
 
+    /**
+     * Функция отправляет сообщение пользователю.
+     */
     async function sendMessage() {
         if (stompClient) {
             let fileNameAndStringBase64 = []
@@ -320,8 +337,9 @@ function Chat(props) {
             let uid = null
             if (selectedFiles) {
                 for (let i = 0; i < selectedFiles.length; i++) {
-                    if (selectedFiles[i].name.endsWith(".dcm")) {
 
+                    if (selectedFiles[i].name.endsWith(".dcm")) {
+                        // Изображения формата .dcm должны быть анонимизированы.
                         var dicomContAndUID = await DicomAnonymizerService.anonymizeInstance(selectedFiles[i]);
                         var anonymizedDicomBlobArrayBuff = dicomContAndUID.dicom;
                         uid = dicomContAndUID.UID;
@@ -334,6 +352,7 @@ function Chat(props) {
                             reader.onerror = reject;
                             reader.readAsDataURL(blobDicom);
                         })
+                        // Для отправления файлов по websocket, необходимо перевести их в строку base64.
                         const fileStringBase64 = await readerPromise;
                         selectedFiles[i] = {name: selectedFiles[i].name, uid: uid}
                         pairFileNameBase64 = {fileName: selectedFiles[i].name, fileContent: fileStringBase64}
@@ -346,6 +365,7 @@ function Chat(props) {
                             reader.onerror = reject;
                             reader.readAsDataURL(selectedFiles[i]);
                         })
+                        // Для отправления файлов по websocket, необходимо перевести их в строку base64.
                         const fileStringBase64 = await readerPromise;
                         pairFileNameBase64 = {fileName: selectedFiles[i].name, fileContent: fileStringBase64}
                     }
@@ -361,13 +381,16 @@ function Chat(props) {
                 recipientName: selectedUser.username,
                 senderId: AuthService.getCurrentUser().id,
                 senderName: AuthService.getCurrentUser().username,
-                attachmentsBlobForImageClient: selectedFiles,
-                localFiles: fileNameAndStringBase64,
+                attachmentsBlobForImageClient: selectedFiles, // Переменная используется для быстрой отрисовки отправленных изображений, чтобы не делать лишних запросов к базе данных.
+                files: fileNameAndStringBase64,
                 sendDate: localISOTime,
                 timeZone: timeZone,
                 uid: uid
             }
-            var isFirstMessage = true;
+            let isFirstMessage = true;
+
+            // Проверка есть ли "история переписки" с выбранным пользователем, если есть,
+            // то сообщение добавится к существующим.
             if (allMessages.get(selectedUser.username)) {
                 isFirstMessage = false;
                 let msg = allMessages.get(selectedUser.username).messages
@@ -386,11 +409,18 @@ function Chat(props) {
             setContent("")
             setContentCorrect("")
             setContentPresence(false)
+
+            // Если это первое сообщение, необходимо добавить пользователя в список контактов.
             if (isFirstMessage)
                 updateContacts();
         }
     }
 
+    /**
+     * Функция принимает в качестве аргумента пользователя и
+     * получает из базы данных сообщения с данным пользователем
+     * @param user
+     */
     function selectUser(user) {
         setSelectedUser(user)
         ChatService.getMessages(AuthService.getCurrentUser().username, user.username)
@@ -398,27 +428,32 @@ function Chat(props) {
                 if (response.data.length > 0) {
                     const valueMap = {unRead: 0, messages: response.data}
                     setAllMessages(prev => (prev.set(user.username, valueMap)))
-                    setRefresh({})
+                    setRefresh({}) // Данное состояние обновляется для принудительного рендеринга страницы.
                     goToBottom()
                 }
             })
             .catch((e) => {
                 console.log(e)
             })
-        setRefresh({})
+        setRefresh({}) // Данное состояние обновляется для принудительного рендеринга страницы.
     }
 
     function selectFile() {
         fileInput.current.click()
     }
 
-    function getDayOfWeek(yesterday1, messageTime, days) {
-        yesterday1.setDate(yesterday1.getDate() - 1)
-        if (yesterday1.getDate() === messageTime.getDate() && yesterday1.getMonth() === messageTime.getMonth()) {
-            return days [messageTime.getDay()]
-        } else {
-            return false
-        }
+    /**
+     * Функция находит время отправки сообщения для
+     * часового пояса, в котором находится пользователь.
+     * @param time
+     * @param zone
+     * @returns {Date}
+     */
+    function detectTimeInCurrentTimeZone(time, zone) {
+        let messageTime = new Date(time)
+        let timeZone = (Intl.DateTimeFormat().resolvedOptions().timeZone)
+        const difsTimeZones = getOffsetBetweenTimezonesForDate(new Date(), zone, timeZone)
+        return (new Date(new Date(messageTime).getTime() - difsTimeZones))
     }
 
     function getOffsetBetweenTimezonesForDate(date, timezone1, timezone2) {
@@ -434,13 +469,14 @@ function Chat(props) {
         return new Date(dateString);
     }
 
-    function detectTimeInCurrentTimeZone(time, zone) {
-        let messageTime = new Date(time)
-        let timeZone = (Intl.DateTimeFormat().resolvedOptions().timeZone)
-        const difsTimeZones = getOffsetBetweenTimezonesForDate(new Date(), zone, timeZone)
-        return (new Date(new Date(messageTime).getTime() - difsTimeZones))
-    }
-
+    /**
+     * Функция определяет, когда было отправлено последнее сообщение от пользователей в списке
+     * контактов, для того, чтобы показать пользователю:
+     * время (если отправлено сегодня), вчера, день недели (если отправлено > 2 дней назад),
+     * дату (если отправлено > 7 дней назад)
+     * @returns {string|*|boolean}
+     * @param timeMsg
+     */
     function processTimeSend(timeMsg) {
         let today = new Date()
         let messageTime = new Date(timeMsg)
@@ -472,6 +508,19 @@ function Chat(props) {
 
     }
 
+    function getDayOfWeek(yesterday1, messageTime, days) {
+        yesterday1.setDate(yesterday1.getDate() - 1)
+        if (yesterday1.getDate() === messageTime.getDate() && yesterday1.getMonth() === messageTime.getMonth()) {
+            return days [messageTime.getDay()]
+        } else {
+            return false
+        }
+    }
+
+    /**
+     * Функция сортирует пользователей в списке контактов по последне отправленному сообщению.
+     * @returns {HTML}
+     */
     function sortContacts() {
         let sortedContacts = [...usersWithLastMsg.values()]
         for (let i = 0; i < sortedContacts.length; i++) {
@@ -556,8 +605,13 @@ function Chat(props) {
             )))
     }
 
+    /**
+     * Функция проверяет есть ли непрочитанные сообщения с выбранным пользователем, если есть,
+     * то на сервере статус этих сообщений изменится на READ.
+     *
+     * P.S. Вызывается каждый раз при отображении полученного сообщения (recipient.msg.component), надо бы оптимизировать.
+     */
     function updateStatusMsg() {
-        //Сюда заходить очень часто во время отображения сообщений, надо бы оптимизировать
         const dataMsg = allMessages.get(selectedUser.username)
         if (dataMsg && dataMsg.unRead > 0) {
             let unreadArr = dataMsg.messages.filter(msg => msg.statusMessage === "UNREAD" && msg.senderName === selectedUser.username && !processedUnreadMessages.includes(msg.id))
@@ -565,6 +619,9 @@ function Chat(props) {
                 unreadArr.map(msg => setProcessedUnreadMessages(prevState => (prevState.concat([msg.id]))))
                 ChatService.updateStatusUnreadMessages(unreadArr).then()
             }
+
+            // Отнять количество сообщений, которое мы прочитали. Необходимо для того,
+            // чтобы на клиенте обновить уведомление о количестве непрочитанных сообщений.
             minusUnRead(dataMsg.unRead)
             dataMsg.unRead = 0
             setAllMessages(prev => (prev.set(selectedUser.username, dataMsg)))
@@ -587,6 +644,11 @@ function Chat(props) {
         return true
     }
 
+    /**
+     * Функция проверяет выбранные файлы на ограничения:
+     * кол-во файлов <= 6, размер <= 50МБ.
+     * @param e
+     */
     function uploadFiles(e) {
         const MAX_NUM_FILES = 6
         const MAX_SIZE_FILES = 52428800
@@ -644,7 +706,7 @@ function Chat(props) {
                     <Grid>
                         <Grid container>
                             {/*<Grid xs={2}><UserCardMessage user={selectedUser}/></Grid>*/}
-                            <Grid >
+                            <Grid>
                                 <TextField size="small"
                                            fullWidth
                                            className={classes.inputSearchMsg}

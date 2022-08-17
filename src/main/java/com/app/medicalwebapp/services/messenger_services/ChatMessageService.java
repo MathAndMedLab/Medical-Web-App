@@ -21,24 +21,24 @@ import java.util.stream.Collectors;
 
 @Service
 public class ChatMessageService {
-    @Autowired
-    private ChatMessageRepository chatMessageRepository;
+    private final ChatMessageRepository chatMessageRepository;
+    private final FileService fileService;
 
     @Autowired
-    private ChatFileService chatFileService;
-
-    @Autowired
-    private FileService fileService;
-
-    private void delete(ChatMessage msg) {
-        msg.setDeleted(true);
-        chatMessageRepository.save(msg);
+    public ChatMessageService(ChatMessageRepository chatMessageRepository, FileService fileService){
+        this.chatMessageRepository = chatMessageRepository;
+        this.fileService = fileService;
     }
 
+    /**
+     * Сохранение отправленного сообщения в базу данных.
+     */
     public ChatMessage save(ChatMessageRequest msg) throws Exception {
         List<FileObject> files = new ArrayList<>();
-        if (msg.getLocalFiles() != null) {
-            for (ChatFileRequest file : msg.getLocalFiles()) {
+
+        // Если к сообщению прикреплены файлы, необходимо строку base64 декодировать в byte[] и отправить файл на сохранение.
+        if (msg.getFiles() != null) {
+            for (ChatFileRequest file : msg.getFiles()) {
                 Base64.Decoder decoder = Base64.getDecoder();
                 String fileBase64 = file.getFileContent().split(",")[1];
                 byte[] decodedFileByte = decoder.decode(fileBase64);
@@ -64,10 +64,18 @@ public class ChatMessageService {
         chatMessage.setAttachments(files);
         chatMessage.setDeleted(false);
         var message = chatMessageRepository.save(chatMessage);
-        getImages(List.of(message));
+
+        // Необходимо воспользоваться функцией getImages(), и получить byte[] через функцию fileService.previewFile(),
+        // так как иначе изображение не будет корректно отображено на клиенте.
+        if (message.getAttachments().size() > 0) {
+            getImages(List.of(message));
+        }
         return message;
     }
 
+    /**
+     * Поиск всех сообщений между двумя пользователями.
+     */
     public List<ChatMessage> findMessages(String senderUsername, String recipientUsername) throws Exception {
         String chatId;
         if (senderUsername.compareTo(recipientUsername) < 0) {
@@ -78,7 +86,8 @@ public class ChatMessageService {
         List<ChatMessage> messages;
         Optional<List<ChatMessage>> messagesOptional = chatMessageRepository.findByChatIdAndDeleted(chatId, false);
         messages = messagesOptional.orElseGet(ArrayList::new);
-//        messages = messages.stream().filter(msg -> !msg.isDeleted()).collect(Collectors.toList());
+
+        // Если сообщения были найдены, необходимо проверить наличие в них прикрепленных изображений.
         if (messages.size() > 0) {
             getImages(messages);
         }
@@ -86,6 +95,9 @@ public class ChatMessageService {
         return messages;
     }
 
+    /**
+     * Функция устанавливает в объекты сообщений данные о UID и byte[]
+     */
     public List<ChatMessage> getImages(List<ChatMessage> messages) throws Exception {
         for (ChatMessage message : messages) {
             if (message.getAttachments().size() > 0) {
@@ -95,12 +107,18 @@ public class ChatMessageService {
                 message.setUidFilesDicom(uid);
                 for (int j = 0; j < message.getAttachments().size(); j++) {
                     var format = message.getAttachments().get(j).getFormat();
+                    // Если к сообщению были прикреплены изображения, устанавливаем данные о byte[] и uid в поля объекта,
+                    // но не сохраняем их в базу данных, так как в этом нет необходимости.
+
+                    // Если это изображение, необходимо отправить byte[] для того, чтобы его отобразить на клиенте.
                     if (format == FileObjectFormat.DICOM ||
                             format == FileObjectFormat.JPEG ||
                             format == FileObjectFormat.PNG) {
                         FileObject fileObject = message.getAttachments().get(j);
                         byte[] fileContent = fileService.previewFile(fileObject);
                         message.getImages().add(fileContent);
+
+                        // Если файл формата .dcm необходимо отправить данные о UID.
                         if (format == FileObjectFormat.DICOM) {
                             message.getUidFilesDicom().add(message.getAttachments().get(j).getUID());
                         }
@@ -111,14 +129,20 @@ public class ChatMessageService {
         return messages;
     }
 
+    /**
+     * Поиск непрочитанных сообщений.
+     */
     public List<ChatMessage> findUnreadMessages(Long recipientId) {
         List<ChatMessage> messages;
-        Optional<List<ChatMessage>> messagesOptional = chatMessageRepository.findByRecipientIdAndStatusMessage(recipientId, StatusMessage.UNREAD);
+        Optional<List<ChatMessage>> messagesOptional =
+                chatMessageRepository.findByRecipientIdAndStatusMessageAndDeleted(recipientId, StatusMessage.UNREAD, false);
         messages = messagesOptional.orElseGet(ArrayList::new);
-        messages = messages.stream().filter(msg -> !msg.isDeleted()).collect(Collectors.toList());
         return messages;
     }
 
+    /**
+     * Обновление статуса сообщений на READ (то есть сообщения были прочитаны)
+     */
     public void updateUnreadMessages(List<ChatMessage> messages) {
         for (ChatMessage message : messages) {
             message.setStatusMessage(StatusMessage.READ);
@@ -126,10 +150,21 @@ public class ChatMessageService {
         }
     }
 
+    private void delete(ChatMessage msg) {
+        msg.setDeleted(true);
+        chatMessageRepository.save(msg);
+    }
+
+    /**
+     * Удаление сообщения.
+     */
     public void deleteMessage(ChatMessage message) throws Exception {
         this.delete(message);
     }
 
+    /**
+     * Удаление сообщения с предварительным поиском нужного сообщения по времени отправления и chatId.
+     */
     public void deleteMsgByTimeAndChatId(LocalDateTime time, String senderUsername, String recipientUsername) {
         String chatId;
         if (senderUsername.compareTo(recipientUsername) < 0) {
@@ -144,11 +179,12 @@ public class ChatMessageService {
     public Optional<ChatMessage> findFirstByChatIdOrderBySendDateDesc(String chatId) {
         return chatMessageRepository.findFirstByChatIdAndDeleted_IsFalseOrderByIdDesc(chatId);
     }
+
     public List<ChatMessage> findMessagesByKeywords(String senderUsername, String recipientUsername, String keywordsString) throws Exception {
         String[] keywords = keywordsString.split(" ");
         var allMessages = this.findMessages(senderUsername, recipientUsername);
         var foundMessages = new ArrayList<ChatMessage>();
-        for (String keyword: keywords) {
+        for (String keyword : keywords) {
             foundMessages.addAll(allMessages
                     .stream()
                     .filter(msg -> msg.getContent().contains(keyword))
@@ -158,6 +194,9 @@ public class ChatMessageService {
         return foundMessages;
     }
 
+    /**
+     * Поиск сообщения по времени отправления и chatId.
+     */
     public ChatMessage getMsgByTimeAndChatId(LocalDateTime time, String senderName, String recipientName) {
         String chatId;
         if (senderName.compareTo(recipientName) < 0) {

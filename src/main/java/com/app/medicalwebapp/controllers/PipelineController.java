@@ -17,9 +17,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/pipelines")
 public class PipelineController {
+    private final PipelineRepository pipelineRepository;
 
     @Autowired
-    PipelineRepository pipelineRepository;
+    public PipelineController(PipelineRepository pipelineRepository) {
+        this.pipelineRepository = pipelineRepository;
+    }
 
     @GetMapping("/all")
     public ResponseEntity<?> getAllPipelines() {
@@ -41,8 +44,8 @@ public class PipelineController {
 
     @DeleteMapping("{pipelineJobId}")
     @AuthorizedWithUsername
-    public ResponseEntity<?> deletePipelineJob(@PathVariable Long pipelineId) {
-        pipelineRepository.deleteById(pipelineId);
+    public ResponseEntity<?> deletePipelineJob(@PathVariable Long pipelineJobId) {
+        pipelineRepository.deleteById(pipelineJobId);
         return ResponseEntity.ok().build();
     }
 

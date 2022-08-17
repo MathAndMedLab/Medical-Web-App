@@ -1,4 +1,4 @@
-package com.app.medicalwebapp.controllers;
+package com.app.medicalwebapp.controllers.messenger_controllers;
 
 import com.app.medicalwebapp.controllers.requestbody.MessageResponse;
 import com.app.medicalwebapp.controllers.requestbody.messenger.ChatMessageDeletionRequest;
@@ -21,17 +21,21 @@ import java.util.Objects;
 @CrossOrigin(origins = "*", maxAge = 604800)
 @RestController
 @RequestMapping("/api/msg")
-public class ChatControllerAxios {
+public class ChatControllerHTTP {
+    private final ChatMessageService chatMessageService;
+    private final ContactsService contactsService;
+    private final FileService fileService;
 
     @Autowired
-    private ChatMessageService chatMessageService;
+    public ChatControllerHTTP(ChatMessageService chatMessageService, ContactsService contactsService, FileService fileService) {
+        this.chatMessageService = chatMessageService;
+        this.contactsService = contactsService;
+        this.fileService = fileService;
+    }
 
-    @Autowired
-    private ContactsService contactsService;
-
-    @Autowired
-    FileService fileService;
-
+    /**
+     * Функция принимает запросы о поиске всех сообщений между двумя пользователями.
+     */
     @GetMapping("/all/messages")
     public ResponseEntity<?> getMessages(
             @RequestParam String senderUsername, @RequestParam String recipientUsername
@@ -45,6 +49,9 @@ public class ChatControllerAxios {
         }
     }
 
+    /**
+     * Функция принимает запросы о поиске непрочитанных сообщений для пользователя.
+     */
     @GetMapping("/unread/messages")
     public ResponseEntity<?> getUnreadMessages(
             @RequestParam Long recipientId
@@ -58,6 +65,9 @@ public class ChatControllerAxios {
         }
     }
 
+    /**
+     * Функция принимает запросы на обновления статуса сообщений на READ (то есть сообщения были прочитаны)
+     */
     @PostMapping("/update/messages")
     public ResponseEntity<?> updateMessages(
             @Valid @RequestBody MessagesRequest request
@@ -71,12 +81,17 @@ public class ChatControllerAxios {
         }
     }
 
+    /**
+     * Функция принимает запросы об удалении сообщения.
+     */
     @PostMapping("/delete")
     public ResponseEntity<?> deleteMessages(
             @Valid @RequestBody ChatMessageDeletionRequest request
     ) {
         try {
             chatMessageService.deleteMessage(request.getMessage());
+
+            // Если между пользователями не осталось сообщений, то необходимо их удалить из списка контактов друг друга.
             if (chatMessageService.findMessages(request.getMessage().getSenderName(), request.getMessage().getRecipientName()).isEmpty()) {
                 contactsService.deleteUsersFromEachOthersContacts(request.getMessage().getSenderName(), request.getMessage().getRecipientName());
             }
@@ -87,6 +102,9 @@ public class ChatControllerAxios {
         }
     }
 
+    /**
+     * Функция принимает запросы об удалении сообщения с предварительным поиском нужного сообщения по времени отправления и chatId.
+     */
     @PostMapping("/delete/by/time/chatid")
     public ResponseEntity<?> deleteMsgByTimeAndChatId(@Valid @RequestBody EntityByTimeChatIdRequest request) {
         try {
@@ -112,6 +130,10 @@ public class ChatControllerAxios {
         }
     }
 
+    /**
+     * Функция принимает запросы на скачивание файла из мессенджера. Производится поиск нужного сообщения по времени
+     * отправления и chatId, к которому был прикреплен этот файл.
+     */
     @GetMapping("download/by/send/date/{time}/{senderName}/{recipientName}/{fileName}")
     public ResponseEntity<?> downloadFileBySendDateMsg(
             @PathVariable String time, @PathVariable String senderName,

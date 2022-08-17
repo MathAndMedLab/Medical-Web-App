@@ -32,6 +32,10 @@ class RecordService {
         return axios.post(API_URL + 'create', {title, content, topics, files, parentId}, {headers: authHeader()});
     }
 
+    deleteRecord(recordId){
+        return axios.delete(API_URL + "delete/" + recordId, {headers: authHeader()});
+    }
+
     createRequestParamsForGet(page, pageSize, searchTitle, selectedTopicValue) {
         let params = {};
 

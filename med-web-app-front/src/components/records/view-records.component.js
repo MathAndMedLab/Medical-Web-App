@@ -31,23 +31,23 @@ const useStyles = theme => ({
         }
     },
     paper: {
-        justifyContent:"center",
+        justifyContent: "center",
         marginLeft: theme.spacing(1),
-        [theme.breakpoints.down("xs")]:{
+        [theme.breakpoints.down("xs")]: {
             width: 270,
             height: 42,
             padding: '2px 4px',
             alignItems: 'center',
 
         },
-        [theme.breakpoints.between("sm", "md")]:{
+        [theme.breakpoints.between("sm", "md")]: {
             width: 600,
             height: 42,
             padding: '2px 4px',
             alignItems: 'flex-end',
 
         },
-        "@media (min-width : 1280px)":{
+        "@media (min-width : 1280px)": {
             width: 800,
             height: 42,
             padding: '2px 4px',
@@ -58,7 +58,7 @@ const useStyles = theme => ({
     input: {
         marginLeft: theme.spacing(1),
         //flex: 1,
-        flexGrow:1,
+        flexGrow: 1,
         width: "85%",
         /*[theme.breakpoints.between("sm", "md")]:{
           width: 600
@@ -68,7 +68,7 @@ const useStyles = theme => ({
         [theme.breakpoints.down("xs")]: {
             padding: 0,
         },
-        [theme.breakpoints.between("sm", "md")]:{
+        [theme.breakpoints.between("sm", "md")]: {
             padding: 0,
 
         },
@@ -78,13 +78,13 @@ const useStyles = theme => ({
             margin: 0
         },
         [theme.breakpoints.down("xs")]: {
-            marginLeft:theme.spacing(1),
+            marginLeft: theme.spacing(1),
             width: 270,
         },
-        [theme.breakpoints.between("sm", "md")]:{
+        [theme.breakpoints.between("sm", "md")]: {
             width: 650
         },
-        "@media (min-width : 1280px)":{
+        "@media (min-width : 1280px)": {
             width: 800,
         },
     },
@@ -104,13 +104,13 @@ const useStyles = theme => ({
     },
     mainGrid: {
         display: 'flex',
-        [theme.breakpoints.down("xs")]:{
+        [theme.breakpoints.down("xs")]: {
             minWidth: 200,
         },
-        [theme.breakpoints.between("sm", "md")]:{
-            mindWidth:500,
+        [theme.breakpoints.between("sm", "md")]: {
+            mindWidth: 500,
         },
-        "@media (min-width : 1280px)":{
+        "@media (min-width : 1280px)": {
             minWidth: 1000.
         },
     },
@@ -119,42 +119,40 @@ const useStyles = theme => ({
         padding: theme.spacing(3),
         color: "black",
         //position:"fixed",
-        "@media (min-width: 980px)":{
+        "@media (min-width: 980px)": {
             left: "70%"
         }
     },
     firstGrid: {
         marginTop: theme.spacing(3),
         alignItems: "center",
-        justifyContent:"flex-end"
+        justifyContent: "flex-end"
     },
     grid: {
         margin: theme.spacing(1),
         alignItems: 'center',
         flexDirection: 'column',
         display: 'flex',
-        justifyContent:"flex-end"
+        justifyContent: "flex-end"
     },
     record: {
         minWidth: 1000
     },
-    Drawer:{
+    Drawer: {
         position: "fixed",
-        top:"92%",
-        left:"85%"
+        top: "92%",
+        left: "85%"
     },
-    pageCounter:{
-
-    },
-    RecordsContainer:{
-        display:"flex",
-        "@media (max-width: 376px)":{
-            alignItems:"flex-start",
+    pageCounter: {},
+    RecordsContainer: {
+        display: "flex",
+        "@media (max-width: 376px)": {
+            alignItems: "flex-start",
             marginLeft: theme.spacing(1)
         },
-        alignItems:"center",
-        "@media (min-width: 768px)":{
-            marginLeft:theme.spacing(0),
+        alignItems: "center",
+        "@media (min-width: 768px)": {
+            marginLeft: theme.spacing(0),
         }
     }
 
@@ -171,7 +169,7 @@ const MenuProps = {
     },
 };
 
-const DrawRightSide = (props) =>{
+const DrawRightSide = (props) => {
     const [width, setWidth] = React.useState(window.innerWidth);
     const classes = props.classes;
     React.useEffect(() => {
@@ -183,29 +181,28 @@ const DrawRightSide = (props) =>{
             window.removeEventListener("resize", handleResizeWindow);
         };
     }, []);
-    if(width > 980){
-        return (<Grid xs={4} item>
-                <Card className={classes.paper2} >
-                    <Grid className={classes.grid}>
-                        <Link to={"/records/create"} style={{textDecoration: 'none'}}>
-                            <Button className={classes.button} title={"Создать пост"}>
-                                Создать пост
-                            </Button>
-                        </Link>
-                        <Link to={"/topics/create"} style={{textDecoration: 'none'}}>
-                            <Button className={classes.button} title={"Страница тэгов"}>
-                                Страница тэгов
-                            </Button>
-                        </Link>
-                    </Grid>
-                </Card>
-            </Grid>);
-        }
-    else{
-        return(
-        <div className={classes.Drawer}>
-        <TemporaryDrawer/>
-        </div>);
+    if (width > 980) {
+        return (<Grid xs={4} item={true}>
+            <Card className={classes.paper2}>
+                <Grid className={classes.grid}>
+                    <Link to={"/records/create"} style={{textDecoration: 'none'}}>
+                        <Button className={classes.button} title={"Создать пост"}>
+                            Создать пост
+                        </Button>
+                    </Link>
+                    <Link to={"/topics/create"} style={{textDecoration: 'none'}}>
+                        <Button className={classes.button} title={"Страница тэгов"}>
+                            Страница тэгов
+                        </Button>
+                    </Link>
+                </Grid>
+            </Card>
+        </Grid>);
+    } else {
+        return (
+            <div className={classes.Drawer}>
+                <TemporaryDrawer/>
+            </div>);
     }
 
 }
@@ -358,7 +355,7 @@ class ViewRecordsList extends Component {
         return (
             <Grid item className={classes.mainGrid}>
                 <Grid item xs={12} className={classes.firstGrid}>
-                    <Grid item xs={8} >
+                    <Grid item xs={8}>
                         {/*<input
                             type="text"
                             className="form-control"
@@ -383,9 +380,10 @@ class ViewRecordsList extends Component {
                                 placeholder="Поиск"
                                 // inputProps={{ 'aria-label': 'search google maps' }}
                             />
-                            <IconButton type="button" onClick={this.getRecords} className={classes.iconButton} aria-label="search"
-                            title={"Поиск"}>
-                                <SearchIcon />
+                            <IconButton type="button" onClick={this.getRecords} className={classes.iconButton}
+                                        aria-label="search"
+                                        title={"Поиск"}>
+                                <SearchIcon/>
                             </IconButton>
                         </Paper>
 
@@ -425,11 +423,11 @@ class ViewRecordsList extends Component {
 
                             >{"Количество постов на странице: "}</div>
                             <SelectReact className="col-2"
-                                    onChange={this.handlePageSizeChange}
-                                    options={this.pageSizes}
-                                    autoFocus={true}
-                                    defaultValue={this.pageSizes[2]}
-                                    styles={stylesForSmallSelectBox}
+                                         onChange={this.handlePageSizeChange}
+                                         options={this.pageSizes}
+                                         autoFocus={true}
+                                         defaultValue={this.pageSizes[2]}
+                                         styles={stylesForSmallSelectBox}
                             />
                         </div>
 
@@ -442,20 +440,21 @@ class ViewRecordsList extends Component {
                             variant="outlined"
                             shape="rounded"
                             onChange={this.handlePageChange}
-                            style={{ display: "flex", justifyContent: "center" }}
+                            style={{display: "flex", justifyContent: "center"}}
                         />
                     </div>
 
 
-                    <Grid container direction={"column"} className={classes.RecordsContainer} >
+                    <Grid container direction={"column"} className={classes.RecordsContainer}>
                         {this.state.records &&
                         this.state.records.map((record, index) => (
                             <Grid item
-                                style={{listStyleType: "none",padding: 0,width:"70%",marginBottom:"10px"}}
-                                key={index}
+                                  style={{listStyleType: "none", padding: 0, width: "70%", marginBottom: "10px"}}
+                                  key={index}
                                 // onClick={() => this.displayRecordThread(record)}
                             >
-                                <RecordCard record={record} isPreview={true} isReply={false} />
+                                <RecordCard record={record} isPreview={true} isReply={false}
+                                            getRecords={this.getRecords}/>
                                 <Divider/>
                             </Grid>
 
@@ -463,7 +462,7 @@ class ViewRecordsList extends Component {
 
                     </Grid>
                 </Grid>
-                <DrawRightSide classes = {classes}/>
+                <DrawRightSide classes={classes}/>
 
                 {/*<div className="col-sm-2">
                     <Button variant="contained" href="/records/create" className={classes.button}>
@@ -532,7 +531,7 @@ const stylesForSmallSelectBox = {
         minHeight: '30px',
         height: '30px',
         width: 70,
-        "@media (max-width : 394px)":{
+        "@media (max-width : 394px)": {
             //marginLeft: 75
         },
 
@@ -543,7 +542,7 @@ const stylesForSmallSelectBox = {
         ...provided,
         height: '30px',
         padding: '0 6px',
-        "@media (max-width : 394px)":{
+        "@media (max-width : 394px)": {
             width: 50,
         },
     }),

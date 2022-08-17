@@ -10,9 +10,13 @@ import java.util.Optional;
 
 @Service
 public class UserService {
+    private final UserRepository userRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
 
     public List<User> getAll() {
         List<User> us = null;
@@ -58,7 +62,7 @@ public class UserService {
     }
 
     public User getById(Long id) {
-        return userRepository.getOne(id);
+        return userRepository.getById(id);
     }
 
     public User save(User user) {

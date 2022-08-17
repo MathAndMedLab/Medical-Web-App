@@ -1,11 +1,14 @@
-import React, {Component} from "react";
+import React, {useEffect, useState} from "react";
 import AuthService from "../../services/auth.service";
 import AttachmentService from "../../services/attachment.service";
 import '../../styles/Record.css'
-import {Button, Grid, Paper, Tooltip, withStyles} from "@material-ui/core";
+import {Button, Grid, ImageList, Paper, Tooltip, withStyles} from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
 import {purple} from "@material-ui/core/colors";
 import {Link} from "react-router-dom";
+import DeleteIcon from "@mui/icons-material/Delete";
+import Modal from "react-bootstrap/Modal";
+import RecordService from "../../services/record.service";
 
 const useStyles = theme => ({
     palette: {
@@ -103,206 +106,240 @@ const useStyles = theme => ({
             color: '#fff',
         }
     },
+    deleteIcon: {
+        marginLeft: 3,
+        color: '#000000',
+        float: "right",
+        '&:hover': {
+            cursor: "pointer",
+        }
+    },
 })
 
-class RecordCardNew extends Component {
-    constructor(props) {
-        super(props);
+function RecordCardNew(props) {
+    const {classes} = props
+    const {record} = props
+    const {isPreview} = props
+    const {isReply} = props
+    const {getRecords} = props
+    const creationTime = formatTime()
+    const [currentUser, setCurrentUser] = useState(AuthService.getCurrentUser())
+    const [filePreviews, setFilePreviews] = useState([])
+    const [dicoms, setDicoms] = useState([])
+    const [modalShow, setModalShow] = useState(false)
+    const [refresh, setRefresh] = useState({})
 
-        this.download = this.download.bind(this);
-        this.formatTime = this.formatTime.bind(this);
-        this.getContent = this.getContent.bind(this);
-        this.displayRecordThread = this.displayRecordThread.bind(this);
-        this.openDicomViewer = this.openDicomViewer.bind(this);
-        this.getOffsetBetweenTimezonesForDate = this.getOffsetBetweenTimezonesForDate.bind(this);
-        this.convertDateToAnotherTimeZone = this.convertDateToAnotherTimeZone.bind(this);
-
-        this.state = {
-            currentUser: AuthService.getCurrentUser(),
-            filePreviews: [],
-            dicoms: [],
-        };
-
-        this.record = this.props.record;
-        this.isPreview = this.props.isPreview;
-        this.isReply = this.props.isReply;
-        this.creationTime = this.formatTime();
-    }
-
-    getOffsetBetweenTimezonesForDate(date, timezone1, timezone2) {
-        const timezone1Date = this.convertDateToAnotherTimeZone(date, timezone1);
-        const timezone2Date = this.convertDateToAnotherTimeZone(date, timezone2);
+    function getOffsetBetweenTimezonesForDate(date, timezone1, timezone2) {
+        const timezone1Date = convertDateToAnotherTimeZone(date, timezone1);
+        const timezone2Date = convertDateToAnotherTimeZone(date, timezone2);
         return timezone1Date.getTime() - timezone2Date.getTime();
     }
 
-    convertDateToAnotherTimeZone(date, timezone) {
+    function convertDateToAnotherTimeZone(date, timezone) {
         const dateString = date.toLocaleString('en-US', {
             timeZone: timezone
         });
         return new Date(dateString);
     }
 
-    getContent(content) {
-        if (this.props.isPreview && content != null && content.length > 1000) {
+    function getContent(content) {
+        if (isPreview && content != null && content.length > 1000) {
             return content.substring(0, 1000) + '...';
         }
         return content;
     }
 
-    formatTime() {
+    function formatTime() {
         let timeZone = (Intl.DateTimeFormat().resolvedOptions().timeZone)
-        const difsTimeZones = this.getOffsetBetweenTimezonesForDate(new Date(), this.record.timeZone, timeZone)
-        return (new Date(new Date(this.record.creationTime).getTime() - difsTimeZones))
+        const difsTimeZones = getOffsetBetweenTimezonesForDate(new Date(), record.timeZone, timeZone)
+        return (new Date(new Date(record.creationTime).getTime() - difsTimeZones))
     }
 
-    displayRecordThread() {
-        this.props.history.push({
-            pathname: '/records/thread/' + this.record.id,
-            state: {recordId: this.record.id}
+    function displayRecordThread() {
+        props.history.push({
+            pathname: '/records/thread/' + record.id,
+            state: {recordId: record.id}
         });
         window.location.reload();
     }
 
-    componentDidMount() {
+    useEffect(() => {
         let preview = [];
-        let dicom = [];
-        if (this.record.attachments !== undefined && this.record.attachments !== null) {
-            for (let i = 0; i < this.record.attachments.length; i++) {
-                if (this.record.attachments[i].initialName.endsWith(".jpg") ||
-                    this.record.attachments[i].initialName.endsWith(".png") ||
-                    this.record.attachments[i].initialName.endsWith(".dcm")) {
-                    AttachmentService.getPreviewNew(this.record.attachments[i].id).then(response => {
-                        dicom.push(response.data)
-                        preview.push({id: this.record.attachments[i].id, image: URL.createObjectURL(response.data)});
-                        this.setState({filePreviews: preview, dicoms: dicom}
-                        )
-                        ;
+        if (record.attachments !== undefined && record.attachments !== null) {
+            for (let i = 0; i < record.attachments.length; i++) {
+                if (record.attachments[i].initialName.endsWith(".jpg") ||
+                    record.attachments[i].initialName.endsWith(".png") ||
+                    record.attachments[i].initialName.endsWith(".dcm")) {
+                    AttachmentService.getPreviewNew(record.attachments[i].id).then(response => {
+                        preview.push({id: record.attachments[i].id, image: URL.createObjectURL(response.data)});
+                        setFilePreviews(preview)
+                        setRefresh({}) // Данное состояние обновляется для принудительного рендеринга страницы.
                     }).catch(error => {
                         console.log(error);
                     })
                 }
             }
         }
-    }
+    }, [])
 
-    download(fileId, initialFileName) {
+    function download(fileId, initialFileName) {
         AttachmentService.downloadAttachment(fileId, initialFileName);
     }
 
-    endsWith(str, suffix) {
+    function endsWith(str, suffix) {
         return str.indexOf(suffix, str.length - suffix.length) !== -1;
     }
 
-    openDicomViewer(uid) {
+    function openDicomViewer(uid) {
         const url = window.location.href
         const num = url.indexOf(":7999")
         window.open(url.slice(0, num + 1) + "3000/viewer/" + uid, '_blank')
     }
 
-    render() {
-        const {classes} = this.props;
+    function deleteFile(id) {
+        RecordService.deleteRecord(id).then(() => {
+                if (isPreview) {
+                    getRecords()
+                } else {
+                    window.location.href = 'http://localhost:8081/#/records/view'
+                }
+            }
+        )
+        setModalShow(false)
+    }
+
+    function DeleteModal() {
         return (
-            <Paper className={classes.paper} variant="outlined">
-                <Grid container item xs={12} sm direction={"column"} className={classes.mainGrid}>
-                    <Grid container item className={classes.ggrid} xs direction={"row"} spacing={1}>
-                        <Grid className={classes.gridCreatorName} title ={this.record.creator.username}>
-                            <Link style={{color: "black"}} to={"/profile/" + this.record.creator.username}>
-                                {this.record.creator.username}
-                            </Link>
-                        </Grid>
-                        <Grid className={classes.ggrid}>
-                            <Typography variant={"subtitle1"}>
-                                {
-                                    (((new Date(this.creationTime).getHours() < 10 && "0" + new Date(this.creationTime).getHours())
-                                            || (new Date(this.creationTime).getHours() >= 10 && new Date(this.creationTime).getHours())) + ":"
-                                        + ((new Date(this.creationTime).getMinutes() < 10 && "0" + new Date(this.creationTime).getMinutes())
-                                            || (new Date(this.creationTime).getMinutes() >= 10 && new Date(this.creationTime).getMinutes())
-                                        )) + "    " + (
-                                        ((new Date(this.creationTime).getDate() < 10 && "0" + new Date(this.creationTime).getDate()) ||
-                                            (new Date(this.creationTime).getDate() >= 10 && new Date(this.creationTime).getDate()))
-                                        + "."
-                                        + (((new Date(this.creationTime).getMonth() + 1) < 10 && "0" +
-                                            (new Date(this.creationTime).getMonth() + 1)) || (((new Date(this.creationTime).getMonth() + 1) >= 10 && (new Date(this.creationTime).getMonth() + 1))))
-                                        + "." + new Date(this.creationTime).getFullYear()
-                                    )}
-                            </Typography>
-                        </Grid>
-                    </Grid>
-                    <Grid className={classes.grid}>
-                        {this.isPreview ? (
-                            <Typography variant="h6" title={this.record.title}>{/*gutterBottom*/}
-                                <Link style={{color: "black"}} to={"/records/thread/" + this.record.id}>
-                                    {this.record.title}
-                                </Link>
-                            </Typography>
-                        ) : (
-                            <Typography variant="h6">{/*gutterBottom*/}
-                                {this.record.title}
-                            </Typography>)
-                        }
-                    </Grid>
-                    <Grid className={classes.gridContent}>
-                        <Typography variant="body1" className={classes.content}>{/*gutterBottom*/}
-                            {this.getContent(this.record.content)}
-                        </Typography>
-                    </Grid>
-                    <Grid className={classes.grid} container direction={"row"} spacing={1}>
-                        {this.record.topics && this.record.topics.map(el => (
-                            <Grid item key={el.id} color={"#616161"}>
-                                <Typography className={classes.tagsColor}>
-                                    {el.name}
-                                </Typography>
-                            </Grid>
-                        ))}
-                    </Grid>
-
-
-                    {/*<div id={containerId} />*/}
-
-                    {!this.isPreview && this.state.filePreviews.map((el, index) => (
-                        // <Tooltip title="Открыть в DICOM Viewer">
-                        //     <a href={"http://localhost:3000/viewer/" + this.record.attachments[index].uid} target="_blank">
-                        //         <Button><img className="col-sm-8 top-buffer-10" key={el.id} alt="" src={el.image}>
-                        //         </img>
-                        //         </Button>
-                        //
-                        //     </a>
-                        // </Tooltip>
-                        <Tooltip title="Открыть в DICOM Viewer">
-                            <img onClick={() => this.openDicomViewer(this.record.attachments[index].uid)}
-                                 className="col-sm-8 top-buffer-10" key={el.id} alt="" src={el.image}
-                                 style={{cursor: 'pointer'}}
-                            >
-                            </img>
-                        </Tooltip>
-                    ))}
-
-                    {!this.isPreview && this.record.attachments.map(el => (
-                        // <img key={el.id} alt="" className="col-sm-6 top-buffer-10" src={el.image} />
-                        <div key={el.id} className="row top-buffer-10">
-                            {/*<div className="col-sm-5">{el.initialName}</div>*/}
-                            <div>
-                                <button
-                                    style={{marginLeft: "30px", borderStyle: "none"}}
-                                    className="btn-sm btn-primary color-white"
-                                    onClick={() => this.download(el.id, el.initialName)}>
-                                    <i className="fa fa-download"> Скачать {el.initialName}</i>
-                                </button>
-                            </div>
-                        </div>
-                    ))}
-
-
-                    {this.isPreview &&
-                    <div className="col-sm-2 fa fa-comments"
-                         style={{"float": "right"}}> {this.record.numberOfReplies}</div>
-                    }
-
-
-                </Grid>
-            </Paper>
+            <Modal show={modalShow} centered='true' aria-labelledby="contained-modal-title-vcenter">
+                <Modal.Header>
+                    <Modal.Title id="contained-modal-title-vcenter">
+                        Подтвердить удаление
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <div className="alert alert-danger">Вы дейтвительно хотите удалить пост?</div>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button onClick={() => setModalShow(false)}>
+                        Отмена
+                    </Button>
+                    <Button onClick={() => deleteFile(record.id)}>
+                        Удалить
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         );
     }
+
+    return (
+        <Paper className={classes.paper} variant="outlined">
+            <Grid container item={true} xs={12} sm direction={"column"} className={classes.mainGrid}>
+                <Grid container item={true} className={classes.ggrid} xs direction={"row"} spacing={1}>
+                    <Grid className={classes.gridCreatorName} title={record.creator.username}>
+                        <Link style={{color: "black"}} to={"/profile/" + record.creator.username}>
+                            {record.creator.username}
+                        </Link>
+                    </Grid>
+                    <Grid className={classes.ggrid}>
+                        <Typography variant={"subtitle1"}>
+                            {
+                                (((new Date(creationTime).getHours() < 10 && "0" + new Date(creationTime).getHours())
+                                        || (new Date(creationTime).getHours() >= 10 && new Date(creationTime).getHours())) + ":"
+                                    + ((new Date(creationTime).getMinutes() < 10 && "0" + new Date(creationTime).getMinutes())
+                                        || (new Date(creationTime).getMinutes() >= 10 && new Date(creationTime).getMinutes())
+                                    )) + "    " + (
+                                    ((new Date(creationTime).getDate() < 10 && "0" + new Date(creationTime).getDate()) ||
+                                        (new Date(creationTime).getDate() >= 10 && new Date(creationTime).getDate()))
+                                    + "."
+                                    + (((new Date(creationTime).getMonth() + 1) < 10 && "0" +
+                                        (new Date(creationTime).getMonth() + 1)) || (((new Date(creationTime).getMonth() + 1) >= 10 && (new Date(creationTime).getMonth() + 1))))
+                                    + "." + new Date(creationTime).getFullYear()
+                                )}
+                        </Typography>
+                        {(record.creator.username === AuthService.getCurrentUser().username || AuthService.getCurrentUser().username === "admin") &&
+                        <DeleteIcon onClick={() => setModalShow(true)} className={classes.deleteIcon}
+                        />}
+                        <DeleteModal/>
+                    </Grid>
+                </Grid>
+                <Grid className={classes.grid}>
+                    {isPreview ? (
+                        <Typography variant="h6" title={record.title}>{/*gutterBottom*/}
+                            <Link style={{color: "black"}} to={"/records/thread/" + record.id}>
+                                {record.title}
+                            </Link>
+                        </Typography>
+                    ) : (
+                        <Typography variant="h6">
+                            {record.title}
+                        </Typography>)
+                    }
+                </Grid>
+                <Grid className={classes.gridContent}>
+                    <Typography variant="body1" className={classes.content}>{/*gutterBottom*/}
+                        {getContent(record.content)}
+                    </Typography>
+                </Grid>
+                <Grid className={classes.grid} container direction={"row"} spacing={1}>
+                    {record.topics && record.topics.map(el => (
+                        <Grid item key={el.id} color={"#616161"}>
+                            <Typography className={classes.tagsColor}>
+                                {el.name}
+                            </Typography>
+                        </Grid>
+                    ))}
+                </Grid>
+
+
+                {/*<div id={containerId} />*/}
+                {!isPreview && filePreviews.length > 0 &&
+                <Grid>
+                    {filePreviews.map((el, index) => (
+                        <Grid>
+                            {
+                                record.attachments[index].uid ?
+                                    <Tooltip title="Открыть в DICOM Viewer">
+                                        <img onClick={() => openDicomViewer(record.attachments[index].uid)}
+                                             className="col-sm-8 top-buffer-10" key={el.id} alt="" src={el.image}
+                                             style={{cursor: 'pointer'}}
+                                        >
+                                        </img>
+                                    </Tooltip>
+                                    :
+                                    <img
+                                        className="col-sm-8 top-buffer-10" key={el.id} alt="" src={el.image}
+                                    >
+                                    </img>
+                            }
+                        </Grid>
+                    ))}
+                </Grid>
+                }
+                {!isPreview && record.attachments.map(el => (
+                    // <img key={el.id} alt="" className="col-sm-6 top-buffer-10" src={el.image} />
+                    <div key={el.id} className="row top-buffer-10">
+                        {/*<div className="col-sm-5">{el.initialName}</div>*/}
+                        <div>
+                            <button
+                                style={{marginLeft: "30px", borderStyle: "none", marginTop: "8px"}}
+                                className="btn-sm btn-primary color-white"
+                                onClick={() => download(el.id, el.initialName)}>
+                                <i className="fa fa-download"> Скачать {el.initialName}</i>
+                            </button>
+                        </div>
+                    </div>
+                ))}
+
+
+                {isPreview &&
+                <div className="col-sm-2 fa fa-comments"
+                     style={{"float": "right"}}> {record.numberOfReplies}</div>
+                }
+
+
+            </Grid>
+        </Paper>
+    );
 }
 
 export default withStyles(useStyles)(RecordCardNew)

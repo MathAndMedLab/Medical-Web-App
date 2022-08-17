@@ -1,10 +1,10 @@
 package com.app.medicalwebapp.controllers;
 
+import com.app.medicalwebapp.controllers.requestbody.MessageResponse;
 import com.app.medicalwebapp.exceptions.ObjectNotExistsException;
 import com.app.medicalwebapp.model.FileObject;
 import com.app.medicalwebapp.repositories.FileObjectRepository;
 import com.app.medicalwebapp.security.UserDetailsImpl;
-import com.app.medicalwebapp.controllers.requestbody.MessageResponse;
 import com.app.medicalwebapp.services.FileService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,15 +23,20 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/files")
 public class FileObjectController {
+    private final FileObjectRepository fileObjectRepository;
+    private final FileService fileService;
 
     Logger log = LoggerFactory.getLogger(FileObjectController.class);
 
     @Autowired
-    FileObjectRepository fileObjectRepository;
+    public FileObjectController(FileObjectRepository fileObjectRepository, FileService fileService) {
+        this.fileObjectRepository = fileObjectRepository;
+        this.fileService = fileService;
+    }
 
-    @Autowired
-    FileService fileService;
-
+    /**
+     * Функция принимает запросы для загрузки файла. UID - передается в случае загрузки .dcm файлов.
+     */
     @PostMapping("/upload/{UID}")
     public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file, @PathVariable String UID) {
         try {
@@ -46,11 +51,14 @@ public class FileObjectController {
         }
     }
 
+    /**
+     * Функция принимает запросы для получения файлов, чтобы показать их пользователю.
+     */
     @GetMapping("{username}")
     public ResponseEntity<?> getAllFilesForUser(@PathVariable String username) {
         if (username.equals(getAuthenticatedUser().getUsername())) {
             List<FileObject> filesInfo = fileObjectRepository.findByOwnerAndDeleted(getAuthenticatedUser().getId(), false);
-            filesInfo.stream().forEach(fileInfo -> fileInfo.setDownloadLink(
+            filesInfo.forEach(fileInfo -> fileInfo.setDownloadLink(
                     MvcUriComponentsBuilder
                             .fromMethodName(FileObjectController.class, "downloadFile", fileInfo.getId())
                             .build().toString()
@@ -64,7 +72,7 @@ public class FileObjectController {
     public ResponseEntity<?> getFilesList(@PathVariable String username) {
         if (username.equals(getAuthenticatedUser().getUsername())) {
             List<FileObject> filesInfo = fileObjectRepository.findByOwner(getAuthenticatedUser().getId());
-            filesInfo.stream().forEach(fileInfo -> fileInfo.setDownloadLink(
+            filesInfo.forEach(fileInfo -> fileInfo.setDownloadLink(
                     MvcUriComponentsBuilder
                             .fromMethodName(FileObjectController.class, "downloadFile", fileInfo.getId())
                             .build().toString()
@@ -74,6 +82,9 @@ public class FileObjectController {
         return ResponseEntity.badRequest().body(new MessageResponse("Нет прав доступа к этому контенту"));
     }
 
+    /**
+     * Функция принимает запросы для скачивания файла.
+     */
     @GetMapping("download/{fileId}")
     public ResponseEntity<?> downloadFile(@PathVariable Long fileId) {
         try {
@@ -97,6 +108,9 @@ public class FileObjectController {
         }
     }
 
+    /**
+     * Функция принимает запросы для удаления файла.
+     */
     @DeleteMapping("delete/{fileId}")
     public ResponseEntity<?> deleteFile(@PathVariable Long fileId) {
         try {
@@ -112,6 +126,9 @@ public class FileObjectController {
         }
     }
 
+    /**
+     * Функция принимает запросы для редактирования имени файла.
+     */
     @PostMapping("rename/{fileId}")
     public ResponseEntity<?> renameFile(@RequestParam("name") String newName, @PathVariable Long fileId) {
         try {
@@ -128,7 +145,9 @@ public class FileObjectController {
         }
     }
 
-
+    /**
+     * Функция принимает запросы для отображения файла.
+     */
     @GetMapping("preview/{fileId}")
     public ResponseEntity<?> previewFile(@PathVariable Long fileId) {
         try {
@@ -149,6 +168,9 @@ public class FileObjectController {
         }
     }
 
+    /**
+     * Получение текущего авторизированного пользователя.
+     */
     private UserDetailsImpl getAuthenticatedUser() {
         return (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }

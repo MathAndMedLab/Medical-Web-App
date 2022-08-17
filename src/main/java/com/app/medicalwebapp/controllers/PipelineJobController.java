@@ -24,18 +24,18 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/pipelinejobs")
 public class PipelineJobController {
+    private final PipelineJobRepository pipelineJobRepository;
+    private final FileObjectRepository fileObjectRepository;
+    private final PipelineRepository pipelineRepository;
+    private final PipelineExecutor pipelineExecutor;
 
     @Autowired
-    PipelineJobRepository pipelineJobRepository;
-
-    @Autowired
-    FileObjectRepository fileObjectRepository;
-
-    @Autowired
-    PipelineRepository pipelineRepository;
-
-    @Autowired
-    PipelineExecutor pipelineExecutor;
+    public PipelineJobController(PipelineJobRepository pipelineJobRepository, FileObjectRepository fileObjectRepository, PipelineRepository pipelineRepository, PipelineExecutor pipelineExecutor) {
+        this.pipelineJobRepository = pipelineJobRepository;
+        this.fileObjectRepository = fileObjectRepository;
+        this.pipelineRepository = pipelineRepository;
+        this.pipelineExecutor = pipelineExecutor;
+    }
 
     @GetMapping("{username}")
     @AuthorizedWithUsername

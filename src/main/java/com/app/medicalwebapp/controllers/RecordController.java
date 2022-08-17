@@ -4,8 +4,6 @@ import com.app.medicalwebapp.controllers.requestbody.RecordCreationRequest;
 import com.app.medicalwebapp.controllers.requestbody.RecordsPageResponse;
 import com.app.medicalwebapp.security.UserDetailsImpl;
 import com.app.medicalwebapp.services.RecordService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,11 +17,12 @@ import java.util.Objects;
 @RestController
 @RequestMapping("/api/records")
 public class RecordController {
-
-    Logger log = LoggerFactory.getLogger(RecordController.class);
+    private final RecordService recordService;
 
     @Autowired
-    RecordService recordService;
+    public RecordController(RecordService recordService) {
+        this.recordService = recordService;
+    }
 
     @GetMapping("/all/root")
     public ResponseEntity<?> getAllRootRecords(
@@ -72,6 +71,17 @@ public class RecordController {
     public ResponseEntity<?> saveRecord(@Valid @RequestBody RecordCreationRequest request) {
         try {
             recordService.saveRecord(request, getAuthenticatedUserId(), request.getParentId());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/delete/{recordId}")
+    public ResponseEntity<?> deleteRecord(@PathVariable Long recordId) {
+        try {
+            recordService.delete(recordId);
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);

@@ -243,16 +243,30 @@ function App(props) {
     }
 
     const {classes} = props
-    const [numberOfUnRead, setNumberOfUnRead] = useState(0)
     // const [showModeratorBoard, setShowModeratorBoard] = useState(false)
     // const [showAdminBoard, setShowAdminBoard] = useState(false)
     const [currentUser, setCurrentUser] = useState(null)
     const [refresh, setRefresh] = useState({})
-    const [allMessages, setAllMessages] = useState(new Map())
-    const [usersWithLastMsgReceived, setUsersWithLastMsgReceived] = useState(new Map())
     const [width, setWidth] = React.useState(window.innerWidth);
     const [open, setOpen] = useState(LeftMenuOpen(width));
 
+    /**
+     * Состояние allMessages имеет вид:
+     * key - содержит логин пользователя с кем ведется переписка, value - содержит массив сообщений и переменную,
+     * о количестве непрочитанных сообщений с этим пользователем.
+     *
+     * Состояние usersWithLastMsgReceived имеет вид:
+     * key - содержит логин пользователя с кем ведется переписка, value - содержит полную информацию о пользователе
+     * с кем ведется переписка и последнее отправленное сообщение с этим пользователем. Необходимо, чтобы отображать список
+     * контактов и последнее сообщение с каждым из них.
+     *
+     * Состояние numberOfUnRead содержит общее количество непрочитанных сообщений.
+     *
+     * Для лучшего понимания просмотрите console.log() с этими переменными.
+     */
+    const [allMessages, setAllMessages] = useState(new Map())
+    const [usersWithLastMsgReceived, setUsersWithLastMsgReceived] = useState(new Map())
+    const [numberOfUnRead, setNumberOfUnRead] = useState(0)
 
     useEffect(() => {
         const user = AuthService.getCurrentUser()
@@ -273,11 +287,16 @@ function App(props) {
         }
     }, [])
 
+    /**
+     * Получение всех непрочитанных сообщений, адресованных пользователю.
+     */
     function getUnreadMessages() {
         ChatService.getUnreadMessages(AuthService.getCurrentUser().id)
             .then((response) => {
                 if (response.data.length > 0) {
                     for (let index = 0; index < response.data.length; index++) {
+                        // Проверка есть ли "история переписки" с пользователем от которого имеются непрочитанные
+                        // сообщения, если есть, то сообщение добавится к существующим.
                         if (allMessages.get(response.data[index].senderName)) {
                             let list = allMessages.get(response.data[index].senderName).messages
                             list.push(response.data[index])
@@ -291,7 +310,7 @@ function App(props) {
                             setAllMessages(prev => (prev.set(response.data[index].senderName, valueMap)))
                         }
                     }
-                    setNumberOfUnRead(response.data.length)
+                    setNumberOfUnRead(response.data.length) // Присвоение состоянию общего кол-ва непрочитанных сообщений.
                 }
             })
             .catch((e) => {
@@ -299,12 +318,34 @@ function App(props) {
             })
     }
 
+    /**
+     * Подключение к чату через websocket.
+     */
+    function connectToChat() {
+        let Sock = new SockJS('/api/ws')
+        stompClient = over(Sock)
+        stompClient.debug= null
+        stompClient.connect({}, onConnected, onError)
+    }
+
+    /**
+     * При успешном подключении необходимо подписаться на "канал", куда будут
+     * отправляться адресованные пользователю сообщения
+     */
+    function onConnected() {
+        stompClient.subscribe('/topic/' + AuthService.getCurrentUser().username + '/private', onMessageReceived)
+    }
+
+    /**
+     * Данная функция вызывается при получении сообщения.
+     * @param response
+     */
     function onMessageReceived(response) {
         let data = JSON.parse(response.body)
         let presenceUserInContacts = false
         let presenceUsername
         for (let username of usersWithLastMsgReceived.keys()) {
-            if (username === data.senderName) {
+            if (username === data.senderName) { // Проверка есть ли пользователь, от которого пришло сообщение в списке контактов.
                 presenceUserInContacts = true
                 presenceUsername = username
                 break
@@ -314,7 +355,7 @@ function App(props) {
             const userWithLastMessage = usersWithLastMsgReceived.get(presenceUsername)
             userWithLastMessage.second = data
             setUsersWithLastMsgReceived(prev => prev.set(presenceUsername, userWithLastMessage))
-        } else {
+        } else { // Если пользователя в списке нет, то необходимо получить данные о нем от сервера.
             UserService.getAllByUsername(data.senderName)
                 .then(async (response) => {
                     const user = response.data.shift();
@@ -331,6 +372,8 @@ function App(props) {
                     console.log(e);
                 })
         }
+        // Проверка есть ли "история переписки" с пользователем от которого пришло сообщение, если есть,
+        // то сообщение добавится к существующим.
         if (allMessages.get(data.senderName)) {
             let list = allMessages.get(data.senderName).messages
             const unRead = allMessages.get(data.senderName).unRead
@@ -348,17 +391,10 @@ function App(props) {
         }
     }
 
-    function connectToChat() {
-        let Sock = new SockJS('/api/ws')
-        stompClient = over(Sock)
-        stompClient.debug= null
-        stompClient.connect({}, onConnected, onError)
-    }
-
-    function onConnected() {
-        stompClient.subscribe('/topic/' + AuthService.getCurrentUser().username + '/private', onMessageReceived)
-    }
-
+    /**
+     * Данная функция вызывается в случае не успешного подключения к чату.
+     * @param err
+     */
     function onError(err) {
         console.log(err)
     }

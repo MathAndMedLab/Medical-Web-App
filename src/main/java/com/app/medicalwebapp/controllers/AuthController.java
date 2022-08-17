@@ -1,17 +1,14 @@
 package com.app.medicalwebapp.controllers;
 
+import com.app.medicalwebapp.controllers.requestbody.JwtResponse;
+import com.app.medicalwebapp.controllers.requestbody.MessageResponse;
+import com.app.medicalwebapp.controllers.requestbody.SignInRequest;
+import com.app.medicalwebapp.controllers.requestbody.SignUpRequest;
 import com.app.medicalwebapp.model.Active;
 import com.app.medicalwebapp.model.User;
 import com.app.medicalwebapp.repositories.UserRepository;
 import com.app.medicalwebapp.security.UserDetailsImpl;
-import com.app.medicalwebapp.controllers.requestbody.SignInRequest;
-import com.app.medicalwebapp.controllers.requestbody.SignUpRequest;
-import com.app.medicalwebapp.controllers.requestbody.JwtResponse;
-import com.app.medicalwebapp.controllers.requestbody.MessageResponse;
 import com.app.medicalwebapp.security.jwt.JwtUtils;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +20,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -33,20 +29,18 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
-
-    Logger log = LoggerFactory.getLogger(AuthController.class);
-
-    @Autowired
-    AuthenticationManager authenticationManager;
-
-    @Autowired
-    UserRepository userRepository;
+    private final AuthenticationManager authenticationManager;
+    private final UserRepository userRepository;
+    private final PasswordEncoder encoder;
+    private final JwtUtils jwtHelper;
 
     @Autowired
-    PasswordEncoder encoder;
-
-    @Autowired
-    JwtUtils jwtHelper;
+    public AuthController(AuthenticationManager authenticationManager, UserRepository userRepository, PasswordEncoder encoder, JwtUtils jwtHelper) {
+        this.authenticationManager = authenticationManager;
+        this.userRepository = userRepository;
+        this.encoder = encoder;
+        this.jwtHelper = jwtHelper;
+    }
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody SignInRequest signInRequest) {

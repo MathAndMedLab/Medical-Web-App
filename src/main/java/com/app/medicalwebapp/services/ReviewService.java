@@ -4,7 +4,6 @@ import com.app.medicalwebapp.controllers.requestbody.ReviewRequest;
 import com.app.medicalwebapp.model.Review;
 import com.app.medicalwebapp.model.User;
 import com.app.medicalwebapp.repositories.ReviewRepository;
-import com.app.medicalwebapp.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,12 +13,13 @@ import java.util.List;
 
 @Service
 public class ReviewService {
+    private final ReviewRepository reviewRepository;
 
     @Autowired
-    ReviewRepository reviewRepository;
+    public ReviewService(ReviewRepository reviewRepository) {
+        this.reviewRepository = reviewRepository;
+    }
 
-    @Autowired
-    UserRepository userRepository;
 
     public List<Review> getReviewsByTarget(long parent, long targetId) {
         User target = new User();

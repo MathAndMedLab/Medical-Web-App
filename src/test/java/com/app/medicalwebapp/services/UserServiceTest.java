@@ -120,9 +120,9 @@ class UserServiceTest {
 
         Mockito.doReturn(user)
                 .when(userRepository)
-                .getOne(777L);
+                .getById(777L);
         User userFound = userService.getById(777L);
-        Mockito.verify(userRepository, Mockito.times(1)).getOne(777L);
+        Mockito.verify(userRepository, Mockito.times(1)).getById(777L);
         assertEquals(user, userFound);
     }
 

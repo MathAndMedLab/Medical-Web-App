@@ -13,13 +13,11 @@ import java.util.Optional;
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
     long countBySenderIdAndRecipientId(Long senderId, Long recipientId);
 
-    Optional<List<ChatMessage>> findByChatId(String chatId);
-
     Optional<List<ChatMessage>> findByChatIdAndDeleted(String chatId, boolean deleted);
 
     Optional<ChatMessage> findFirstByChatIdAndDeleted_IsFalseOrderByIdDesc(String chatId);
 
-    Optional<List<ChatMessage>> findByRecipientIdAndStatusMessage(Long recipientId, StatusMessage UNREAD);
+    Optional<List<ChatMessage>> findByRecipientIdAndStatusMessageAndDeleted(Long recipientId, StatusMessage UNREAD, boolean deleted);
 
     ChatMessage findBySendDateAndChatId(LocalDateTime sendDate, String chatId);
 }

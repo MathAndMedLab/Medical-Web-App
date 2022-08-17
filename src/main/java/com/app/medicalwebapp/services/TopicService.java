@@ -2,7 +2,6 @@ package com.app.medicalwebapp.services;
 
 import com.app.medicalwebapp.controllers.requestbody.TopicRequest;
 import com.app.medicalwebapp.model.Topic;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.app.medicalwebapp.repositories.TopicRepository;
 import com.app.medicalwebapp.model.User;
@@ -13,9 +12,11 @@ import java.time.ZonedDateTime;
 
 @Service
 public class TopicService {
+    private final TopicRepository topicRepository;
 
-    @Autowired
-    TopicRepository topicRepository;
+    public TopicService(TopicRepository topicRepository) {
+        this.topicRepository = topicRepository;
+    }
 
     public void createNewTopic(TopicRequest request, Long creatorId) throws Exception {
         User creator = new User();

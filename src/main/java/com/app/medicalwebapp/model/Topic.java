@@ -9,7 +9,7 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name="topics")
+@Table(name = "topics")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -25,9 +25,12 @@ public class Topic {
     private String name;
 
     @ManyToOne
-    @JoinColumn(name="creator", nullable=false)
+    @JoinColumn(name = "creator", nullable = false)
     private User creator;
 
     @Column(name = "creation_time")
     private LocalDateTime creationTime;
+
+    @Column(name = "timeZone")
+    private String timeZone;
 }

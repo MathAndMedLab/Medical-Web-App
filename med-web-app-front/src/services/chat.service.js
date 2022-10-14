@@ -27,6 +27,18 @@ class ChatService {
             {headers: authHeader(), params: parameters});
     }
 
+    async downloadAttachmentByMsgSendDate(time, senderName, recipientName, fileName) {
+        axios.get(API_URL + 'download/by/send/date/' + time + "/" + senderName + "/" + recipientName + "/" + fileName + "/", {
+            responseType: 'blob',
+            headers: authHeader()
+        })
+            .then(response => {
+                var fileDownload = require('js-file-download');
+                fileDownload(response.data, fileName);
+                return response;
+            });
+    }
+
     createRequestParamsForGetUnreadMsg(recipientId) {
         let params = {};
 

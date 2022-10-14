@@ -12,7 +12,6 @@ const useStyles = theme => ({
         margin:10,
     },
     grid: {
-        //margin: theme.spacing(1.5, 0, 0, 1),
         display: 'flex',
     },
     paper: {
@@ -34,30 +33,36 @@ class TopicCard extends Component {
     constructor(props) {
         super(props);
 
-        this.convertTZ = this.convertTZ.bind(this);
         this.formatTime = this.formatTime.bind(this);
+        this.getOffsetBetweenTimezonesForDate = this.getOffsetBetweenTimezonesForDate.bind(this);
+        this.convertDateToAnotherTimeZone = this.convertDateToAnotherTimeZone.bind(this);
 
         this.state = {
             currentUser: AuthService.getCurrentUser(),
         };
 
         this.topic = this.props.topic;
-        this.creationTime = this.formatTime(this.topic.creationTime);
+        this.creationTime = this.formatTime();
 
     }
 
-    convertTZ(date, tzString) {
-        return new Date((typeof date === "string" ? new Date(date) : date).toLocaleString("en-US", {timeZone: tzString}));
+    getOffsetBetweenTimezonesForDate(date, timezone1, timezone2) {
+        const timezone1Date = this.convertDateToAnotherTimeZone(date, timezone1);
+        const timezone2Date = this.convertDateToAnotherTimeZone(date, timezone2);
+        return timezone1Date.getTime() - timezone2Date.getTime();
     }
 
-    formatTime(creationTime) {
-        var creationTimestamp = new Date(creationTime);
-        let userDate = this.convertTZ(creationTimestamp, "Asia/Dhaka");
-        var hours = userDate.getHours();
-        var minutes = userDate.getMinutes();
-        minutes = minutes >= 10 ? minutes : '0' + minutes;
-        let creationTimeString = hours + ':' + minutes;
-        return creationTimeString;
+    convertDateToAnotherTimeZone(date, timezone) {
+        const dateString = date.toLocaleString('en-US', {
+            timeZone: timezone
+        });
+        return new Date(dateString);
+    }
+
+    formatTime() {
+        let timeZone = (Intl.DateTimeFormat().resolvedOptions().timeZone)
+        const difsTimeZones = this.getOffsetBetweenTimezonesForDate(new Date(), this.topic.timeZone, timeZone)
+        return (new Date(new Date(this.topic.creationTime).getTime() - difsTimeZones))
     }
 
     render() {
@@ -111,7 +116,6 @@ class TopicCard extends Component {
 
                             </Grid>
                         </Grid>
-
                     </Grid>
                 </Card>
             </Grid>

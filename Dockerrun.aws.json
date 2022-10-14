@@ -41,7 +41,7 @@
         }
       ],
       "essential": true,
-      "image": "ashvyrkova/medwebapp",
+      "image": "lickoma/medwebapp",
       "name": "medwebapp",
       "memory": 700,
       "links": [

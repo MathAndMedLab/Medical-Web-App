@@ -3,8 +3,6 @@ package com.app.medicalwebapp.controllers;
 import com.app.medicalwebapp.controllers.requestbody.ReviewRequest;
 import com.app.medicalwebapp.security.UserDetailsImpl;
 import com.app.medicalwebapp.services.ReviewService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,11 +15,13 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/api/reviews")
 public class ReviewController {
+    private final ReviewService reviewService;
 
-    Logger log = LoggerFactory.getLogger(ReviewController.class);
 
     @Autowired
-    ReviewService reviewService;
+    public ReviewController(ReviewService reviewService) {
+        this.reviewService = reviewService;
+    }
 
     @GetMapping("/all")
     public ResponseEntity<?> getAllReviewsByTarget(@Valid long targetId) {

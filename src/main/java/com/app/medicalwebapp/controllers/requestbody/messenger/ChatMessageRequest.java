@@ -19,9 +19,11 @@ public class ChatMessageRequest {
 
     private String content;
 
-    private  List<ChatFileRequest> localFiles;
+    private  List<ChatFileRequest> files;
 
     private LocalDateTime sendDate;
+
+    private String timeZone;
 
     private String uid;
 

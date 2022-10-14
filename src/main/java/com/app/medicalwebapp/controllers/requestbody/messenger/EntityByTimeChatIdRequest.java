@@ -5,7 +5,7 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 @Getter
-public class ChatMessageDeletionTimeChatIdRequest {
+public class EntityByTimeChatIdRequest {
     private LocalDateTime time;
     private String senderName;
     private String recipientName;

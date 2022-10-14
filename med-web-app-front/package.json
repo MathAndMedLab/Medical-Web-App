@@ -6,8 +6,10 @@
     "@emotion/styled": "^11.8.1",
     "@material-ui/core": "^4.12.3",
     "@material-ui/lab": "^4.0.0-alpha.58",
+    "@material-ui/styles": "^4.11.5",
     "@mui/icons-material": "^5.5.0",
     "@mui/material": "^5.5.0",
+    "@mui/x-data-grid-pro": "^5.13.1",
     "@stomp/stompjs": "^6.1.2",
     "@testing-library/jest-dom": "^5.16.1",
     "@testing-library/react": "^12.1.2",
@@ -16,15 +18,16 @@
     "bootstrap": "^4.6.0",
     "dcmjs": "^0.18.6",
     "font-awesome": "^4.7.0",
-    "roboto-fontface": "^0.10.0",
     "js-file-download": "^0.4.12",
     "net": "^1.0.2",
     "react": "^17.0.2",
+    "react-bootstrap": "^2.4.0",
     "react-dom": "^17.0.2",
     "react-router-dom": "^5.2.0",
     "react-scripts": "5.0.0",
     "react-select": "^4.3.0",
     "react-validation": "^3.0.7",
+    "roboto-fontface": "^0.10.0",
     "sockjs-client": "^1.5.2",
     "stompjs": "^2.3.3",
     "validator": "^13.7.0",
@@ -57,7 +60,8 @@
   "devDependencies": {
     "@material-ui/icons": "^4.11.2",
     "clsx": "^1.1.1",
-    "history": "^4.10.1"
+    "history": "^4.10.1",
+    "react-responsive": "^9.0.0-beta.10"
   },
   "proxy": "http://localhost:7999"
 }

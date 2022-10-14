@@ -15,6 +15,7 @@ import AuthService from "../../services/auth.service";
 import ChatService from "../../services/chat.service"
 import Button from "@material-ui/core/Button";
 import DeleteIcon from '@mui/icons-material/Delete';
+import AttachmentService from "../../services/attachment.service";
 
 const useStyles = theme => ({
 
@@ -73,53 +74,92 @@ function SenderMsg(props) {
     const {msg} = props
     const {scrollToBottom} = props
     const {deleteMsgClient} = props
+    const [images, setImages] = useState([])
     const [files, setFiles] = useState([])
     const [checked, setChecked] = useState(false)
     const [showPaper, setShowPaper] = useState(false)
     const [paperX, setPaperX] = useState(false)
     const [paperY, setPaperY] = useState(false)
     const [openDialog, setOpenDialog] = useState(false)
+    const [timeMsgCurrentTimeZone, setTimeMsgCurrentTimeZone] = useState([])
     const KeyboardArrowDownIconRef = useRef();
     useEffect(async () => {
         await getFiles()
+        processTime()
         scrollToBottom()
     }, [msg]);
 
+    function processTime() {
+        let timeZone = (Intl.DateTimeFormat().resolvedOptions().timeZone)
+        const difsTimeZones = getOffsetBetweenTimezonesForDate(new Date(), msg.timeZone, timeZone)
+        setTimeMsgCurrentTimeZone(new Date(new Date(msg.sendDate).getTime() - difsTimeZones))
+    }
+
+    function getOffsetBetweenTimezonesForDate(date, timezone1, timezone2) {
+        const timezone1Date = convertDateToAnotherTimeZone(date, timezone1);
+        const timezone2Date = convertDateToAnotherTimeZone(date, timezone2);
+        return timezone1Date.getTime() - timezone2Date.getTime();
+    }
+
+    function convertDateToAnotherTimeZone(date, timezone) {
+        const dateString = date.toLocaleString('en-US', {
+            timeZone: timezone
+        });
+        return new Date(dateString);
+    }
+
     async function getFiles() {
+        setImages([])
         setFiles([])
-        let preview = [];
+        let imagesPreview = [];
+        let filesPreview = [];
         if (msg.attachmentsBlobForImageClient && msg.attachmentsBlobForImageClient.length > 0) {
             for (let i = 0; i < msg.attachmentsBlobForImageClient.length; i++) {
                 if (msg.attachmentsBlobForImageClient[i].name.endsWith(".jpg") ||
-                    msg.attachmentsBlobForImageClient[i].name.endsWith(".png") ||
-                    msg.attachmentsBlobForImageClient[i].name.endsWith(".dcm")
+                    msg.attachmentsBlobForImageClient[i].name.endsWith(".png")
                 ) {
-                    console.log(msg.attachmentsBlobForImageClient[i])
-                    preview.push({
-                        id: msg.localFiles[i].id,
+                    imagesPreview.push({
                         image: URL.createObjectURL(msg.attachmentsBlobForImageClient[i])
+                    })
+                } else if (msg.attachmentsBlobForImageClient[i].name.endsWith(".dcm")) {
+                    filesPreview.push({
+                        initialName: msg.attachmentsBlobForImageClient[i].name,
+                        uid: msg.attachmentsBlobForImageClient[i].uid
+                    })
+                } else {
+                    filesPreview.push({
+                        initialName: msg.attachmentsBlobForImageClient[i].name
                     })
                 }
             }
-        } else if (msg.localFiles && msg.localFiles.length > 0) {
-            for (let i = 0; i < msg.localFiles.length; i++) {
-                if (msg.localFiles[i].fileName.endsWith(".jpg") ||
-                    msg.localFiles[i].fileName.endsWith(".png")) {
-                    const base64Data = msg.localFiles[i].fileContent
-                    const base64Response = await fetch(`data:application/json;base64,${base64Data}`)
-                    const blob = await base64Response.blob()
-                    preview.push({id: msg.localFiles[i].id, image: URL.createObjectURL(blob)})
+        } else if (msg.images && msg.images.length > 0) {
+            for (let i = 0; i < msg.images.length; i++) {
+                const base64Data = msg.images[i]
+                if (msg.uidFilesDicom[i]) {
+                    imagesPreview.push({
+                        image: `data:application/json;base64,${base64Data}`,
+                        uid: msg.uidFilesDicom[i]
+                    })
+                } else {
+                    imagesPreview.push({
+                        image: `data:application/json;base64,${base64Data}`,
+                    })
                 }
             }
-        } else if (msg.dataFilesDicom && msg.dataFilesDicom.length > 0) {
-            for (let i = 0; i < msg.dataFilesDicom.length; i++) {
-                const base64Data = msg.dataFilesDicom[i]
-                const base64Response = await fetch(`data:application/json;base64,${base64Data}`)
-                const blob = await base64Response.blob()
-                preview.push({id: msg.attachments[i].id, image: URL.createObjectURL(blob), uid: msg.uidFilesDicom[i]})
+        } else if (msg.attachments && msg.attachments.length > 0) {
+            for (let i = 0; i < msg.attachments.length; i++) {
+                if (!(msg.attachments[i].initialName.endsWith(".jpg") ||
+                    msg.attachments[i].initialName.endsWith(".png") ||
+                    msg.attachments[i].initialName.endsWith(".dcm"))
+                ) {
+                    filesPreview.push(
+                        msg.attachments[i]
+                    )
+                }
             }
         }
-        setFiles(preview)
+        setImages(imagesPreview)
+        setFiles(filesPreview)
     }
 
     function agreeToDelete() {
@@ -153,6 +193,20 @@ function SenderMsg(props) {
         }
     }
 
+    function openDicomViewer(uid) {
+        const url = window.location.href
+        const num = url.indexOf(":7999")
+        window.open(url.slice(0, num + 1) + "3000/viewer/" + uid, '_blank')
+    }
+
+    function download(file) {
+        if (file.id) {
+            AttachmentService.downloadAttachment(file.id, file.initialName);
+        } else {
+            ChatService.downloadAttachmentByMsgSendDate(msg.sendDate, msg.senderName, msg.recipientName, file.initialName)
+        }
+    }
+
     return (
         <Grid>
 
@@ -166,11 +220,12 @@ function SenderMsg(props) {
                             </Link>
                         </Grid>
                         <Grid>
-                            <Collapse in={checked}>
+                            <Collapse in={checked} title={"Удалить"}>
                                 {/*<KeyboardArrowDownIcon onClick={(e => handleClick(e))} ref={KeyboardArrowDownIconRef}*/}
                                 {/*                       className={classes.collapsed}/>*/}
                                 <DeleteIcon onClick={(e => deleteMsg(e))} ref={KeyboardArrowDownIconRef}
-                                            className={classes.collapsed}/>
+                                            className={classes.collapsed}
+                                />
                             </Collapse>
                             <Dialog
                                 open={openDialog}
@@ -184,11 +239,13 @@ function SenderMsg(props) {
                                     <DialogActions>
                                         <Button
                                             className={classes.button}
-                                            onClick={disagreeToDelete}>
+                                            onClick={disagreeToDelete}
+                                        title = {"Нет"}>
                                             Нет
                                         </Button>
                                         <Button className={classes.button}
-                                                onClick={agreeToDelete}>
+                                                onClick={agreeToDelete}
+                                        title={"Да"}>
                                             Да
                                         </Button>
                                     </DialogActions>
@@ -198,51 +255,70 @@ function SenderMsg(props) {
                     </Grid>
                     <Grid>
                         <Grid>{msg.content}</Grid>
-                        {files &&
+                        {images &&
                         <Grid>
-                            < ImageList cols={1} rowHeight={200} gap={3}>
-                                {files.map((file, index) =>
+                            <ImageList cols={1} rowHeight={200} gap={3}>
+                                {images.map((image, index) =>
                                     <ImageListItem key={index}>
-                                        {file.uid ?
+                                        {image.uid ?
                                             <Tooltip title="Открыть в DICOM Viewer">
-                                                <a href={"http://localhost:3000/viewer/" + file.uid}
-                                                   target="_blank">
-                                                    <Button>
-                                                        <img
-                                                            src={file.image}
-                                                            srcSet={file.image}
-                                                            alt={file.id}
-                                                            loading="lazy"
-                                                        />
-                                                    </Button>
-                                                </a>
-                                            </Tooltip> :
+                                                <img onClick={() => openDicomViewer(image.uid)}
+                                                     src={image.image}
+                                                     alt={"Перезагрузите страницу!"}
+                                                     loading="lazy"
+                                                     style={{cursor: 'pointer'}}
+                                                >
+                                                </img>
+                                            </Tooltip>
+                                            :
                                             <img
-                                                src={file.image}
-                                                srcSet={file.image}
-                                                alt={file.id}
+                                                src={image.image}
+                                                alt={"Перезагрузите страницу!"}
                                                 loading="lazy"
                                             />
                                         }
-
                                     </ImageListItem>
                                 )}
                             </ImageList>
+                        </Grid>
+                        }
+                        {files &&
+                        <Grid>
+                            {files.map((file, index) =>
+                                <Grid key={index}>
+                                    {file.uid ?
+                                        <Button
+                                            key={index}
+                                            onClick={() => openDicomViewer(file.uid)}>
+                                            <i className="fa fa-folder-open"> Открыть {file.initialName}</i>
+                                        </Button>
+                                        :
+                                        <Button
+                                            key={index}
+                                            onClick={() => download(file)}>
+                                            <i className="fa fa-download"> Скачать {file.initialName}</i>
+                                        </Button>
+                                    }
+                                </Grid>
+                            )}
                         </Grid>
                         }
                     </Grid>
                     <Grid
                         className={classes.time}>
                         {
-                            (((new Date(msg.sendDate).getHours() < 10 && "0" + new Date(msg.sendDate).getHours())
-                                    || (new Date(msg.sendDate).getHours() >= 10 && new Date(msg.sendDate).getHours())) + ":"
-                                + ((new Date(msg.sendDate).getMinutes() < 10 && "0" + new Date(msg.sendDate).getMinutes())
-                                    || (new Date(msg.sendDate).getMinutes() > 10 && new Date(msg.sendDate).getMinutes())
-                                )) + "    " + (
-                                ((new Date(msg.sendDate).getDate() < 10 && "0" + new Date(msg.sendDate).getDate()) || (new Date(msg.sendDate).getDate() >= 10 && new Date(msg.sendDate).getDate()))
+                            (((new Date(timeMsgCurrentTimeZone).getHours() < 10 && "0" + new Date(timeMsgCurrentTimeZone).getHours())
+                                    || (new Date(timeMsgCurrentTimeZone).getHours() >= 10 && new Date(timeMsgCurrentTimeZone).getHours())) + ":"
+                                + ((new Date(timeMsgCurrentTimeZone).getMinutes() < 10 && "0" + new Date(timeMsgCurrentTimeZone).getMinutes())
+                                    || (new Date(timeMsgCurrentTimeZone).getMinutes() >= 10 && new Date(timeMsgCurrentTimeZone).getMinutes())
+                                )) + "    "
+                            + (
+                                ((new Date(timeMsgCurrentTimeZone).getDate() < 10 && "0" + new Date(timeMsgCurrentTimeZone).getDate())
+                                    || (new Date(timeMsgCurrentTimeZone).getDate() >= 10 && new Date(timeMsgCurrentTimeZone).getDate()))
                                 + "."
-                                + (((new Date(msg.sendDate).getMonth() + 1) < 10 && "0" + (new Date(msg.sendDate).getMonth() + 1)) || (((new Date(msg.sendDate).getMonth() + 1) >= 10 && (new Date(msg.sendDate).getMonth() + 1))))
-                                + "." + new Date(msg.sendDate).getFullYear()
+                                + (((new Date(timeMsgCurrentTimeZone).getMonth() + 1) < 10 && "0" + (new Date(timeMsgCurrentTimeZone).getMonth() + 1))
+                                    || (((new Date(timeMsgCurrentTimeZone).getMonth() + 1) >= 10 && (new Date(timeMsgCurrentTimeZone).getMonth() + 1))))
+                                + "." + new Date(timeMsgCurrentTimeZone).getFullYear()
                             )
                         }
                     </Grid>

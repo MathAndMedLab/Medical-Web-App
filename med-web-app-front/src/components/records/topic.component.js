@@ -25,17 +25,27 @@ const useStyles = theme => ({
         marginTop: theme.spacing(1),
     },*/
     mainGrid: {
-        minWidth: 668,
+        minWidth: 400,
+        justifyContent: "center",
+        display:"center",
     },
     grid: {
         margin: theme.spacing(1),
         display: 'flex',
+        minWidth: 240,
     },
     paper: {
         marginTop: theme.spacing(3),
-        marginLeft: theme.spacing(1),
+        "@media (min-width: 425px)":{
+            marginLeft: "20%"
+        },
+        "@media (min-width : 768px)":{
+            marginLeft: "40%"
+        },
+        marginRight: "auto",
         padding: theme.spacing(1),
         color: "black",
+        minWidth: 280,
         // display: 'flex',
     },
 })
@@ -180,7 +190,7 @@ class TopicComponent extends Component {
                 </ul>
 
             </div>*/
-            <Grid xs={8}>
+            <Grid item xs={8}>
                 <Grid classes={classes.mainGrid}>
                     <Card className={classes.paper}>
                         <div>

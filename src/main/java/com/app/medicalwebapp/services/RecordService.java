@@ -6,6 +6,7 @@ import com.app.medicalwebapp.model.FileObject;
 import com.app.medicalwebapp.model.Record;
 import com.app.medicalwebapp.model.Topic;
 import com.app.medicalwebapp.model.User;
+import com.app.medicalwebapp.repositories.FileObjectRepository;
 import com.app.medicalwebapp.repositories.RecordRepository;
 import com.app.medicalwebapp.repositories.TopicRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,20 +16,26 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 
 @Service
 public class RecordService {
+    private final RecordRepository recordRepository;
+    private final TopicRepository topicRepository;
+    private final FileObjectRepository fileObjectRepository;
 
     @Autowired
-    RecordRepository recordRepository;
+    public RecordService(RecordRepository recordRepository, TopicRepository topicRepository, FileObjectRepository fileObjectRepository) {
+        this.recordRepository = recordRepository;
+        this.topicRepository = topicRepository;
+        this.fileObjectRepository = fileObjectRepository;
+    }
 
-    @Autowired
-    TopicRepository topicRepository;
 
     public RecordsPageResponse getRecordsPage(Integer pageNumber, Integer sizeOfPage, String partOfTitle) {
         Pageable pageable = PageRequest.of(pageNumber, sizeOfPage);
@@ -77,16 +84,15 @@ public class RecordService {
 
         Set<FileObject> files = null;
         if (request.getFiles() != null && !request.getFiles().isEmpty()) {
-            files = request.getFiles().stream().map(fileId -> {
-                FileObject file = new FileObject();
-                file.setId(fileId);
-                return file;
-            }).collect(Collectors.toSet());
+            files = request.getFiles().stream()
+                    .map(fileId -> fileObjectRepository.findById(fileId).orElse(null))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toSet());
         }
 
         Set<Topic> topics = null;
         if (request.getTopics() != null && !request.getTopics().isEmpty()) {
-             topics = request.getTopics().stream().map(topicId -> {
+            topics = request.getTopics().stream().map(topicId -> {
                 Topic topic = new Topic();
                 topic.setId(topicId);
                 return topic;
@@ -95,11 +101,13 @@ public class RecordService {
 
         User creator = new User();
         creator.setId(creatorId);
-
+        var timeZoneUnparsed = ZonedDateTime.now().toString();
+        String timeZone = timeZoneUnparsed.substring(timeZoneUnparsed.lastIndexOf("[") + 1).split("]")[0];
         Record record = Record.builder()
                 .content(request.getContent())
                 .title(request.getTitle())
                 .creationTime(LocalDateTime.now())
+                .timeZone(timeZone)
                 .creator(creator)
                 .edited(false)
                 .attachments(files)
@@ -108,6 +116,10 @@ public class RecordService {
                 .build();
 
         recordRepository.save(record);
+    }
+
+    public void delete(Long recordId) {
+        recordRepository.deleteById(recordId);
     }
 
     private RecordsPageResponse getRecordsResponse(Page recordsPage, int pageNumber) {

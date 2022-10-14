@@ -44,7 +44,6 @@ class ChatMessageServiceTest {
             chatMessage.setChatId("DoeJohn");
             chatMessage.setStatusMessage(StatusMessage.UNREAD);
             chatMessage.setAttachments(new ArrayList<>());
-            chatMessage.setLocalFiles(new ArrayList<>());
             Mockito.doReturn(chatMessage)
                     .when(chatMessageRepository)
                     .save(chatMessage);
@@ -68,10 +67,10 @@ class ChatMessageServiceTest {
 
             Mockito.doReturn(Optional.of(List.of(chatMessage)))
                     .when(chatMessageRepository)
-                    .findByChatIdOrderBySendDateAsc(chatMessage.getChatId());
+                    .findByChatIdAndDeleted(chatMessage.getChatId(), false);
             List<ChatMessage> returnedChatMessage = chatMessageService.findMessages(chatMessage.getSenderName(), chatMessage.getRecipientName());
             Mockito.verify(chatMessageRepository, Mockito.times(1))
-                    .findByChatIdOrderBySendDateAsc(chatMessage.getChatId());
+                    .findByChatIdAndDeleted(chatMessage.getChatId(), false);
             assertEquals(chatMessage, returnedChatMessage.get(0));
         } catch (Exception e) {
             e.printStackTrace();
@@ -86,11 +85,10 @@ class ChatMessageServiceTest {
 
         Mockito.doReturn(Optional.of(List.of(chatMessage)))
                 .when(chatMessageRepository)
-                .findByRecipientIdAndStatusMessageOrderBySendDateAsc(chatMessage.getRecipientId(), StatusMessage.UNREAD);
+                .findByRecipientIdAndStatusMessageAndDeleted(chatMessage.getRecipientId(), StatusMessage.UNREAD, false);
         List<ChatMessage> returnedChatMessage = chatMessageService.findUnreadMessages(1L);
-        System.out.println(returnedChatMessage.get(0));
         Mockito.verify(chatMessageRepository, Mockito.times(1))
-                .findByRecipientIdAndStatusMessageOrderBySendDateAsc(chatMessage.getRecipientId(), StatusMessage.UNREAD);
+                .findByRecipientIdAndStatusMessageAndDeleted(chatMessage.getRecipientId(), StatusMessage.UNREAD, false);
         assertEquals(chatMessage, returnedChatMessage.get(0));
     }
 
@@ -107,7 +105,11 @@ class ChatMessageServiceTest {
     @Test
     void deleteMessage() {
         ChatMessage chatMessage = new ChatMessage();
-        chatMessageService.deleteMessage(chatMessage);
+        try {
+            chatMessageService.deleteMessage(chatMessage);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         Mockito.verify(chatMessageRepository, Mockito.times(1))
                 .delete(chatMessage);
     }
@@ -133,7 +135,7 @@ class ChatMessageServiceTest {
         chatMessage.setChatId("DoeJohn");
         Mockito.doReturn(Optional.of(chatMessage))
                 .when(chatMessageRepository)
-                .findFirstByChatIdOrderBySendDateDesc(chatMessage.getChatId());
+                .findFirstByChatIdAndDeleted_IsFalseOrderByIdDesc(chatMessage.getChatId());
         Optional<ChatMessage> returnedChatMessageOpt = chatMessageService.findFirstByChatIdOrderBySendDateDesc(chatMessage.getChatId());
         if (returnedChatMessageOpt.isPresent()) {
             ChatMessage returnedChatMessage = returnedChatMessageOpt.get();

@@ -1,17 +1,30 @@
-import React, { Component } from "react";
+import React, {Component} from "react";
 import RecordService from "../../services/record.service";
 import RecordCard from "./record-card.component";
 import ReplyRecordForm from "./reply-record.component";
 import {Card, Grid, withStyles} from "@material-ui/core";
 import ReviewCard from "../review-card.component";
-import { Link } from "react-router-dom";
+import {Link} from "react-router-dom";
 import Button from "@material-ui/core/Button";
+import DropUpOnRecordThread from "./DropUpOnRecordThread";
+import {ListItemButton} from "@mui/material";
+import {ArrowBack} from "@material-ui/icons";
 
 const useStyles = theme => ({
     mainGrid: {
         marginTop: theme.spacing(3),
-        minWidth: 712,
-        maxWidth: 712,
+        [theme.breakpoints.down("xs")]: {
+            width: 280,
+        },
+        [theme.breakpoints.between("sm", "md")]: {
+            width: 650
+        },
+        "@media (min-width : 1280px)": {
+            width: 800,
+        },
+        display: "center",
+        justifyContent: "flex-start",
+        alignSelf: "center"
     },
     paper2: {
         margin: theme.spacing(3),
@@ -26,15 +39,41 @@ const useStyles = theme => ({
     },
     paper: {
         marginTop: theme.spacing(3),
-        marginLeft: theme.spacing(1),
-        marginRight: theme.spacing(1),
+        marginLeft: theme.spacing(0),
+        marginRight: "auto",
         padding: theme.spacing(1),
         color: "black",
-        // display: 'flex',
+        [theme.breakpoints.down("xs")]: {
+            width: 268,
+        },
+        [theme.breakpoints.between("sm", "md")]: {
+            width: 650
+        },
+        "@media (min-width : 1280px)": {
+            width: 800,
+        },
+
+        justifyContent: 'center'
     },
     Grid: {
-        minWidth: 1100,
+        [theme.breakpoints.down("xs")]: {
+            width: 268,
+            justifyContent: "flex-start",
+            marginLeft: "auto",
+            marginRight: "auto"
+        },
+        [theme.breakpoints.between("sm", "md")]: {
+            width: 800,
+            justifyContent: "flex-start",
+            marginLeft: theme.spacing(2)
+        },
+        "@media (min-width : 1000px)": {
+            width: 1100,
+            justifyContent: "center"
+
+        },
         display: "flex",
+
     },
     button: {
         width: 200,
@@ -46,6 +85,40 @@ const useStyles = theme => ({
             color: '#fff',
         }
     },
+    divAddButtonStyle: {
+        position: "fixed",
+        [theme.breakpoints.down("xs")]: {
+            left: "81%",
+            top: "90%"
+        },
+        [theme.breakpoints.between("sm", "md")]: {
+            left: "91.5%",
+            top: "90%"
+        },
+        "@media (min-width : 1000px)": {
+            left: "85%",
+            top: "90%"
+        },
+    },
+    divBackButtonStyle: {
+        position: "fixed",
+        padding: "auto",
+        top: "12%",
+        "@media (max-width: 320px)": {
+            left: "3%"
+        },
+        "@media (min-width : 321 px, max-width: 426px)": {
+            left: "15%",
+        },
+        [theme.breakpoints.between("sm", "md")]: {
+            left: "8%",
+        },
+        "@media (min-width : 1000px)": {
+            left: "5%"
+        },
+    },
+
+
 });
 
 class RecordThreadComponent extends Component {
@@ -65,7 +138,6 @@ class RecordThreadComponent extends Component {
     componentDidMount() {
         RecordService.getRecord(this.state.recordId)
             .then(response => {
-                console.log(response)
                     this.setState({record: response.data});
                 }
             )
@@ -88,28 +160,45 @@ class RecordThreadComponent extends Component {
     }
 
     render() {
-        const { classes } = this.props;
-        const { answers } = this.state;
+        const {classes} = this.props;
+        const {answers} = this.state;
         return (
-            <Grid xs={12} item className={classes.Grid}>
-                <Grid xs={8} item>
+            <Grid item xs={12} className={classes.Grid}>
+                <div className={classes.divAddButtonStyle}>
+                    {/*<DropUpOnRecordThread/>*/}
+                </div>
+                <div className={classes.divBackButtonStyle}>
+                    <ListItemButton component={Link} to={"/records/view"} style={{
+                        padding: 0,
+                        margin: 0
+                    }} title={"Назад к постам"}>
+                        <ArrowBack color={"secondary"} fontSize={"large"}/>
+                    </ListItemButton>
+                </div>
+                <Grid item xs={8} style={{justifyContent: "center", alignItems: "center"}}>
                     <Grid className={classes.mainGrid}>
+
                         {this.state.record &&
                         (<RecordCard record={this.state.record} isPreview={false} isReply={false}/>)
                         }
                         <Card className={classes.paper}>
 
                             <ReplyRecordForm
-                                refreshRecords = {this.refreshAnswers}
-                                parentId = {this.state.recordId}/>
+                                refreshRecords={this.refreshAnswers}
+                                parentId={this.state.recordId}/>
 
                             <ul className="list-group">
                                 {answers !== undefined && this.state.answers !== null &&
                                 this.state.answers.map((record, index) => (
                                     <li
-                                        style={{listStyleType: "none", width: "100%", marginLeft: "auto", marginTop: "1"}}
+                                        style={{
+                                            listStyleType: "none",
+                                            width: "100%",
+                                            marginLeft: "auto",
+                                            marginTop: "1"
+                                        }}
                                         key={index}
-                                        >
+                                    >
                                         <ReviewCard review={record} isPreview={false} isReply={true}/>
                                     </li>
 
@@ -118,32 +207,32 @@ class RecordThreadComponent extends Component {
                         </Card>
                     </Grid>
                 </Grid>
-                <Grid xs={4} item>
+                {/*<Grid xs={4} item>
                     <Card className={classes.paper2}>
                         <Grid className={classes.grid}>
-                            {/*<Link to={"/records/create"} className="nav-link card-link-custom color-orange">*/}
-                            {/*    Создать пост*/}
-                            {/*</Link>*/}
-                            {/*<Link to={"/records/view"} className="nav-link card-link-custom color-orange">*/}
-                            {/*    Обратно к постам*/}
-                            {/*</Link>*/}
-                            {/*<Button >*/}
+                            <Link to={"/records/create"} className="nav-link card-link-custom color-orange">
+                                Создать пост
+                            </Link>
+                            <Link to={"/records/view"} className="nav-link card-link-custom color-orange">
+                                Обратно к постам
+                            </Link>
+                            <Button >
                                 <Link  to={"/records/create"} style={{ textDecoration: 'none' }}>
                                     <Button className={classes.button}>
                                     Создать пост
                                     </Button>
                                 </Link>
-                            {/*</Button>*/}
-                            {/*<Button >*/}
+                            </Button>
+                            <Button >
                                 <Link to={"/records/view"} style={{ textDecoration: 'none' }}>
                                     <Button className={classes.button}>
                                     Обратно к постам
                                     </Button>
                                 </Link>
-                            {/*</Button>*/}
+                            </Button>
                         </Grid>
                     </Card>
-                </Grid>
+                </Grid>*/}
 
 
             </Grid>

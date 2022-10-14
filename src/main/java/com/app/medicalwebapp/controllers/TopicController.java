@@ -1,6 +1,5 @@
 package com.app.medicalwebapp.controllers;
 
-import com.app.medicalwebapp.controllers.requestbody.RecordsPageResponse;
 import com.app.medicalwebapp.controllers.requestbody.TopicRequest;
 import com.app.medicalwebapp.controllers.requestbody.TopicResponse;
 import com.app.medicalwebapp.model.Topic;
@@ -15,20 +14,20 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 
 @CrossOrigin(origins = "*", maxAge = 604800)
 @RestController
 @RequestMapping("/api/topics")
 public class TopicController {
+    private final TopicRepository topicRepository;
+    private final TopicService topicService;
 
     @Autowired
-    TopicRepository topicRepository;
-
-    @Autowired
-    TopicService topicService;
+    public TopicController(TopicRepository topicRepository, TopicService topicService) {
+        this.topicRepository = topicRepository;
+        this.topicService = topicService;
+    }
 
     @GetMapping("/all")
     public ResponseEntity<?> getAllTopics() {

@@ -47,7 +47,16 @@ const useStyles = theme => ({
     paper: {
         marginTop: theme.spacing(5),
         marginBottom: theme.spacing(3),
-        minWidth: 200,
+        //minWidth: 200,
+        "@media (max-width: 365px)":{
+            width: 260,
+        },
+        "@media (min-width: 350 px)":{
+            width: 300,
+        },
+        "@media (min-width: 425px)":{
+            width: "90%"
+        },
     },
     form: {
         width: '100%',
@@ -70,17 +79,6 @@ const useStyles = theme => ({
 function Register(props) {
     const {classes} = props
 
-    // this.handleRegister = this.handleRegister.bind(this)
-    // this.onChangeUsername = this.onChangeUsername.bind(this)
-    // this.onChangeFirstname = this.onChangeFirstname.bind(this)
-    // this.onChangeLastname = this.onChangeLastname.bind(this)
-    // // this.onChangeEmail = this.onChangeEmail.bind(this)
-    // this.onChangePassword = this.onChangePassword.bind(this)
-    // this.onChangePatronymic = this.onChangePatronymic.bind(this)
-    // this.onChangeRole = this.onChangeRole.bind(this)
-    // this.vusername = this.vusername.bind(this)
-    // this.vpassword = this.vpassword.bind(this)
-
     const [username, setUsername] = useState("")
     const [firstname, setFirstname] = useState("")
     const [lastname, setLastname] = useState("")
@@ -90,6 +88,8 @@ function Register(props) {
     const [chosenRole, setChosenRole] = useState("Пользователь")
     const [successful, setSuccessful] = useState(false)
     const [message, setMessage] = useState("")
+    const [loginMessage, setLoginMessage] = useState("")
+    const [loginSuccessful, setLoginSuccessful] = useState(false)
     const [usernameError, setUsernameError] = useState(false)
     const [passwordError, setPasswordError] = useState(false)
     const [passwordErrorRepeat, setPasswordErrorRepeat] = useState(false)
@@ -100,21 +100,6 @@ function Register(props) {
 
     const handleClickShowPassword = () => setShowPassword(!showPassword);
     const handleMouseDownPassword = () => setShowPassword(!showPassword);
-
-    // this.state = {
-    //     username: "",
-    //     firstname: "",
-    //     lastname: "",
-    //     patronymic: "",
-    //     // email: "",
-    //     password: "",
-    //     chosenRole: "Пользователь",
-    //     successful: false,
-    //     message: "",
-    //     usernameError: false,
-    //     passwordError: false,
-    //     validateForm: false
-    // }
 
 
     function vusername(value) {
@@ -131,8 +116,6 @@ function Register(props) {
         } else {
             setPasswordError(false)
         }
-        console.log(value === passwordRepeat)
-        // console.log(passwordRepeat)
         if (value === passwordRepeat) {
             setPasswordMatch(true)
         } else {
@@ -195,6 +178,8 @@ function Register(props) {
         e.preventDefault()
         setMessage("")
         setSuccessful(false)
+        setLoginMessage("")
+        setLoginSuccessful(false)
 
         let initials
         if (patronymic !== "") {
@@ -223,6 +208,20 @@ function Register(props) {
                     setPassword("")
                     setPasswordRepeat("")
                     setChosenRole("Пользователь")
+                    AuthService.login(username,password).then(
+                        () => {
+                            setLoginSuccessful(true)
+                            props.history.push("/records/view");
+                            window.location.reload();
+                        },
+                        error => {
+                            const resLoginMessage =
+                                (error.response && error.response.data && error.response.data.message) ||
+                                error.message || error.toString();
+                            setLoginSuccessful(false)
+                            setLoginMessage(resLoginMessage)
+                        }
+                    )
                 },
                 error => {
                     const resMessage =
@@ -237,7 +236,7 @@ function Register(props) {
 
 
     return (
-        <Container component="main" maxWidth="sm">
+        <Container component="main" maxWidth="sm" disableGutters={true} >
             <Card className={classes.paper}>
                 <Grid className={classes.div}>
                     <Typography component="h1" variant="h5">
@@ -350,7 +349,6 @@ function Register(props) {
                                     autoComplete="off"
                                     error={passwordErrorRepeat}
                                     helperText={passwordErrorRepeat && "Пароль должен быть не менее 6 символов"}
-                                    // helperText={passwordErrorRepeat && "hi"}
                                     value={passwordRepeat}
                                     onChange={onChangePasswordRepeat}
                                     InputProps={{
@@ -388,12 +386,14 @@ function Register(props) {
                                                   control={<Radio color="primary"/>}
                                                   value="Пользователь"
                                                   label="Пользователь"
+                                                  title={"Пользователь"}
                                 />
                                 <FormControlLabel className={classes.formControlLab}
                                                   control={<Radio color="primary"/>}
                                                   value="Врач"
                                                   label="Врач"
                                                   labelPlacement='end'
+                                                  title={"Врач"}
                                 />
                             </RadioGroup>
                         </FormControl>
@@ -404,6 +404,7 @@ function Register(props) {
                             color="primary"
                             // onClick={handleRegister}
                             className={classes.submit}
+                            title = {"Зарегистрироваться"}
                         >
                             Зарегистрироваться
                         </Button>
@@ -425,6 +426,20 @@ function Register(props) {
                                     role="alert"
                                 >
                                     {message}
+                                </Grid>
+                            </Grid>
+                        )}
+                        {loginMessage && (
+                            <Grid>
+                                <Grid
+                                    className={
+                                        loginSuccessful
+                                            ? "alert alert-success"
+                                            : "alert alert-danger"
+                                    }
+                                    role="alert"
+                                >
+                                    {loginMessage}
                                 </Grid>
                             </Grid>
                         )}

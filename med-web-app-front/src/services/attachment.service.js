@@ -14,17 +14,14 @@ class AttachmentService {
     }
 
     uploadAttachment(file, fileName, isDicom, UID, onUploadProgress) {
-        console.log("Got file to upload");
-        console.log(UID);
         let formData = new FormData();
 
         if (isDicom) {
             formData.append("file", new Blob([file]), fileName);
         } else {
             formData.append("file", file);
-            UID = "";
+            UID = null;
         }
-        console.log(file)
         const user = JSON.parse(localStorage.getItem('user'));
         let token = '';
         if (user && user.token) {
@@ -33,6 +30,33 @@ class AttachmentService {
         return axios.post(API_URL + "upload/" + UID, formData, {
             headers: {'Content-Type': 'multipart/form-data', 'Authorization': 'Bearer ' + token},
             onUploadProgress,
+        });
+    }
+
+    deleteAttachment(fileId) {
+        const user = JSON.parse(localStorage.getItem('user'));
+        let token = '';
+        if (user && user.token) {
+            token = user.token;
+        }
+        return axios.delete(API_URL + 'delete/' + fileId, {
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        });
+    }
+
+    renameAttachment(fileId, newName) {
+        let formData = new FormData();
+        formData.append("name", newName);
+
+        const user = JSON.parse(localStorage.getItem('user'));
+        let token = '';
+        if (user && user.token) {
+            token = user.token;
+        }
+        return axios.post(API_URL + "rename/" + fileId, formData, {
+            headers: {'Content-Type': 'multipart/form-data', 'Authorization': 'Bearer ' + token}
         });
     }
 

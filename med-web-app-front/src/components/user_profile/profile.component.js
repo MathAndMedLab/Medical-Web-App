@@ -159,19 +159,7 @@ function Profile(props) {
 
     function refreshList() {
         setUser(null)
-        // this.setState({
-        //     user: null,
-        // });
     }
-
-    // function getUsername(prevState, props) {
-    //     setUsername(usernamePath)
-    //     return usernamePath
-    // }
-
-    // function setNewUsername() {
-    //     setUsername(getUsername);
-    // }
 
     useEffect(() => {
         setUsername(usernamePath)
@@ -264,12 +252,12 @@ function Profile(props) {
                             <Card className={classes.paper2}>
                                 <Grid className={classes.grid}>
                                     <Link to={"/files/view"} style={{textDecoration: 'none'}}>
-                                        <Button className={classes.button}>
+                                        <Button className={classes.button} title={"Мои файлы"}>
                                             Мои файлы
                                         </Button>
                                     </Link>
                                     <Link to={"/files/upload"} style={{textDecoration: 'none'}}>
-                                        <Button className={classes.button}>
+                                        <Button className={classes.button} title={"Загрузить файл"}>
                                             Загрузить файл
                                         </Button>
                                     </Link>

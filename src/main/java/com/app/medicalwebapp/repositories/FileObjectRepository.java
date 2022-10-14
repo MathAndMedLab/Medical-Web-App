@@ -12,6 +12,8 @@ public interface FileObjectRepository extends JpaRepository<FileObject, Long> {
 
     List<FileObject> findByOwner(Long userId);
 
+    List<FileObject> findByOwnerAndDeleted(Long userId, boolean deleted);
+
     Optional<FileObject> findById(Long fileId);
 
 }

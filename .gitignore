@@ -34,3 +34,4 @@ build/
 .vscode/
 
 /med-web-app-front/package-lock.json
+src/main/resources/application.properties

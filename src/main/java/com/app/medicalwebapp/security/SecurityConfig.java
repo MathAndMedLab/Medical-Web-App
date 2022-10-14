@@ -1,6 +1,5 @@
 package com.app.medicalwebapp.security;
 
-import com.app.medicalwebapp.repositories.UserRepository;
 import com.app.medicalwebapp.security.jwt.AuthExceptionProcessor;
 import com.app.medicalwebapp.security.jwt.OncePerRequestFilterImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,23 +16,18 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import java.time.LocalDateTime;
-
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    @Autowired
-    UserDetailsServiceImpl userDetailsService;
+    private final UserDetailsServiceImpl userDetailsService;
+    private final AuthExceptionProcessor unauthorizedHandler;
 
     @Autowired
-    private AuthExceptionProcessor unauthorizedHandler;
-
-    @Autowired
-    UserRepository userRepository;
-
-//    @Autowired
-//    PasswordEncoder encoder;
+    public SecurityConfig(UserDetailsServiceImpl userDetailsService, AuthExceptionProcessor unauthorizedHandler) {
+        this.userDetailsService = userDetailsService;
+        this.unauthorizedHandler = unauthorizedHandler;
+    }
 
     @Bean
     public OncePerRequestFilterImpl authenticationJwtTokenFilter() {

@@ -85,6 +85,7 @@ const MenuProps = {
 class CreateRecordComponent extends Component {
     constructor(props) {
         super(props);
+
         this.handleSubmitRecord = this.handleSubmitRecord.bind(this);
         this.onChangeTitle = this.onChangeTitle.bind(this);
         this.onChangeContent = this.onChangeContent.bind(this);
@@ -135,7 +136,7 @@ class CreateRecordComponent extends Component {
     handleTopics(e) {
         let topicIds = [];
         this.state.availableTopics.map(topic => {
-            if (e.target.value.indexOf(topic.label) !== -1) {
+            if (e.target.value.find(x => x.value === topic.value)) {
                 topicIds.push(topic.value)
             }
         });
@@ -150,7 +151,7 @@ class CreateRecordComponent extends Component {
     handleFiles(e) {
         let filesIds = [];
         this.state.availableFiles.map(file => {
-            if (e.target.value.indexOf(file.label) !== -1) {
+            if (e.target.value.find(x => x.value === file.value)) {
                 filesIds.push(file.value)
             }
         });
@@ -230,6 +231,7 @@ class CreateRecordComponent extends Component {
             <Container component="main">
                 <main className={classes.layout}>
                     <Paper className={classes.paper}>
+
                         <Typography variant="h6" gutterBottom>
                             Создание поста
                         </Typography>
@@ -269,10 +271,11 @@ class CreateRecordComponent extends Component {
                             />
 
                             <FormControl className={classes.formControl}>
-                                <InputLabel id="selected-topics">Прикрепить тэги</InputLabel>
+                                <InputLabel id="selected-topics">Выбрать ключевые слова</InputLabel>
                                 <Select
                                     className={classes.root}
                                     multiple
+                                    title={"Прикрепить тэги"}
                                     labelId="selected-topics"
                                     //variant="outlined"
                                     value={this.state.selectedTopicsValue}
@@ -281,14 +284,14 @@ class CreateRecordComponent extends Component {
                                     renderValue={(selected) => (
                                         <div className={classes.chips}>
                                             {selected.map((value) => (
-                                                <Chip key={value} label={value} className={classes.chip}/>
+                                                <Chip key={value} label={value.label} className={classes.chip}/>
                                             ))}
                                         </div>
                                     )}
                                     MenuProps={MenuProps}
                                 >
                                     {this.state.availableTopics.map(x => (
-                                        <MenuItem key={x.value} value={x.label} id={x.value}>
+                                        <MenuItem key={x.value} value={x} id={x.value}>
                                             {x.label}
                                         </MenuItem>
                                     ))}
@@ -303,12 +306,13 @@ class CreateRecordComponent extends Component {
                                     labelId="selected-files"
                                     //variant="outlined"
                                     value={this.state.selectedFilesValue}
+                                    title={"Прикрепить файлы"}
                                     onChange={this.handleFiles}
                                     input={<Input id="select-multiple-chip-for-files"/>}
                                     renderValue={(selected) => (
                                         <div className={classes.chips}>
                                             {selected.map((value) => (
-                                                <Chip key={value} label={value} className={classes.chip}/>
+                                                <Chip key={value} label={value.label} className={classes.chip}/>
                                             ))}
                                         </div>
                                     )}
@@ -316,7 +320,7 @@ class CreateRecordComponent extends Component {
                                 >
 
                                     {this.state.availableFiles.map(x => (
-                                        <MenuItem key={x.value} value={x.label} id={x.value}>
+                                        <MenuItem key={x.value} value={x} id={x.value}>
                                             {x.label}
                                         </MenuItem>
                                     ))}
@@ -337,6 +341,7 @@ class CreateRecordComponent extends Component {
                                 color="primary"
                                 className={classes.button}
                                 disabled={!this.state.contentPresence}
+                                title = {"Опубликовать"}
                             >
                                 Опубликовать
                             </Button>

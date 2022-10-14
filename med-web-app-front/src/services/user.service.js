@@ -6,6 +6,11 @@ const API_URL = process.env.REACT_APP_API_URL + '/api/search/';
 
 class UserService {
 
+    getUserByUsername(username) {
+        return axios.get('api/profile/' + username,
+            {headers: authHeader()});
+    }
+
     getContacts(currentUserUsername) {
         let parameters = this.createRequestParamsForGetContacts(currentUserUsername);
         return axios.get(API_URL + 'contacts',

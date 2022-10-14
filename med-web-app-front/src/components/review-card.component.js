@@ -7,14 +7,14 @@ import Avatar from "@material-ui/core/Avatar";
 import Typography from "@material-ui/core/Typography";
 
 const useStyles = theme => ({
-    hMargin:{
+    hMargin: {
         margin: 0
     },
     mainGrid: {
         display: 'flex',
     },
     grid: {
-        margin: theme.spacing(1.5,0,0,1),
+        margin: theme.spacing(1.5, 0, 0, 1),
         display: 'flex',
     },
     gridContent: {
@@ -23,10 +23,11 @@ const useStyles = theme => ({
     avatar: {
         width: 30,
         height: 30,
-        margin: theme.spacing(2,0,0,2),
+        margin: theme.spacing(2, 0, 0, 2),
     },
-    paper:{
+    paper: {
         margin: theme.spacing(3),
+        marginLeft : theme.spacing(1),
         borderRadius: 20,
         backgroundColor: "#eeeeee"
     },
@@ -40,10 +41,11 @@ class ReviewCard extends Component {
     constructor(props) {
         super(props);
 
-        this.convertTZ = this.convertTZ.bind(this);
         this.formatTime = this.formatTime.bind(this);
         this.getContent = this.getContent.bind(this);
         this.replyToReview = this.replyToReview.bind(this);
+        this.getOffsetBetweenTimezonesForDate = this.getOffsetBetweenTimezonesForDate.bind(this);
+        this.convertDateToAnotherTimeZone = this.convertDateToAnotherTimeZone.bind(this);
 
         this.state = {
             currentUser: AuthService.getCurrentUser(),
@@ -54,7 +56,7 @@ class ReviewCard extends Component {
         this.isPreview = this.props.isPreview;
         this.isReply = this.props.isReply;
 
-        this.creationTime = this.formatTime(this.review.creationTime);
+        this.creationTime = this.formatTime();
     }
 
     replyToReview() {
@@ -63,8 +65,17 @@ class ReviewCard extends Component {
         })
     }
 
-    convertTZ(date, tzString) {
-        return new Date((typeof date === "string" ? new Date(date) : date).toLocaleString("en-US", {timeZone: tzString}));
+    getOffsetBetweenTimezonesForDate(date, timezone1, timezone2) {
+        const timezone1Date = this.convertDateToAnotherTimeZone(date, timezone1);
+        const timezone2Date = this.convertDateToAnotherTimeZone(date, timezone2);
+        return timezone1Date.getTime() - timezone2Date.getTime();
+    }
+
+    convertDateToAnotherTimeZone(date, timezone) {
+        const dateString = date.toLocaleString('en-US', {
+            timeZone: timezone
+        });
+        return new Date(dateString);
     }
 
     getContent(content) {
@@ -74,18 +85,15 @@ class ReviewCard extends Component {
         return content;
     }
 
-    formatTime(creationTime) {
-        var creationTimestamp = new Date(creationTime);
-        let userDate = this.convertTZ(creationTimestamp, "Asia/Dhaka");
-        var hours = userDate.getHours();
-        var minutes = userDate.getMinutes();
-        minutes = minutes >= 10 ? minutes : '0' + minutes;
-        return hours + ':' + minutes;
+    formatTime() {
+        let timeZone = (Intl.DateTimeFormat().resolvedOptions().timeZone)
+        const difsTimeZones = this.getOffsetBetweenTimezonesForDate(new Date(), this.review.timeZone, timeZone)
+        return (new Date(new Date(this.review.creationTime).getTime() - difsTimeZones))
     }
 
     render() {
         const {classes} = this.props;
-        return(
+        return (
             <Grid>
                 <Card className={classes.paper}>
                     <Grid className={classes.mainGrid}>
@@ -95,16 +103,23 @@ class ReviewCard extends Component {
                             </Avatar>
                         </Grid>
                         <Grid className={classes.grid}>
-                            <Grid className={classes.grid}>
+                            <Grid className={classes.grid} title={this.review.creator.username}>
                                 <Link to={"/profile/" + this.review.creator.username} style={{ textDecoration: 'none', color: 'dark-blue'}}>
                                     <h6 className={classes.hMargin}> {this.review.creator.username}</h6>
                                 </Link>
                             </Grid>
                             <Grid className={classes.grid}>
-                                <h6 className={classes.hMargin}> {new Date(this.review.creationTime).toLocaleDateString()}</h6>
-                            </Grid>
-                            <Grid className={classes.grid}>
-                                <h6 className={classes.hMargin}>{this.creationTime}</h6>
+                                <h6 className={classes.hMargin}> {
+                                    (((new Date(this.creationTime).getHours() < 10 && "0" + new Date(this.creationTime).getHours())
+                                            || (new Date(this.creationTime).getHours() >= 10 && new Date(this.creationTime).getHours())) + ":"
+                                        + ((new Date(this.creationTime).getMinutes() < 10 && "0" + new Date(this.creationTime).getMinutes())
+                                            || (new Date(this.creationTime).getMinutes() >= 10 && new Date(this.creationTime).getMinutes())
+                                        )) + "    " + (
+                                        ((new Date(this.creationTime).getDate() < 10 && "0" + new Date(this.creationTime).getDate()) || (new Date(this.creationTime).getDate() >= 10 && new Date(this.creationTime).getDate()))
+                                        + "."
+                                        + (((new Date(this.creationTime).getMonth() + 1) < 10 && "0" + (new Date(this.creationTime).getMonth() + 1)) || (((new Date(this.creationTime).getMonth() + 1) >= 10 && (new Date(this.creationTime).getMonth() + 1))))
+                                        + "." + new Date(this.creationTime).getFullYear()
+                                    )}</h6>
                             </Grid>
                         </Grid>
                     </Grid>

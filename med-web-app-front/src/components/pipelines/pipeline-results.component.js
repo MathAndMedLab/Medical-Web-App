@@ -10,6 +10,7 @@ import {
 } from "@material-ui/core";
 import Button from "@material-ui/core/Button";
 import Grid from "@material-ui/core/Grid";
+import {Link} from "react-router-dom";
 
 const useStyles = theme => ({
     button: {
@@ -145,9 +146,9 @@ class PipelineResultsComponent extends Component {
         const {classes} = this.props
         return (
             <div>
-                <Grid xs={12} item className={classes.mainGrid}>
+                <Grid item xs={12}  className={classes.mainGrid}>
                     <Grid item xs/>
-                    <Grid xs={7} item>
+                    <Grid item xs={7} >
                         <Card className={classes.paper}>
                             <div className="row">
                                 <div className=" col-sm-12 align-content-center top-buffer-10">
@@ -179,31 +180,31 @@ class PipelineResultsComponent extends Component {
                                                                         style={{marginLeft: 5}}>Скачать</Typography>
                                                         </Button>
                                                     </div>
-                                                    {/*<div className="col-sm-1">*/}
-                                                    {/*    <IconButton aria-label="delete"*/}
-                                                    {/*                size="small"*/}
-                                                    {/*                style={{width: 5, color: '#444',}}*/}
-                                                    {/*                onClick={() => this.handleClickOpen()}>*/}
-                                                    {/*        <DeleteIcon fontSize="small"/>*/}
-                                                    {/*    </IconButton>*/}
-                                                    {/*</div>*/}
-                                                    {/*<Dialog*/}
-                                                    {/*    open={this.state.open}*/}
-                                                    {/*    onClose={this.handleClose}*/}
-                                                    {/*    aria-labelledby="alert-dialog-title"*/}
-                                                    {/*    aria-describedby="alert-dialog-description"*/}
-                                                    {/*>*/}
-                                                    {/*    <DialogTitle id="alert-dialog-title">*/}
-                                                    {/*        {"Вы действительно хотите удалить результат анализа?"}*/}
-                                                    {/*    </DialogTitle>*/}
-                                                    {/*    <DialogActions>*/}
-                                                    {/*        <Button onClick={this.handleClose}>Нет</Button>*/}
-                                                    {/*        <Button onClick={() => this.delete(el.id, el.outputId)}*/}
-                                                    {/*                autoFocus>*/}
-                                                    {/*            Да*/}
-                                                    {/*        </Button>*/}
-                                                    {/*    </DialogActions>*/}
-                                                    {/*</Dialog>*/}
+                                                   {/* <div className="col-sm-1">
+                                                        <IconButton aria-label="delete"
+                                                                    size="small"
+                                                                    style={{width: 5, color: '#444',}}
+                                                                    onClick={() => this.handleClickOpen()}>
+                                                            <DeleteIcon fontSize="small"/>
+                                                        </IconButton>
+                                                    </div>
+                                                    <Dialog
+                                                        open={this.state.open}
+                                                        onClose={this.handleClose}
+                                                        aria-labelledby="alert-dialog-title"
+                                                        aria-describedby="alert-dialog-description"
+                                                    >
+                                                        <DialogTitle id="alert-dialog-title">
+                                                            {"Вы действительно хотите удалить результат анализа?"}
+                                                        </DialogTitle>
+                                                        <DialogActions>
+                                                            <Button onClick={this.handleClose}>Нет</Button>
+                                                            <Button onClick={() => this.delete(el.id, el.outputId)}
+                                                                    autoFocus>
+                                                                Да
+                                                            </Button>
+                                                        </DialogActions>
+                                                    </Dialog>*/}
                                                 </div>
                                             ))}
                                         </div>
@@ -213,12 +214,14 @@ class PipelineResultsComponent extends Component {
                             </div>
                         </Card>
                     </Grid>
-                    <Grid xs={4} item>
+                    <Grid item xs={4} >
                         <Card className={classes.paper2}>
                             <Grid className={classes.grid}>
-                                <Button href={"/pipelines/create"} className={classes.button}>
-                                    Запустить анализ
-                                </Button>
+                                <Link to={"/pipelines/create"} style={{textDecoration: 'none'}}>
+                                    <Button className={classes.button}>
+                                        Запустить анализ
+                                    </Button>
+                                </Link>
                             </Grid>
                         </Card>
                     </Grid>

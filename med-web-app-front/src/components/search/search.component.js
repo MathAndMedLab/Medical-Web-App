@@ -43,7 +43,15 @@ const useStyles = theme => ({
         }
     },
     input: {
-        width: 800,
+        [theme.breakpoints.down("xs")]: {
+            width: 285,
+        },
+        [theme.breakpoints.between("sm", "md")]:{
+            width: 650
+        },
+        "@media (min-width : 1280px)":{
+            width: 800,
+        },
         marginBottom: theme.spacing(1.5),
         "& .MuiFormLabel-root": {
             margin: 0,
@@ -53,10 +61,26 @@ const useStyles = theme => ({
     header: {
         backgroundColor: '#3f51b5',
         color: 'white',
-        fontSize: 17
+        [theme.breakpoints.down("xs")]: {
+            fontSize: 13,
+        },
+        [theme.breakpoints.between("sm", "md")]:{
+            fontSize: 17,
+        },
+        "@media (min-width : 1280px)":{
+            fontSize: 17,
+        },
     },
     table: {
-        width: 800,
+        [theme.breakpoints.down("xs")]: {
+            width: 200,
+        },
+        [theme.breakpoints.between("sm", "md")]:{
+            width: 650
+        },
+        "@media (min-width : 1280px)":{
+            width: 800,
+        },
     },
     formControlLab: {
         marginBottom: theme.spacing(0),
@@ -183,7 +207,6 @@ class Search extends Component {
 
     render() {
         const {classes} = this.props;
-        console.log(this.state.users)
         return (
             <Grid className={classes.mainGrid}>
                 <Grid>
@@ -211,28 +234,28 @@ class Search extends Component {
                                     {/*    /!*<i className="fa fa-search" aria-hidden="true"/>*!/*/}
                                     {/*    <SearchIcon style={{color: "white"}}/>*/}
                                     {/*</Button>*/}
-                                    <IconButton onClick={this.getUsers}>
+                                    <IconButton onClick={this.getUsers} title={"Найти"}>
                                         <SearchIcon/>
                                     </IconButton>
                                 </InputAdornment>
                             }}
                         />
-                        {/*<input className="input-search"*/}
-                        {/*       type="text"*/}
-                        {/*       placeholder="Искать здесь..."*/}
-                        {/*       value={this.state.searchString}*/}
-                        {/*       onChange={this.onChangeUsername}*/}
-                        {/*/>*/}
-                        {/*<Button*/}
-                        {/*    className={classes.button}*/}
-                        {/*    variant="contained"*/}
-                        {/*    color="primary"*/}
-                        {/*        onClick={this.getUsers}*/}
-                        {/*>*/}
-                        {/*    /!*<i className="fa fa-search" aria-hidden="true"/>*!/*/}
-                        {/*    <SearchIcon style={{color: "white"}}/>*/}
-                        {/*</Button>*/}
-                        {/*</form>*/}
+                        {/*<input className="input-search"
+                               type="text"
+                               placeholder="Искать здесь..."
+                               value={this.state.searchString}
+                               onChange={this.onChangeUsername}
+                        />
+                        <Button
+                            className={classes.button}
+                            variant="contained"
+                            color="primary"
+                                onClick={this.getUsers}
+                        >
+                            <i className="fa fa-search" aria-hidden="true"/>
+                            <SearchIcon style={{color: "white"}}/>
+                        </Button>
+                        </form>*/}
                     </div>
                     <Grid className={classes.mainGrid}>
                         <Grid>
@@ -241,13 +264,13 @@ class Search extends Component {
                                     <Table className={classes.table} aria-label="spanning table">
                                         <TableHead>
                                             <TableRow>
-                                                <TableCell className={classes.header} width={300}>
+                                                <TableCell className={classes.header} width={150}>
                                                     Фамилия Имя
                                                 </TableCell>
-                                                <TableCell className={classes.header} width={250} align={"right"}>
+                                                <TableCell className={classes.header} width={75} align={"right"}>
                                                     Логин
                                                 </TableCell>
-                                                <TableCell className={classes.header} width={250} align={"right"}>
+                                                <TableCell className={classes.header} width={100} align={"right"}>
                                                     Роль
                                                 </TableCell>
                                             </TableRow>

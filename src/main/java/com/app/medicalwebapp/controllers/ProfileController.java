@@ -13,8 +13,12 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/profile") // TODO посмотреть, как будет лучше
 public class ProfileController {
+    private final UserService userService;
+
     @Autowired
-    UserService userService;
+    public ProfileController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping("/{username}")
     public ResponseEntity<?> getUserByUsername(@PathVariable String username) {

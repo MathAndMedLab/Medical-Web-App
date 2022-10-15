@@ -3,6 +3,8 @@ import authHeader from "./auth-header";
 
 const API_URL = process.env.REACT_APP_API_URL + '/api/auth/';
 
+
+
 class AuthService {
     login(username, password) {
         return axios
@@ -17,6 +19,8 @@ class AuthService {
 
                 return response.data;
             });
+
+
     }
 
     logout(username) {

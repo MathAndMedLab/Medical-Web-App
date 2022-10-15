@@ -147,7 +147,7 @@ const useStyles = theme => ({
         top: 0,
         left: 0,
         minWidth: 600,
-        minHeigft: 64,
+        minHeight: 64,
         maxHeight: 64,
         zIndex: theme.zIndex.drawer+2,
         transition: theme.transitions.create(['width', 'margin'], {
@@ -227,8 +227,6 @@ const useStyles = theme => ({
 let stompClient = null;
 
 function App(props) {
-
-
     const LeftMenuOpen = (width) =>{
         React.useEffect(() => {
             const handleResizeWindow = () => setWidth(window.innerWidth);

@@ -402,7 +402,7 @@ function Register(props) {
                             fullWidth
                             variant="contained"
                             color="primary"
-                            // onClick={handleRegister}
+                            //onClick={handleRegister}
                             className={classes.submit}
                             title = {"Зарегистрироваться"}
                         >

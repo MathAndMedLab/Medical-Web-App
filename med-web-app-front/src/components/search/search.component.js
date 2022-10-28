@@ -28,7 +28,9 @@ const StyledTableRow = withStyles((theme) => ({
     root: {
         '&:nth-of-type(odd)': {
             backgroundColor: "#e0e0e0",
+
         },
+        height: 190
     },
 }))(TableRow);
 
@@ -37,6 +39,7 @@ const useStyles = theme => ({
         "& .MuiPaper-root": {
             width: 800,
             backgroundColor: '#ffffff'
+
         },
         "& .MuiTableRow-root": {
             color: "black",
@@ -205,6 +208,10 @@ class Search extends Component {
         this.getUsers();
     }
 
+    //
+
+
+
     render() {
         const {classes} = this.props;
         return (
@@ -264,13 +271,16 @@ class Search extends Component {
                                     <Table className={classes.table} aria-label="spanning table">
                                         <TableHead>
                                             <TableRow>
-                                                <TableCell className={classes.header} width={150}>
-                                                    Фамилия Имя
+                                                <TableCell className={classes.header} align={"center"}>
+                                                    Фотография
                                                 </TableCell>
-                                                <TableCell className={classes.header} width={75} align={"right"}>
+                                                <TableCell className={classes.header} align={"center"}>
+                                                    ФИО
+                                                </TableCell>
+                                                <TableCell className={classes.header} align={"center"}>
                                                     Логин
                                                 </TableCell>
-                                                <TableCell className={classes.header} width={100} align={"right"}>
+                                                <TableCell className={classes.header}  align={"center"}>
                                                     Роль
                                                 </TableCell>
                                             </TableRow>

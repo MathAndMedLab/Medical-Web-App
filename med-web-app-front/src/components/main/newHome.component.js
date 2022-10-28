@@ -280,7 +280,7 @@ class newHome extends Component {
                 </div>
                 <Paper>
                     <Typography variant={"h6"} className={classes.rightPatientText}>
-                        Получите отчет от искусственного интеллекта
+                        !Получите отчет от искусственного интеллекта
                     </Typography>
                 </Paper>
 

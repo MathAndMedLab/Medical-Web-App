@@ -468,7 +468,7 @@ function App(props) {
                 <ListItemText primary={item.numberMsg}/>
             </ListItemButton>);
         }
-        else{
+        else {
             return (<ListItemButton
                 key={item.text}
                 component={Link} to={item.path}
@@ -798,7 +798,6 @@ function App(props) {
                     paper: clsx(classes.drawerPaper, !open && classes.drawerPaperClose),
                 }}
                 open={open}
-                onClick={handleDrawerChange}
            >
                 {open && (<div className={classes.toolbarIcon}>
                     <IconButton onClick={handleDrawerClose}>

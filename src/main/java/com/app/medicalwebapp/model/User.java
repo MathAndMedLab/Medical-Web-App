@@ -55,5 +55,6 @@ public class User {
 
     @Column(name = "avatar")
     private byte[] avatar;
+
 }
 

@@ -10,6 +10,9 @@ import Button from "@material-ui/core/Button";
 import {Link, useParams} from "react-router-dom";
 import UserService from "../../services/user.service"
 import PhotoCameraOutlinedIcon from '@mui/icons-material/PhotoCameraOutlined';
+import ReviewService from "../../services/review.service";
+import StarRatings from 'react-star-ratings';
+//import GetReviews from "../../requests_and_responses/review-request";
 
 const useStyles = theme => ({
     txtField: {
@@ -131,13 +134,15 @@ function Profile(props) {
     const fileInput = useRef(null)
     const [selectedFile, setSelectedFile] = useState(null)
     const [checked, setChecked] = useState(false)
+    const [reviews, setReviews] = useState([])
+    const [reviewsCounter, setReviewsCounter] = useState(0)
+    const [avgRating, setAvgRating] = useState(0)
 
     function selectFile() {
         if (user && user.username === AuthService.getCurrentUser().username) {
             fileInput.current.click()
         }
     }
-
 
     function getUser(username1) {
         ProfileService.getProfile(username1).then(
@@ -151,6 +156,14 @@ function Profile(props) {
                 }
                 refreshList();
                 setUser(user)
+                ReviewService.getAllReviews(user.id)
+                    .then(response => {
+                        setReviews(response.data)
+                        setReviewsCounter(response.data.length)
+                    })
+                    .catch((e) => {
+                        console.log(e);
+                    });
             })
             .catch((e) => {
                 console.log(e);
@@ -160,6 +173,7 @@ function Profile(props) {
     function refreshList() {
         setUser(null)
     }
+
 
     useEffect(() => {
         setUsername(usernamePath)
@@ -175,6 +189,20 @@ function Profile(props) {
             setSelectedFile(URL.createObjectURL(e.target.files[0]))
         }
     }
+
+
+    function getAvgRating(rvws, len) {
+        let avg = 0;
+        for (let i = 0; i < len; i++) {
+
+            avg += rvws[i].rating;
+        }
+        if (len === 0) {
+            return 0
+        }
+        return (Math.round((avg / len) * 100) / 100)
+    }
+
 
     return (
         <div>
@@ -196,16 +224,24 @@ function Profile(props) {
                                                 <PhotoCameraOutlinedIcon style={{fontSize: 60}}/>
                                             </Avatar>
                                             {user && user.username === AuthService.getCurrentUser().username &&
-                                            <Collapse in={checked} className={classes.collapsed}>
-                                                <Paper className={classes.paperUploadAvatar} onClick={selectFile}>
-                                                    <Typography className={classes.typography}>
-                                                        Загрузить фотографию
-                                                    </Typography>
-                                                </Paper>
-                                            </Collapse>}
+                                                <Collapse in={checked} className={classes.collapsed}>
+                                                    <Paper className={classes.paperUploadAvatar} onClick={selectFile}>
+                                                        <Typography className={classes.typography}>
+                                                            Загрузить фотографию
+                                                        </Typography>
+                                                    </Paper>
+                                                </Collapse>}
                                         </ButtonBase>
                                         <div>Дата регистрации:</div>
                                         <div>{new Date(user.registeredDate).toLocaleDateString()}</div>
+                                        <div>Отзывов: {reviewsCounter}</div>
+                                        <div><StarRatings rating={getAvgRating(reviews, reviewsCounter)}
+                                                          starRatedColor="orange"
+                                                          numberOfStars={5}
+                                                          name='rating'
+                                                          starDimension="20px"
+                                                          starSpacing="1px"
+                                        /></div>
                                     </Grid>
                                     <Grid className={classes.gridData}>
                                         <TextField
@@ -237,33 +273,33 @@ function Profile(props) {
                                             }}
                                         />
                                         {user && user.username !== AuthService.getCurrentUser().username &&
-                                        <Link to={"/msg/" + user.username} style={{textDecoration: 'none'}}>
-                                            <Button className={classes.write}>
-                                                Написать
-                                            </Button>
-                                        </Link>
+                                            <Link to={"/msg/" + user.username} style={{textDecoration: 'none'}}>
+                                                <Button className={classes.write}>
+                                                    Написать
+                                                </Button>
+                                            </Link>
                                         }
                                     </Grid>
                                 </Grid>
                             </Card>
                         </Grid>
                         {user && user.username === AuthService.getCurrentUser().username &&
-                        <Grid xs={4} item>
-                            <Card className={classes.paper2}>
-                                <Grid className={classes.grid}>
-                                    <Link to={"/files/view"} style={{textDecoration: 'none'}}>
-                                        <Button className={classes.button} title={"Мои файлы"}>
-                                            Мои файлы
-                                        </Button>
-                                    </Link>
-                                    <Link to={"/files/upload"} style={{textDecoration: 'none'}}>
-                                        <Button className={classes.button} title={"Загрузить файл"}>
-                                            Загрузить файл
-                                        </Button>
-                                    </Link>
-                                </Grid>
-                            </Card>
-                        </Grid>
+                            <Grid xs={4} item>
+                                <Card className={classes.paper2}>
+                                    <Grid className={classes.grid}>
+                                        <Link to={"/files/view"} style={{textDecoration: 'none'}}>
+                                            <Button className={classes.button} title={"Мои файлы"}>
+                                                Мои файлы
+                                            </Button>
+                                        </Link>
+                                        <Link to={"/files/upload"} style={{textDecoration: 'none'}}>
+                                            <Button className={classes.button} title={"Загрузить файл"}>
+                                                Загрузить файл
+                                            </Button>
+                                        </Link>
+                                    </Grid>
+                                </Card>
+                            </Grid>
                         }
                     </Grid>
 
@@ -277,5 +313,6 @@ function Profile(props) {
 
 
 }
+
 
 export default withStyles(useStyles)(Profile)

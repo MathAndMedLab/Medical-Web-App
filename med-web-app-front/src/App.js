@@ -246,7 +246,7 @@ function App(props) {
     const [currentUser, setCurrentUser] = useState(null)
     const [refresh, setRefresh] = useState({})
     const [width, setWidth] = React.useState(window.innerWidth);
-    const [open, setOpen] = useState(LeftMenuOpen(width));
+    const [open, setOpen] = useState(false);
 
     /**
      * Состояние allMessages имеет вид:

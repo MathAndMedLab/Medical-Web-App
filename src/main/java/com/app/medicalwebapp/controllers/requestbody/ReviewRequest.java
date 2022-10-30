@@ -15,4 +15,6 @@ public class ReviewRequest {
     long parent;
 
     long targetId;
+
+    long rating;
 }

@@ -10,9 +10,9 @@ import Button from "@material-ui/core/Button";
 import {Link, useParams} from "react-router-dom";
 import UserService from "../../services/user.service"
 import PhotoCameraOutlinedIcon from '@mui/icons-material/PhotoCameraOutlined';
-import ReviewService from "../../services/review.service";
 import StarRatings from 'react-star-ratings';
-//import GetReviews from "../../requests_and_responses/review-request";
+import GetAllReviews from "../../requests_and_responses/review-request";
+import GetAvgRating from "../../avg_rating/get_avg_rating";
 
 const useStyles = theme => ({
     txtField: {
@@ -136,7 +136,6 @@ function Profile(props) {
     const [checked, setChecked] = useState(false)
     const [reviews, setReviews] = useState([])
     const [reviewsCounter, setReviewsCounter] = useState(0)
-    const [avgRating, setAvgRating] = useState(0)
 
     function selectFile() {
         if (user && user.username === AuthService.getCurrentUser().username) {
@@ -156,14 +155,11 @@ function Profile(props) {
                 }
                 refreshList();
                 setUser(user)
-                ReviewService.getAllReviews(user.id)
-                    .then(response => {
-                        setReviews(response.data)
-                        setReviewsCounter(response.data.length)
-                    })
-                    .catch((e) => {
-                        console.log(e);
-                    });
+
+                GetAllReviews(user.id).then((result) => {
+                    setReviews(result)
+                    setReviewsCounter(result.length)
+                })
             })
             .catch((e) => {
                 console.log(e);
@@ -191,17 +187,7 @@ function Profile(props) {
     }
 
 
-    function getAvgRating(rvws, len) {
-        let avg = 0;
-        for (let i = 0; i < len; i++) {
 
-            avg += rvws[i].rating;
-        }
-        if (len === 0) {
-            return 0
-        }
-        return (Math.round((avg / len) * 100) / 100)
-    }
 
 
     return (
@@ -235,7 +221,7 @@ function Profile(props) {
                                         <div>Дата регистрации:</div>
                                         <div>{new Date(user.registeredDate).toLocaleDateString()}</div>
                                         <div>Отзывов: {reviewsCounter}</div>
-                                        <div><StarRatings rating={getAvgRating(reviews, reviewsCounter)}
+                                        <div><StarRatings rating={GetAvgRating(reviews, reviewsCounter)}
                                                           starRatedColor="orange"
                                                           numberOfStars={5}
                                                           name='rating'
@@ -287,6 +273,11 @@ function Profile(props) {
                             <Grid xs={4} item>
                                 <Card className={classes.paper2}>
                                     <Grid className={classes.grid}>
+                                        <Link to={"/profile/vrachr/edit"} style={{textDecoration: 'none'}}>
+                                            <Button className={classes.button} title={"Редактировать профиль"}>
+                                                Редактировать профиль
+                                            </Button>
+                                        </Link>
                                         <Link to={"/files/view"} style={{textDecoration: 'none'}}>
                                             <Button className={classes.button} title={"Мои файлы"}>
                                                 Мои файлы

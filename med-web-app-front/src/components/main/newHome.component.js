@@ -270,7 +270,7 @@ class newHome extends Component {
                 </div>
                 <Paper>
                     <Typography variant={"h6"} className={classes.middlePatientText}>
-                        <a href="#/records/view"> Выберите подходящего врача </a>
+                        <a href="#/search"> Выберите подходящего врача </a>
                     </Typography>
                 </Paper>
 
@@ -280,13 +280,7 @@ class newHome extends Component {
                 </div>
                 <Paper>
                     <Typography variant={"h6"} className={classes.rightPatientText}>
-                        !Получите отчет от искусственного интеллекта
-                    </Typography>
-                </Paper>
-
-                <Paper>
-                    <Typography variant={"h6"} className={classes.fourthTitle}>
-                        Если вы врач и хотите помочь другим людям:
+                        Получите отчет от искусственного интеллекта
                     </Typography>
                 </Paper>
 

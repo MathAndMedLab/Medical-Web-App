@@ -1,23 +1,10 @@
 import ReviewService from "./../services/review.service";
-import {useEffect, useState} from "react";
 
-const GetReviews = targetId => {
+async function GetAllReviews(targetId) {
 
-    const [reviews, setReviews] = useState([])
+    const response = await (ReviewService.getAllReviews(targetId).then(async response => {return response;}));
 
-    useEffect(() => {
-        ReviewService.getAllReviews(targetId).then(
-            async response => {
-                return (response.data);
-            })
-            .catch((e) => {
-                console.log(e);
-            });
-    }, []);
-
-
-    return reviews;
+    return await response.data;
 }
 
-
-export default GetReviews;
+export default GetAllReviews;

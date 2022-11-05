@@ -8,6 +8,7 @@ import TextField from "@material-ui/core/TextField";
 import DoneOutlineIcon from '@material-ui/icons/DoneOutline';
 import StarRatings from 'react-star-ratings';
 import GetReviews from "../../requests_and_responses/review-request";
+import GetAllReviews from "../../requests_and_responses/review-request";
 
 const useStyles = theme => ({
     root: {
@@ -121,14 +122,10 @@ class reviewComponent extends Component {
     }
 
     getReviews() {
-        ReviewService.getAllReviews(this.state.targetId)
-            .then(response => {
-                this.refreshList()
-                this.setState({reviews: response.data})
-            })
-            .catch((e) => {
-                console.log(e);
-            });
+        this.refreshList()
+        GetAllReviews(this.state.targetId).then((result) => {
+            this.setState({reviews: result})
+        })
     }
 
     refreshList() {

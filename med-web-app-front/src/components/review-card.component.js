@@ -6,6 +6,7 @@ import Grid from "@material-ui/core/Grid";
 import Avatar from "@material-ui/core/Avatar";
 import Typography from "@material-ui/core/Typography";
 import StarRatings from 'react-star-ratings';
+import PhotoCameraOutlinedIcon from "@mui/icons-material/PhotoCameraOutlined";
 
 const useStyles = theme => ({
     hMargin: {
@@ -59,6 +60,7 @@ class ReviewCard extends Component {
         this.isReply = this.props.isReply;
 
         this.creationTime = this.formatTime();
+
     }
 
     replyToReview() {
@@ -97,6 +99,7 @@ class ReviewCard extends Component {
         return (new Date(new Date(this.review.creationTime).getTime() - difsTimeZones))
     }
 
+
     render() {
         const {classes} = this.props;
         return (
@@ -105,7 +108,7 @@ class ReviewCard extends Component {
                     <Grid className={classes.mainGrid}>
                         <Grid>
                             <Avatar className={classes.avatar}>
-                                Photo
+                                <PhotoCameraOutlinedIcon style={{fontSize: 19}}/>
                             </Avatar>
                         </Grid>
                         <Grid className={classes.grid}>

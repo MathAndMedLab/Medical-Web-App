@@ -4,6 +4,7 @@ import com.app.medicalwebapp.controllers.requestbody.JwtResponse;
 import com.app.medicalwebapp.controllers.requestbody.MessageResponse;
 import com.app.medicalwebapp.controllers.requestbody.SignInRequest;
 import com.app.medicalwebapp.controllers.requestbody.SignUpRequest;
+import com.app.medicalwebapp.controllers.requestbody.EditProfileRequest;
 import com.app.medicalwebapp.model.Active;
 import com.app.medicalwebapp.model.User;
 import com.app.medicalwebapp.repositories.UserRepository;
@@ -91,6 +92,14 @@ public class AuthController {
         user.setRole(signUpRequest.getChosenRole());
         user.setPassword(encoder.encode(signUpRequest.getPassword()));
         user.setActive(Active.OFFLINE);
+
+        //Only for doctors.
+        user.setSpecialization(signUpRequest.getSpecialization());
+        user.setExperience(signUpRequest.getExperience());
+        user.setWorkplace(signUpRequest.getWorkplace());
+        user.setEducation(signUpRequest.getEducation());
+        //
+
 //        user.setRealName(signUpRequest.getRealName());
 //        user.setMobilePhone(signUpRequest.getMobilePhone());
         user.setStatus(0);
@@ -117,6 +126,25 @@ public class AuthController {
             return ResponseEntity.ok("JWT token is valid");
         } else {
             return new ResponseEntity("JWT token is not valid", HttpStatus.EXPECTATION_FAILED);
+        }
+    }
+
+    @PostMapping("/edit")
+    public void editProfile(@Valid @RequestBody EditProfileRequest editProfileRequest) {
+
+        Optional<User> user = userRepository.findByUsernameAndRoleNotLike(editProfileRequest.getUsername(), "Модератор");
+        if (user.isPresent()) {
+            User user2 = user.get();
+            System.out.println(user);
+            user2.setInitials(editProfileRequest.getInitials());
+            user2.setFirstname(editProfileRequest.getFirstname());
+            user2.setLastname(editProfileRequest.getLastname());
+            user2.setPatronymic(editProfileRequest.getPatronymic());
+            user2.setEducation(editProfileRequest.getEducation());
+            user2.setSpecialization(editProfileRequest.getSpecialization());
+            user2.setWorkplace(editProfileRequest.getWorkplace());
+            user2.setExperience(editProfileRequest.getExperience());
+            userRepository.save(user2);
         }
     }
 }

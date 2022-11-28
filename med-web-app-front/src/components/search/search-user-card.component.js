@@ -67,6 +67,7 @@ class UserCard extends Component {
                                       starDimension="20px"
                                       starSpacing="1px"
                     /></div>
+                    {this.user.active}
                 </TableCell>
 
                 {this.user.initials !== null &&

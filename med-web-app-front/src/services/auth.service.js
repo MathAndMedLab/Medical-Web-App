@@ -4,7 +4,6 @@ import authHeader from "./auth-header";
 const API_URL = process.env.REACT_APP_API_URL + '/api/auth/';
 
 
-
 class AuthService {
     login(username, password) {
         return axios
@@ -29,7 +28,7 @@ class AuthService {
         localStorage.removeItem("user");
     }
 
-    register(username, initials, firstname, lastname, patronymic, password, chosenRole) {
+    register(username, initials, firstname, lastname, patronymic, password, chosenRole, specialization, experience, workplace, education) {
         return axios.post(API_URL + "signup", {
             username,
             initials,
@@ -37,7 +36,13 @@ class AuthService {
             lastname,
             patronymic,
             password,
-            chosenRole
+            chosenRole,
+            //Only for doctors
+            specialization,
+            experience,
+            workplace,
+            education
+            //
         });
     }
 
@@ -47,6 +52,21 @@ class AuthService {
 
     getCurrentUser() {
         return JSON.parse(localStorage.getItem('user'));
+    }
+
+    editProfile(username, firstname, lastname, patronymic, initials, specialization, experience, workplace, education) {
+        return axios.post(API_URL + "edit", {
+            username,
+            firstname,
+            lastname,
+            patronymic,
+            initials,
+            // Only for doctors.
+            specialization,
+            experience,
+            workplace,
+            education
+        });
     }
 }
 

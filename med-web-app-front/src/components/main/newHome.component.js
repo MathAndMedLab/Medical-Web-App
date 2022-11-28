@@ -229,7 +229,7 @@ class newHome extends Component {
 
                 <Paper>
                     <Typography variant={"h5"} className={classes.secondTittle}>
-                        !Ранняя диагностика и правильный диагноз могут спасти вашу жизнь
+                        Ранняя диагностика и правильный диагноз могут спасти вашу жизнь!
                     </Typography>
                 </Paper>
                 <Paper>

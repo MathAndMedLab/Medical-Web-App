@@ -29,4 +29,12 @@ public class SignUpRequest {
     @Size(max = 10)
     private String chosenRole;
 
+    // Only for doctors.
+    private String specialization;
+
+    private int experience;
+
+    private String workplace;
+
+    private String education;
 }

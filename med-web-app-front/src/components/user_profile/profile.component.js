@@ -34,6 +34,13 @@ const useStyles = theme => ({
         margin: theme.spacing(1),
         "& .MuiInputBase-input": {
             textAlign: 'center'
+        },
+    },
+    txtDoctorFields: {
+        width: 350,
+        margin: theme.spacing(1),
+        "& .MuiInputBase-input": {
+            textAlign: 'center'
         }
     },
     paper: {
@@ -122,6 +129,12 @@ const useStyles = theme => ({
     typography: {
         fontWeight: 500,
         fontSize: 13
+    },
+    gridDoctorData: {
+        marginLeft: theme.spacing(0),
+        alignItems: 'center',
+        flexDirection: 'column',
+        display: 'flex',
     }
 });
 
@@ -147,6 +160,7 @@ function Profile(props) {
         ProfileService.getProfile(username1).then(
             async response => {
                 const user = response.data;
+                console.log(user)
                 if (user.avatar) {
                     const base64Data = user.avatar
                     const base64Response = await fetch(`data:application/json;base64,${base64Data}`)
@@ -186,9 +200,50 @@ function Profile(props) {
         }
     }
 
+    function getTextFieldsForDoctorRole() {
+        if (user.role === "Пользователь") {
+            return;
+        }
+        return (
+            <Grid className={classes.gridDoctorData}>
+                <TextField
+                    multiline
+                    className={classes.txtDoctorFields}
+                    id="standard-read-only-input"
+                    defaultValue={"Специальность: " + user.specialization}
+                    InputProps={{
+                        readOnly: true,
+                    }}
+                />
+                <TextField
+                    multiline
+                    className={classes.txtDoctorFields}
+                    id="standard-read-only-input"
+                    defaultValue={"Стаж: " + user.experience + " лет"}
+                    InputProps={{
+                        readOnly: true,
+                    }}
+                />
+                <TextField
+                    multiline
+                    className={classes.txtDoctorFields}
+                    id="standard-read-only-input"
+                    defaultValue={"Место работы: " + user.workplace}
+                    InputProps={{
+                        readOnly: true,
+                    }}
+                />
+                <TextField
+                    multiline
+                    className={classes.txtDoctorFields}
+                    id="standard-read-only-input"
+                    defaultValue={"Образование: " + user.education}
+                    InputProps={{
+                        readOnly: true,
+                    }}
+                /> </Grid>);
 
-
-
+    }
 
     return (
         <div>
@@ -218,6 +273,7 @@ function Profile(props) {
                                                     </Paper>
                                                 </Collapse>}
                                         </ButtonBase>
+
                                         <div>Дата регистрации:</div>
                                         <div>{new Date(user.registeredDate).toLocaleDateString()}</div>
                                         <div>Отзывов: {reviewsCounter}</div>
@@ -228,6 +284,7 @@ function Profile(props) {
                                                           starDimension="20px"
                                                           starSpacing="1px"
                                         /></div>
+                                        <span>{user.active}</span>
                                     </Grid>
                                     <Grid className={classes.gridData}>
                                         <TextField
@@ -258,6 +315,7 @@ function Profile(props) {
                                                 readOnly: true,
                                             }}
                                         />
+                                        {getTextFieldsForDoctorRole()}
                                         {user && user.username !== AuthService.getCurrentUser().username &&
                                             <Link to={"/msg/" + user.username} style={{textDecoration: 'none'}}>
                                                 <Button className={classes.write}>
@@ -273,7 +331,7 @@ function Profile(props) {
                             <Grid xs={4} item>
                                 <Card className={classes.paper2}>
                                     <Grid className={classes.grid}>
-                                        <Link to={"/profile/vrachr/edit"} style={{textDecoration: 'none'}}>
+                                        <Link to={"/edit"} style={{textDecoration: 'none'}}>
                                             <Button className={classes.button} title={"Редактировать профиль"}>
                                                 Редактировать профиль
                                             </Button>
@@ -299,6 +357,7 @@ function Profile(props) {
                     )}
                 </Grid>
             }
+
         </div>
     );
 

@@ -56,7 +56,7 @@ import {Logout, LogoutSharp} from "@mui/icons-material";
 import {RemoveRedEye} from "@material-ui/icons";
 import {SwipeableDrawer} from "@mui/material";
 import NewHomeComponent from "./components/main/newHome.component";
-
+import ProfileEditComponent from "./components/user_profile/profile-edit.component";
 const drawerWidth = 240
 
 const useStyles = theme => ({
@@ -938,7 +938,12 @@ function App(props) {
                             <Route exact path="/topics/create" component={TopicComponent}>
                                 {AuthService.getCurrentUser() ? <TopicComponent/> : <Redirect to="/login"/>}
                             </Route>
+                            <Route exact path={["/edit"]} render={(props) => (
+                                <ProfileEditComponent/>
+                            )} />
+
                             <Route component={NotExist}/>
+
                         </Switch>
                     </div>
                 </Grid>

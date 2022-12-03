@@ -115,21 +115,28 @@ function SenderMsg(props) {
         let filesPreview = [];
         if (msg.attachmentsBlobForImageClient && msg.attachmentsBlobForImageClient.length > 0) {
             for (let i = 0; i < msg.attachmentsBlobForImageClient.length; i++) {
-                if (msg.attachmentsBlobForImageClient[i].name.endsWith(".jpg") ||
-                    msg.attachmentsBlobForImageClient[i].name.endsWith(".png")
-                ) {
+                if(msg.attachmentsBlobForImageClient[i].image){
                     imagesPreview.push({
-                        image: URL.createObjectURL(msg.attachmentsBlobForImageClient[i])
-                    })
-                } else if (msg.attachmentsBlobForImageClient[i].name.endsWith(".dcm")) {
-                    filesPreview.push({
-                        initialName: msg.attachmentsBlobForImageClient[i].name,
-                        uid: msg.attachmentsBlobForImageClient[i].uid
-                    })
+                        image: msg.attachmentsBlobForImageClient[i].image,
+                        uid: msg.attachmentsBlobForImageClient[i].uid,
+                    });
                 } else {
-                    filesPreview.push({
-                        initialName: msg.attachmentsBlobForImageClient[i].name
-                    })
+                    if (msg.attachmentsBlobForImageClient[i].name.endsWith(".jpg") ||
+                        msg.attachmentsBlobForImageClient[i].name.endsWith(".png")
+                    ) {
+                        imagesPreview.push({
+                            image: URL.createObjectURL(msg.attachmentsBlobForImageClient[i])
+                        })
+                    } else if (msg.attachmentsBlobForImageClient[i].name.endsWith(".dcm")) {
+                        filesPreview.push({
+                            initialName: msg.attachmentsBlobForImageClient[i].name,
+                            uid: msg.attachmentsBlobForImageClient[i].uid
+                        })
+                    } else {
+                        filesPreview.push({
+                            initialName: msg.attachmentsBlobForImageClient[i].name
+                        })
+                    }
                 }
             }
         } else if (msg.images && msg.images.length > 0) {

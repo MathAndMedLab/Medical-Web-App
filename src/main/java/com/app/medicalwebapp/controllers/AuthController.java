@@ -135,7 +135,6 @@ public class AuthController {
         Optional<User> user = userRepository.findByUsernameAndRoleNotLike(editProfileRequest.getUsername(), "Модератор");
         if (user.isPresent()) {
             User user2 = user.get();
-            System.out.println(user);
             user2.setInitials(editProfileRequest.getInitials());
             user2.setFirstname(editProfileRequest.getFirstname());
             user2.setLastname(editProfileRequest.getLastname());

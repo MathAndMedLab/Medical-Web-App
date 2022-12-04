@@ -179,9 +179,6 @@ function Register(props) {
         if (e.target.value === "Пользователь") {
             setExperienceCorrectness(true)
         }
-        else {
-            setExperienceCorrectness(false)
-        }
         setSpecialization(null)
         setExperience(null)
         setWorkplace(null)

@@ -257,7 +257,7 @@ class newHome extends Component {
                 </div>
                 <Paper>
                     <Typography variant={"h6"} className={classes.leftPatientText}>
-                        Разместите пост на форуме
+                        <a href="#/records/view"> Разместите пост на форуме </a>
                     </Typography>
                 </Paper>
 
@@ -280,7 +280,7 @@ class newHome extends Component {
                 </div>
                 <Paper>
                     <Typography variant={"h6"} className={classes.rightPatientText}>
-                        Получите отчет от искусственного интеллекта
+                        <a href="http://localhost:3000/local"> Получите отчет от искусственного интеллекта </a>
                     </Typography>
                 </Paper>
 

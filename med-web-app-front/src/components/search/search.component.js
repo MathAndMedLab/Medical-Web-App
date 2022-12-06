@@ -208,10 +208,6 @@ class Search extends Component {
         this.getUsers();
     }
 
-    //
-
-
-
     render() {
         const {classes} = this.props;
         return (

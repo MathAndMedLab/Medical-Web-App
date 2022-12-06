@@ -6,7 +6,7 @@ import Avatar from "@material-ui/core/Avatar";
 import PhotoCameraOutlinedIcon from "@mui/icons-material/PhotoCameraOutlined";
 import Profile from "../user_profile/profile.component"
 import GetAllReviews from "../../requests_and_responses/review-request";
-import GetAvgRating from "../../avg_rating/get_avg_rating";
+import GetAvgRating from "../../avg_rating/get-avg-rating";
 import StarRatings from "react-star-ratings";
 
 const useStyles = theme => ({

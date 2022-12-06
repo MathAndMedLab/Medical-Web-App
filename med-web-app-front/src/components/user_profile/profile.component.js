@@ -12,7 +12,7 @@ import UserService from "../../services/user.service"
 import PhotoCameraOutlinedIcon from '@mui/icons-material/PhotoCameraOutlined';
 import StarRatings from 'react-star-ratings';
 import GetAllReviews from "../../requests_and_responses/review-request";
-import GetAvgRating from "../../avg_rating/get_avg_rating";
+import GetAvgRating from "../../avg_rating/get-avg-rating";
 
 const useStyles = theme => ({
     txtField: {

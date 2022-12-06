@@ -24,7 +24,7 @@ const useStyles = theme => ({
         color: "#000000",
     },
 
-    secondTittle: {
+    secondTitle: {
         position: "absolute",
         width: "750px",
         height: "42px",
@@ -228,7 +228,7 @@ class newHome extends Component {
                 </Paper>
 
                 <Paper>
-                    <Typography variant={"h5"} className={classes.secondTittle}>
+                    <Typography variant={"h5"} className={classes.secondTitle}>
                         Ранняя диагностика и правильный диагноз могут спасти вашу жизнь!
                     </Typography>
                 </Paper>

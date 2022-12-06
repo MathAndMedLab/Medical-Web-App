@@ -77,15 +77,16 @@ const useStyles = theme => ({
 })
 
 function Register(props) {
+    const defaultUser = "Пользователь";
+    const doctorUser = "Врач";
     const {classes} = props
-
     const [username, setUsername] = useState("")
     const [firstname, setFirstname] = useState("")
     const [lastname, setLastname] = useState("")
     const [patronymic, setPatronymic] = useState("")
     const [password, setPassword] = useState("")
     const [passwordRepeat, setPasswordRepeat] = useState("")
-    const [chosenRole, setChosenRole] = useState("Пользователь")
+    const [chosenRole, setChosenRole] = useState(defaultUser)
     const [successful, setSuccessful] = useState(false)
     const [message, setMessage] = useState("")
     const [loginMessage, setLoginMessage] = useState("")
@@ -176,7 +177,7 @@ function Register(props) {
     }
 
     function onChangeRole(e) {
-        if (e.target.value === "Пользователь") {
+        if (e.target.value === defaultUser) {
             setExperienceCorrectness(true)
         }
         setSpecialization(null)
@@ -246,7 +247,7 @@ function Register(props) {
                     setPatronymic("")
                     setPassword("")
                     setPasswordRepeat("")
-                    setChosenRole("Пользователь")
+                    setChosenRole(defaultUser)
                     AuthService.login(username, password).then(
                         () => {
                             setLoginSuccessful(true)
@@ -274,7 +275,7 @@ function Register(props) {
     }
 
     function getGridsForDoctorRole() {
-        if (chosenRole === "Пользователь") {
+        if (chosenRole === defaultUser) {
             return;
         }
 
@@ -496,16 +497,16 @@ function Register(props) {
                             <RadioGroup value={chosenRole} onChange={onChangeRole}>
                                 <FormControlLabel className={classes.formControlLab}
                                                   control={<Radio color="primary"/>}
-                                                  value="Пользователь"
-                                                  label="Пользователь"
-                                                  title={"Пользователь"}
+                                                  value=defaultUser
+                                                  label=defaultUser
+                                                  title={defaultUser}
                                 />
                                 <FormControlLabel className={classes.formControlLab}
                                                   control={<Radio color="primary"/>}
-                                                  value="Врач"
-                                                  label="Врач"
+                                                  value=doctorUser
+                                                  label=doctorUser
                                                   labelPlacement='end'
-                                                  title={"Врач"}
+                                                  title={doctorUser}
                                 />
                             </RadioGroup>
                         </FormControl>

@@ -1,14 +1,28 @@
-import {TextField, withStyles} from "@material-ui/core";
-import Button from "@mui/material/Button";
+import {Card, TextField, withStyles} from "@material-ui/core";
+import Button from "@material-ui/core/Button";
 import AuthService from "../../services/auth.service";
 import Grid from "@material-ui/core/Grid";
 import React, {useEffect, useState} from "react";
-import {useParams} from "react-router-dom";
 import GetUser from "../../requests_and_responses/getUser-request"
-import GetAllReviews from "../../requests_and_responses/review-request";
 
-function EditProfile() {
+const useStyles = theme => ({
+    paper: {
+        margin: theme.spacing(3, 5, 3, 5),
+    },
+    button: {
+        width: 300,
+        margin: theme.spacing(1),
+        backgroundColor: '#f50058',
+        color: '#fff',
+        '&:hover': {
+            backgroundColor: '#ff5983',
+            color: '#fff',
+        }
+    },
+});
 
+function EditProfile(props) {
+    const {classes} = props
     const [user, setUser] = useState(null)
     const [firstname, setFirstname] = useState("");
     const [lastname, setLastname] = useState("");
@@ -145,10 +159,13 @@ function EditProfile() {
 
     return (
         user &&
-        <div>
-            <h5>Редактирование профиля: </h5>
-            <Grid item container spacing={3}>
-                <Grid item xs={12}>
+            <Card>
+                <div className={classes.paper}>
+            <Grid item container spacing={2}>
+                <Grid xs={12} item style={{fontSize: "17px"}}>
+                    Редактирование профиля:
+                </Grid>
+                <Grid xs={12} item>
                     <TextField
                         required
                         variant="outlined"
@@ -161,7 +178,7 @@ function EditProfile() {
                         onChange={(e) => setFirstname(e.target.value)}
                     />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid xs={12} item>
                     <TextField
                         required
                         variant="outlined"
@@ -174,7 +191,7 @@ function EditProfile() {
                         onChange={(e) => setLastname(e.target.value)}
                     />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid xs={12} item>
                     <TextField
                         variant="outlined"
                         fullWidth
@@ -187,12 +204,18 @@ function EditProfile() {
                     />
                 </Grid>
                 {getFieldsForDoctor()}
+                <Grid xs={12} item style={{textAlign: 'center'}}>
+                    <Button className={classes.button} onClick={editProfilePost}> Сохранить все изменения </Button>
+                </Grid>
+                <Grid xs={12} item style={{textAlign: 'center'}}>
+                    {getInfoAboutFieldsCorrectness()}
+                </Grid>
             </Grid>
-            <Button onClick={editProfilePost}> Сохранить все изменения </Button>
-            {getInfoAboutFieldsCorrectness()}
-        </div>
+
+                </div>
+            </Card>
     );
 
 }
 
-export default EditProfile
+export default withStyles(useStyles)(EditProfile)

@@ -144,20 +144,17 @@ class UploadAttachmentsComponent extends Component {
             selectedFiles: undefined,
             progressInfos: [],
             message: [],
-
             fileInfos: [],
             dragEnter: false,
         };
     }
 
     deleteElement(index) {
-        let tempArray = [...this.state.selectedFiles];
-        tempArray.splice(index, 1);
-        if(tempArray.length === 0) {
-            tempArray = undefined;
-        };
+        let files = [...this.state.selectedFiles];
+        files.splice(index, 1);
+        if(files.length === 0) files = undefined
         this.setState({
-            selectedFiles: tempArray,
+            selectedFiles: files,
         });
     }
 
@@ -165,41 +162,58 @@ class UploadAttachmentsComponent extends Component {
         this.fileInput.current.click();
     }
 
-    handleFiles(event) {
+    handleFiles(e) {
+        let selectedFiles = []
+        let files = [...e.target.files]
+        let errorMessage = []
+        if(this.state.selectedFiles !== undefined) selectedFiles = [...this.state.selectedFiles]
+        files.map(file => {
+            selectedFiles.push(file)
+        })
+        if(selectedFiles.length === 0) {
+            selectedFiles = undefined;
+            errorMessage = ["Произошла ошибка попробуйте выбрать файлы снова"]
+        } 
         this.setState({
             progressInfos: [],
-            selectedFiles: event.target.files,
+            selectedFiles: selectedFiles,
+            message: errorMessage,
         });
     }
 
-    dropHandler(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        let files = [...event.dataTransfer.files];
-        let errorMessage = [];
-        if(files.length === 0) {
-            files = undefined;
+    dropHandler(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        let selectedFiles = []
+        let files = [...e.dataTransfer.files]
+        let errorMessage = []
+        if(this.state.selectedFiles !== undefined) selectedFiles = [...this.state.selectedFiles]
+        files.map(file => {
+            selectedFiles.push(file)
+        })
+        if(selectedFiles.length === 0) {
+            selectedFiles = undefined
             errorMessage = ["Произошла ошибка попробуйте перетащить файлы снова"]
-        }
+        } 
         this.setState({
             progressInfos: [],
-            selectedFiles: files,
+            selectedFiles: selectedFiles,
             message: errorMessage,
             dragEnter: false,
         });
     }
 
-    dragEnterHandler(event) {
-        event.preventDefault();
-        event.stopPropagation();
+    dragEnterHandler(e) {
+        e.preventDefault();
+        e.stopPropagation();
         this.setState({
             dragEnter: true,
         });
     }
 
-    dragLeaveHandler(event) {
-        event.preventDefault();
-        event.stopPropagation();
+    dragLeaveHandler(e) {
+        e.preventDefault();
+        e.stopPropagation();
         this.setState({
             dragEnter: false,
         });

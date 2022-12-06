@@ -497,16 +497,16 @@ function Register(props) {
                             <RadioGroup value={chosenRole} onChange={onChangeRole}>
                                 <FormControlLabel className={classes.formControlLab}
                                                   control={<Radio color="primary"/>}
-                                                  value=defaultUser
-                                                  label=defaultUser
-                                                  title={defaultUser}
+                                                  value="Пользователь"
+                                                  label="Пользователь"
+                                                  title={"Пользователь"}
                                 />
                                 <FormControlLabel className={classes.formControlLab}
                                                   control={<Radio color="primary"/>}
-                                                  value=doctorUser
-                                                  label=doctorUser
+                                                  value="Врач"
+                                                  label="Врач"
                                                   labelPlacement='end'
-                                                  title={doctorUser}
+                                                  title={"Врач"}
                                 />
                             </RadioGroup>
                         </FormControl>

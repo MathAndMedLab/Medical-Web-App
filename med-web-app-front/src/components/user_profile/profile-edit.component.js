@@ -155,8 +155,6 @@ function EditProfile(props) {
         }
     }
 
-
-
     return (
         user &&
             <Card>

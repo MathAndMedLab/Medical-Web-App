@@ -422,6 +422,7 @@ function Chat(props) {
                             })
                             // Для отправления файлов по websocket, необходимо перевести их в строку base64.
                             const fileStringBase64 = await readerPromise;
+                            console.log(fileStringBase64)
                             pairFileNameBase64 = {fileName: selectedFiles[i].name, fileContent: fileStringBase64}
                         }
                         fileNameAndStringBase64.push(pairFileNameBase64)
@@ -449,12 +450,10 @@ function Chat(props) {
                         uid = selectFiles[i].uid
 
                         const fileStringBase64 = await readerPromise;
+                        console.log(fileStringBase64)
 
                         selectedFiles[i] = {name: selectedFiles[i].name, image: fileStringBase64, uid: selectedFiles[i].uid}
-                        pairFileNameBase64 = {
-                            fileName: selectedFiles[i].name,
-                            fileContent: selectedFiles[i].image,
-                        };
+                        pairFileNameBase64 = {fileName: selectedFiles[i].name, fileContent: selectedFiles[i].image};
                       }
                   }
                   fileNameAndStringBase64.push(pairFileNameBase64);
@@ -764,7 +763,7 @@ function Chat(props) {
         setSelectedFiles(files)
     }
 
-    /**
+/**
  * Загрузка файлов из профиля
  */
 
@@ -784,21 +783,13 @@ function Chat(props) {
     }
 
     function handleFiles(e) {
-        const MAX_SIZE_FILES = 52428800
-        let err_files = false
         let files = [...e.target.value]
-        let removedCount = 0
-        const length = files.length
-        for (let i = 0; i < length; i++) {
-        if (files[i - removedCount].size > MAX_SIZE_FILES) {
-            files.splice(i - removedCount, 1)
-            removedCount++
-            err_files = true
+        
+        if(files.length > 6){
+            alert("Кол-во файлов должно быть <= 6.")
+            files.splice(files.length - 1, 1)
         }
-        }
-        if (err_files) {
-            alert("Кол-во <= 6, размер <= 50МБ")
-        }
+        
         if (files.length === 0) {
             setSelectFiles([])
             setSelectedFiles(null)
@@ -806,11 +797,11 @@ function Chat(props) {
             setSelectFiles(files)
             setSelectedFiles(files)
         }
-    };
+    }
 
-    function acceptFiles() {
+    function acceptButton() {
         setModalShow(false);
-    };
+    }
 
     const ITEM_HEIGHT = 48
     const ITEM_PADDING_TOP = 8
@@ -993,8 +984,8 @@ function Chat(props) {
                                         </Container>
                                         </Modal.Body>
                                         <Modal.Footer>
-                                        <Button onClick={() => acceptFiles()}>Принять</Button>
-                                        <Button onClick={() => handleClose()}>Отменить</Button>
+                                            <Button onClick={() => acceptButton()} >Принять</Button>
+                                            <Button onClick={() => handleClose()}>Отменить</Button>
                                         </Modal.Footer>
                                     </Modal>
                                     </Dropdown.Item>

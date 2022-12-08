@@ -8,6 +8,7 @@ import com.app.medicalwebapp.model.messenger_models.ChatMessage;
 import com.app.medicalwebapp.model.messenger_models.StatusMessage;
 import com.app.medicalwebapp.repositories.messenger_repositories.ChatMessageRepository;
 import com.app.medicalwebapp.services.FileService;
+import com.app.medicalwebapp.repositories.FileObjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,17 +18,20 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.Arrays;
 
 
 @Service
 public class ChatMessageService {
     private final ChatMessageRepository chatMessageRepository;
     private final FileService fileService;
+    private final FileObjectRepository fileObjectRepository;
 
     @Autowired
-    public ChatMessageService(ChatMessageRepository chatMessageRepository, FileService fileService){
+    public ChatMessageService(ChatMessageRepository chatMessageRepository, FileService fileService, FileObjectRepository fileObjectRepository){
         this.chatMessageRepository = chatMessageRepository;
         this.fileService = fileService;
+        this.fileObjectRepository = fileObjectRepository;
     }
 
     /**
@@ -38,11 +42,30 @@ public class ChatMessageService {
 
         // Если к сообщению прикреплены файлы, необходимо строку base64 декодировать в byte[] и отправить файл на сохранение.
         if (msg.getFiles() != null) {
+            var savedFiles = fileObjectRepository.findByOwnerAndDeleted(msg.getSenderId(), false);
             for (ChatFileRequest file : msg.getFiles()) {
                 Base64.Decoder decoder = Base64.getDecoder();
                 String fileBase64 = file.getFileContent().split(",")[1];
                 byte[] decodedFileByte = decoder.decode(fileBase64);
-                files.add(fileService.saveFile(file.getFileName(), decodedFileByte, msg.getSenderId(), msg.getUid()));
+                // Проверка на наличие идентичного файла в профиле
+                var element = savedFiles.stream()
+                    .filter(x ->
+                    {
+                        try{
+                            return (Arrays.equals(decodedFileByte, fileService.previewFile(x)));
+                        } catch(Exception e) {
+                            e.printStackTrace();
+                        }
+                        return false;
+                    })
+                    .findFirst();
+                
+                if (element.isPresent()) {
+                    var fileObject = element.get();
+                    files.add(fileObject);
+                } else {
+                    files.add(fileService.saveFile(file.getFileName(), decodedFileByte, msg.getSenderId(), msg.getUid()));
+                }
             }
         }
         String chatId;

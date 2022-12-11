@@ -49,10 +49,10 @@ const useStyles = theme => ({
         [theme.breakpoints.down("xs")]: {
             width: 285,
         },
-        [theme.breakpoints.between("sm", "md")]:{
+        [theme.breakpoints.between("sm", "md")]: {
             width: 650
         },
-        "@media (min-width : 1280px)":{
+        "@media (min-width : 1280px)": {
             width: 800,
         },
         marginBottom: theme.spacing(1.5),
@@ -67,23 +67,15 @@ const useStyles = theme => ({
         [theme.breakpoints.down("xs")]: {
             fontSize: 13,
         },
-        [theme.breakpoints.between("sm", "md")]:{
+        [theme.breakpoints.between("sm", "md")]: {
             fontSize: 17,
         },
-        "@media (min-width : 1280px)":{
+        "@media (min-width : 1280px)": {
             fontSize: 17,
         },
     },
     table: {
-        [theme.breakpoints.down("xs")]: {
-            width: 200,
-        },
-        [theme.breakpoints.between("sm", "md")]:{
-            width: 650
-        },
-        "@media (min-width : 1280px)":{
-            width: 800,
-        },
+        width: 800,
     },
     formControlLab: {
         marginBottom: theme.spacing(0),
@@ -276,20 +268,20 @@ class Search extends Component {
                                                 <TableCell className={classes.header} align={"center"}>
                                                     Логин
                                                 </TableCell>
-                                                <TableCell className={classes.header}  align={"center"}>
+                                                <TableCell className={classes.header} align={"center"}>
                                                     Роль
                                                 </TableCell>
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
                                             {this.state.users &&
-                                            this.state.users.map((user, index) => (
-                                                <StyledTableRow
-                                                    key={index}
-                                                >
-                                                    <UserCard user={user}/>
-                                                </StyledTableRow>
-                                            ))}
+                                                this.state.users.map((user, index) => (
+                                                    <StyledTableRow
+                                                        key={index}
+                                                    >
+                                                        <UserCard user={user}/>
+                                                    </StyledTableRow>
+                                                ))}
                                         </TableBody>
                                     </Table>
                                 </TableContainer>

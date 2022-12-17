@@ -99,6 +99,17 @@ class ReviewCard extends Component {
         return (new Date(new Date(this.review.creationTime).getTime() - difsTimeZones))
     }
 
+    getStarsRating() {
+        if (!this.isReply) {
+            return (<StarRatings rating={this.review.rating}
+                                 starRatedColor="orange"
+                                 numberOfStars={5}
+                                 name='rating'
+                                 starDimension="20px"
+                                 starSpacing="1px"
+            />)
+        }
+    }
 
     render() {
         const {classes} = this.props;
@@ -137,13 +148,7 @@ class ReviewCard extends Component {
                         <Typography className={classes.content}>
                             {this.getContent(this.review.content)}
                             {'\n'}
-                            <StarRatings rating={this.review.rating}
-                                         starRatedColor="orange"
-                                         numberOfStars={5}
-                                         name='rating'
-                                         starDimension="20px"
-                                         starSpacing="1px"
-                            />
+                            {this.getStarsRating()}
                         </Typography>
                     </Grid>
                 </Card>

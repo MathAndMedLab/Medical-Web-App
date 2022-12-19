@@ -2,6 +2,7 @@ package com.app.medicalwebapp.services;
 
 import com.app.medicalwebapp.controllers.requestbody.RecordCreationRequest;
 import com.app.medicalwebapp.controllers.requestbody.RecordsPageResponse;
+import com.app.medicalwebapp.controllers.requestbody.RecordFileRequest;
 import com.app.medicalwebapp.model.FileObject;
 import com.app.medicalwebapp.model.Record;
 import com.app.medicalwebapp.model.Topic;
@@ -9,6 +10,7 @@ import com.app.medicalwebapp.model.User;
 import com.app.medicalwebapp.repositories.FileObjectRepository;
 import com.app.medicalwebapp.repositories.RecordRepository;
 import com.app.medicalwebapp.repositories.TopicRepository;
+import com.app.medicalwebapp.services.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Base64;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -28,12 +31,14 @@ public class RecordService {
     private final RecordRepository recordRepository;
     private final TopicRepository topicRepository;
     private final FileObjectRepository fileObjectRepository;
+    private final FileService fileService;
 
     @Autowired
-    public RecordService(RecordRepository recordRepository, TopicRepository topicRepository, FileObjectRepository fileObjectRepository) {
+    public RecordService(RecordRepository recordRepository, TopicRepository topicRepository, FileObjectRepository fileObjectRepository, FileService fileService) {
         this.recordRepository = recordRepository;
         this.topicRepository = topicRepository;
         this.fileObjectRepository = fileObjectRepository;
+        this.fileService = fileService;
     }
 
 
@@ -89,6 +94,22 @@ public class RecordService {
                     .filter(Objects::nonNull)
                     .collect(Collectors.toSet());
         }
+        if (request.getNewFiles() != null && !request.getNewFiles().isEmpty()) {
+            files = request.getNewFiles().stream().map(file -> {
+                try {
+                    Base64.Decoder decoder = Base64.getDecoder();
+                    String fileBase64 = file.getFileContent().split(",")[1];
+                    byte[] decodedFileByte = decoder.decode(fileBase64);
+                    FileObject fileObject = fileService.saveFile(file.getFileName(), decodedFileByte, creatorId, file.getUid());
+                    return fileObject;
+                } catch(Exception e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }).filter(Objects::nonNull)
+            .collect(Collectors.toSet());
+        }
+
 
         Set<Topic> topics = null;
         if (request.getTopics() != null && !request.getTopics().isEmpty()) {

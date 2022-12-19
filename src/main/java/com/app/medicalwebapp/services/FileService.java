@@ -11,6 +11,8 @@ import com.app.medicalwebapp.utils.saving.FileSaverStrategyResolver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+
 @Service
 public class FileService {
     private final FileSaverStrategyResolver saverStrategyResolver;
@@ -28,9 +30,27 @@ public class FileService {
      * Сохранение файла.
      */
     public FileObject saveFile(String originalName, byte[] fileContent, Long ownerId, String UID) throws Exception {
-        FileSaverStrategy fileSaver = saverStrategyResolver.getFileSaver(originalName); // Выбрать способ сохранения файла, зависит от его расширения.
-        FileObjectFormat format = FileFormatResolver.resolveFormat(originalName);
-        return fileSaver.save(ownerId, originalName, format, fileContent, UID);
+        // Проверка файлов на идентичные загруженные файлы на сервере
+        var savedFiles = fileObjectRepository.findByOwnerAndDeleted(ownerId, false);
+        var element = savedFiles.stream()
+                    .filter(x ->
+                    {
+                        try{
+                            return (Arrays.equals(fileContent, previewFile(x)));
+                        } catch(Exception e) {
+                            e.printStackTrace();
+                        }
+                        return false;
+                    })
+                    .findFirst();
+
+        if (element.isPresent()) {
+            return element.get();
+        } else {
+            FileSaverStrategy fileSaver = saverStrategyResolver.getFileSaver(originalName); // Выбрать способ сохранения файла, зависит от его расширения.
+            FileObjectFormat format = FileFormatResolver.resolveFormat(originalName);
+            return fileSaver.save(ownerId, originalName, format, fileContent, UID);
+        }
     }
 
     /**

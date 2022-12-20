@@ -177,6 +177,8 @@ const useStyles = theme => ({
         width: '100%'
     },
     iconInput: {
+        backgroundColor: "#3f51b5",
+        borderRadius: '5px',
         width: "100%",
         height: 56,
     },
@@ -927,11 +929,12 @@ function Chat(props) {
                                     as={ButtonGroup}
                                     key="up"
                                     className={classes.iconInput}
-                                    variant="primary"
+                                    variant="contained"
+                                    color="primary"
                                     id="dropdown-button-drop-up"
                                     drop="up"
                                     disabled={!selectedUser}
-                                    title={<AttachFileIcon />}
+                                    title={<AttachFileIcon style={{color: "#fff"}}/>}
                                 >
                                     <Dropdown.Item
                                     as="button"

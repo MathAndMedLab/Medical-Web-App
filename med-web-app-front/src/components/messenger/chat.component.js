@@ -1,36 +1,38 @@
 import {Card, Divider, List, Paper, TextField, Typography, withStyles} from "@material-ui/core"
-import { Link, useParams } from "react-router-dom";
-import React, { useEffect, useRef, useState } from "react";
-import UserService from "../../services/user.service";
-import Grid from "@material-ui/core/Grid";
-import AuthService from "../../services/auth.service";
-import AttachmentService from "../../services/attachment.service";
-import Button from "@material-ui/core/Button";
-import ListItemButton from "@mui/material/ListItemButton";
-import UserCardMessage from "./user-card-msg.component";
-import ChatService from "../../services/chat.service";
-import RecipientMsg from "./recipient.msg.component";
-import SenderMsg from "./sender.msg.component";
-import Avatar from "@material-ui/core/Avatar";
-import AttachFileIcon from "@mui/icons-material/AttachFile";
-import SendIcon from "@mui/icons-material/Send";
-import DicomAnonymizerService from "../../services/dicom-anonymizer.service";
-import PhotoCameraOutlinedIcon from "@mui/icons-material/PhotoCameraOutlined";
-import Dropdown from "react-bootstrap/Dropdown";
-import ButtonGroup from "react-bootstrap/ButtonGroup";
-import DropdownButton from "react-bootstrap/DropdownButton";
-import Select from "@material-ui/core/Select";
-import MenuItem from "@material-ui/core/MenuItem";
-import Input from "@material-ui/core/Input";
-import Chip from "@material-ui/core/Chip";
-import FormControl from "@material-ui/core/FormControl";
-import Container from "@material-ui/core/Container";
-import InputLabel from "@material-ui/core/InputLabel";
-import Modal from "react-bootstrap/Modal";
+import { Link, useParams } from "react-router-dom"
+import React, { useEffect, useRef, useState } from "react"
+import UserService from "../../services/user.service"
+import Grid from "@material-ui/core/Grid"
+import AuthService from "../../services/auth.service"
+import AttachmentService from "../../services/attachment.service"
+import Button from "@material-ui/core/Button"
+import ListItemButton from "@mui/material/ListItemButton"
+import UserCardMessage from "./user-card-msg.component"
+import ChatService from "../../services/chat.service"
+import RecipientMsg from "./recipient.msg.component"
+import SenderMsg from "./sender.msg.component"
+import Avatar from "@material-ui/core/Avatar"
+import AttachFileIcon from "@mui/icons-material/AttachFile"
+import HighlightOffIcon from '@mui/icons-material/HighlightOff'
+import SendIcon from "@mui/icons-material/Send"
+import DicomAnonymizerService from "../../services/dicom-anonymizer.service"
+import PhotoCameraOutlinedIcon from "@mui/icons-material/PhotoCameraOutlined"
+import Dropdown from "react-bootstrap/Dropdown"
+import ButtonGroup from "react-bootstrap/ButtonGroup"
+import DropdownButton from "react-bootstrap/DropdownButton"
+import Select from "@material-ui/core/Select"
+import MenuItem from "@material-ui/core/MenuItem"
+import Input from "@material-ui/core/Input"
+import Chip from "@material-ui/core/Chip"
+import FormControl from "@material-ui/core/FormControl"
+import Container from "@material-ui/core/Container"
+import InputLabel from "@material-ui/core/InputLabel"
+import Modal from "react-bootstrap/Modal"
 
 /**
  * Стили для компонентов mui и react.
  */
+
 const useStyles = theme => ({
     root: {
         width: 510,
@@ -422,7 +424,6 @@ function Chat(props) {
                             })
                             // Для отправления файлов по websocket, необходимо перевести их в строку base64.
                             const fileStringBase64 = await readerPromise;
-                            console.log(fileStringBase64)
                             pairFileNameBase64 = {fileName: selectedFiles[i].name, fileContent: fileStringBase64}
                         }
                         fileNameAndStringBase64.push(pairFileNameBase64)
@@ -449,9 +450,8 @@ function Chat(props) {
 
                         uid = selectFiles[i].uid
 
+                        // Для отправления файлов по websocket, необходимо перевести их в строку base64.
                         const fileStringBase64 = await readerPromise;
-                        console.log(fileStringBase64)
-
                         selectedFiles[i] = {name: selectedFiles[i].name, image: fileStringBase64, uid: selectedFiles[i].uid}
                         pairFileNameBase64 = {fileName: selectedFiles[i].name, fileContent: selectedFiles[i].image};
                       }
@@ -763,11 +763,7 @@ function Chat(props) {
         setSelectedFiles(files)
     }
 
-/**
- * Загрузка файлов из профиля
- */
-
-    const getFiles = () => {
+    function getFiles() {
         AttachmentService.getAttachmentsForUser(
         AuthService.getCurrentUser().username
         ).then(
@@ -782,6 +778,11 @@ function Chat(props) {
         })
     }
 
+    /**
+     * Функция проверяет выбранные файлы на ограничение:
+     * кол-во файлов <= 6.
+     * @param e 
+     */
     function handleFiles(e) {
         let files = [...e.target.value]
         
@@ -799,6 +800,9 @@ function Chat(props) {
         }
     }
 
+    /**
+     * Функция закрывает модальное окно
+     */
     function acceptButton() {
         setModalShow(false);
     }
@@ -814,14 +818,35 @@ function Chat(props) {
         },
     }
 
-    const handleOpen = () => {
+    /**
+     * Функция открывает модальное окно
+     */
+    function handleOpen() {
         setModalShow(true)
     }
 
-    const handleClose = () => {
+    /**
+     * Функция закрывает модальное окно и обнуляет выбранные файлы
+     */
+    function handleClose() {
         setSelectFiles([])
         setSelectedFiles(null)
         setModalShow(false)
+    }
+
+    /**
+     * Функция удаляет прикрепленные файлы к сообщению
+     * @param index 
+     */
+    function delSelectedFiles(index) {
+        let files = [...selectedFiles]
+        files.splice(index, 1)
+        if(files.length === 0) {
+            setSelectFiles([])
+            setSelectedFiles(null)
+        } else {
+            setSelectedFiles(files)
+        }
     }
 
     return (
@@ -915,79 +940,79 @@ function Chat(props) {
                                     disabled={!selectedUser}
                                     title={"Прикрепить файл"}
                                     >
-                                    <input
-                                        type="file"
-                                        style={{ display: "none" }}
-                                        ref={fileInput}
-                                        multiple
-                                        onChange={(e) => uploadFiles(e)}
-                                    />
-                                    С устройства
+                                        <input
+                                            type="file"
+                                            style={{ display: "none" }}
+                                            ref={fileInput}
+                                            multiple
+                                            onChange={(e) => uploadFiles(e)}
+                                        />
+                                            С устройства
                                     </Dropdown.Item>
                                     <Dropdown.Item
                                     title={"Прикрепить файл"}
                                     >
-                                    <span
-                                        as="button"
-                                        variant="contained"
-                                        onClick={handleOpen}>
-                                        Из профиля
-                                    </span>
-                                    <Modal
-                                        show={modalShow}
-                                        centered="true"
-                                        aria-labelledby="contained-modal-title-vcenter"
-                                        onHide={handleClose}
-                                    >
-                                        <Modal.Body>
-                                        <Modal.Header>
-                                            <Modal.Title id="contained-modal-title-vcenter">
-                                                Выберите изображения из профиля
-                                            </Modal.Title>
-                                        </Modal.Header>
-                                        <Container component="main">
-                                            <main className={classes.layout}>
-                                            <Paper className={classes.paper3}>
-                                                <FormControl className={classes.formControl}>
-                                                <InputLabel id="selected-files">Прикрепить файлы</InputLabel>
-                                                <Select
-                                                    className={classes.rootSelect}
-                                                    multiple
-                                                    labelId="selected-files"
-                                                    value={selectFiles}
-                                                    title={"Прикрепить файлы"}
-                                                    onChange={handleFiles}
-                                                    input={<Input id="select-multiple-chip-for-files"/>}
-                                                    renderValue={(selected) => (
-                                                    <div className={classes.chips}>
-                                                        {selected.map((value) => (
-                                                        <Chip
-                                                            key={value}
-                                                            label={value.name}
-                                                            className={classes.chip}
-                                                        />
+                                        <span
+                                            as="button"
+                                            variant="contained"
+                                            onClick={handleOpen}>
+                                            Из профиля
+                                        </span>
+                                        <Modal
+                                            show={modalShow}
+                                            centered="true"
+                                            aria-labelledby="contained-modal-title-vcenter"
+                                            onHide={handleClose}
+                                        >
+                                            <Modal.Body>
+                                            <Modal.Header>
+                                                <Modal.Title id="contained-modal-title-vcenter">
+                                                    Выберите изображения из профиля
+                                                </Modal.Title>
+                                            </Modal.Header>
+                                            <Container component="main">
+                                                <main className={classes.layout}>
+                                                <Paper className={classes.paper3}>
+                                                    <FormControl className={classes.formControl}>
+                                                    <InputLabel id="selected-files">Прикрепить файлы</InputLabel>
+                                                    <Select
+                                                        className={classes.rootSelect}
+                                                        multiple
+                                                        labelId="selected-files"
+                                                        value={selectFiles}
+                                                        title={"Прикрепить файлы"}
+                                                        onChange={handleFiles}
+                                                        input={<Input id="select-multiple-chip-for-files"/>}
+                                                        renderValue={(selected) => (
+                                                        <div className={classes.chips}>
+                                                            {selected.map((value) => (
+                                                            <Chip
+                                                                key={value}
+                                                                label={value.name}
+                                                                className={classes.chip}
+                                                            />
+                                                            ))}
+                                                        </div>
+                                                        )}
+                                                        MenuProps={MenuProps}
+                                                    >
+                                                        {allFiles.map((x) => (
+                                                        <MenuItem key={x.id} value={x} id={x.id}>
+                                                            {x.name}
+                                                        </MenuItem>
                                                         ))}
-                                                    </div>
-                                                    )}
-                                                    MenuProps={MenuProps}
-                                                >
-                                                    {allFiles.map((x) => (
-                                                    <MenuItem key={x.id} value={x} id={x.id}>
-                                                        {x.name}
-                                                    </MenuItem>
-                                                    ))}
-                                                </Select>
-                                                </FormControl>
+                                                    </Select>
+                                                    </FormControl>
 
-                                            </Paper>
-                                            </main>
-                                        </Container>
-                                        </Modal.Body>
-                                        <Modal.Footer>
-                                            <Button onClick={() => acceptButton()} >Принять</Button>
-                                            <Button onClick={() => handleClose()}>Отменить</Button>
-                                        </Modal.Footer>
-                                    </Modal>
+                                                </Paper>
+                                                </main>
+                                            </Container>
+                                            </Modal.Body>
+                                            <Modal.Footer>
+                                                <Button onClick={() => acceptButton()} >Принять</Button>
+                                                <Button onClick={() => handleClose()}>Отменить</Button>
+                                            </Modal.Footer>
+                                        </Modal>
                                     </Dropdown.Item>
                                 </DropdownButton>
                             </Grid>
@@ -1020,7 +1045,12 @@ function Chat(props) {
                                 </Button>
                             </Grid>
                             <Grid>
-                                {selectedFiles && createFilesArray().map((file) => <div><span>{file.name} {"\n"}</span></div>)}
+                                {selectedFiles && createFilesArray().map((file, i) => 
+                                    <div>
+                                        <span>{file.name} {"\n"}</span>
+                                        <span as="button" key={i} style={{cursor: "pointer", '&:hover': {color: "#fff",},}} onClick={() => delSelectedFiles(i)}><HighlightOffIcon/></span>
+                                    </div>
+                                )}
                             </Grid>
                         </Grid>
                     </Grid>}

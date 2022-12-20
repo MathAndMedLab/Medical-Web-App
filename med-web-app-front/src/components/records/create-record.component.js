@@ -238,12 +238,16 @@ class CreateRecordComponent extends Component {
     }
 
     /**
-     * 
+     * Метод отвечает за выбор файлов по нажатию на кнопку загрузки
      */
     selectFiles() {
         this.fileInput.current.click()
     }
 
+    /**
+     * Метод принимает выбранные файлы  
+     * @param e 
+     */
     fileHandler(e) {
         let filesValue = []
         let files = [...e.target.files]
@@ -258,6 +262,10 @@ class CreateRecordComponent extends Component {
         })
     }
 
+    /**
+     * Обработчик событий при отпускании файлов над дроп зоной
+     * @param e 
+     */
     dropHandler(e) {
         e.preventDefault()
         e.stopPropagation()
@@ -281,7 +289,7 @@ class CreateRecordComponent extends Component {
     }
 
     /**
-     * Обработчики состояний для перетаскивания файлов в поле загрузки
+     * Обработчики событий для перетаскивания файлов в поле загрузки
      * @param e 
      */
     dragEnterHandler(e) {
@@ -327,12 +335,20 @@ class CreateRecordComponent extends Component {
         })
     }
 
+    /**
+     * Метод отвечает за нажатие на поле Заголовок
+     * @param e 
+     */
     onChangeTitle(e) {
         this.setState({
             title: e.target.value
         });
     }
 
+    /**
+     * Метод отвечает за нажатие на поле Содержание
+     * @param e 
+     */
     onChangeContent(e) {
         let str = e.target.value
         str = str.replace(/ {2,}/g, ' ').trim();

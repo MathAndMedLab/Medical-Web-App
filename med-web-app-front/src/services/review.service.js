@@ -12,9 +12,9 @@ class ReviewService {
             {headers: authHeader(), params: params});
     }
 
-    saveReview(content, targetId, parent = -1) {
+    saveReview(content, targetId, rating, parent = -1) {
         return axios.post(API_URL + 'save',
-            {content, parent, targetId}, {headers: authHeader()});
+            {content, parent, targetId, rating}, {headers: authHeader()});
     }
 
 }

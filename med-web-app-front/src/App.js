@@ -56,7 +56,7 @@ import {Logout, LogoutSharp} from "@mui/icons-material";
 import {RemoveRedEye} from "@material-ui/icons";
 import {SwipeableDrawer} from "@mui/material";
 import NewHomeComponent from "./components/main/newHome.component";
-
+import ProfileEditComponent from "./components/user_profile/profile-edit.component";
 const drawerWidth = 240
 
 const useStyles = theme => ({
@@ -147,7 +147,7 @@ const useStyles = theme => ({
         top: 0,
         left: 0,
         minWidth: 600,
-        minHeigft: 64,
+        minHeight: 64,
         maxHeight: 64,
         zIndex: theme.zIndex.drawer+2,
         transition: theme.transitions.create(['width', 'margin'], {
@@ -227,8 +227,6 @@ const useStyles = theme => ({
 let stompClient = null;
 
 function App(props) {
-
-
     const LeftMenuOpen = (width) =>{
         React.useEffect(() => {
             const handleResizeWindow = () => setWidth(window.innerWidth);
@@ -248,7 +246,7 @@ function App(props) {
     const [currentUser, setCurrentUser] = useState(null)
     const [refresh, setRefresh] = useState({})
     const [width, setWidth] = React.useState(window.innerWidth);
-    const [open, setOpen] = useState(LeftMenuOpen(width));
+    const [open, setOpen] = useState(false);
 
     /**
      * Состояние allMessages имеет вид:
@@ -470,7 +468,7 @@ function App(props) {
                 <ListItemText primary={item.numberMsg}/>
             </ListItemButton>);
         }
-        else{
+        else {
             return (<ListItemButton
                 key={item.text}
                 component={Link} to={item.path}
@@ -800,7 +798,6 @@ function App(props) {
                     paper: clsx(classes.drawerPaper, !open && classes.drawerPaperClose),
                 }}
                 open={open}
-                onClick={handleDrawerChange}
            >
                 {open && (<div className={classes.toolbarIcon}>
                     <IconButton onClick={handleDrawerClose}>
@@ -941,7 +938,12 @@ function App(props) {
                             <Route exact path="/topics/create" component={TopicComponent}>
                                 {AuthService.getCurrentUser() ? <TopicComponent/> : <Redirect to="/login"/>}
                             </Route>
+                            <Route exact path={["/edit"]} render={(props) => (
+                                <ProfileEditComponent/>
+                            )} />
+
                             <Route component={NotExist}/>
+
                         </Switch>
                     </div>
                 </Grid>

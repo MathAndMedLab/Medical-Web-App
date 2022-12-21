@@ -28,7 +28,9 @@ const StyledTableRow = withStyles((theme) => ({
     root: {
         '&:nth-of-type(odd)': {
             backgroundColor: "#e0e0e0",
+
         },
+        height: 190
     },
 }))(TableRow);
 
@@ -37,6 +39,7 @@ const useStyles = theme => ({
         "& .MuiPaper-root": {
             width: 800,
             backgroundColor: '#ffffff'
+
         },
         "& .MuiTableRow-root": {
             color: "black",
@@ -46,10 +49,10 @@ const useStyles = theme => ({
         [theme.breakpoints.down("xs")]: {
             width: 285,
         },
-        [theme.breakpoints.between("sm", "md")]:{
+        [theme.breakpoints.between("sm", "md")]: {
             width: 650
         },
-        "@media (min-width : 1280px)":{
+        "@media (min-width : 1280px)": {
             width: 800,
         },
         marginBottom: theme.spacing(1.5),
@@ -64,23 +67,15 @@ const useStyles = theme => ({
         [theme.breakpoints.down("xs")]: {
             fontSize: 13,
         },
-        [theme.breakpoints.between("sm", "md")]:{
+        [theme.breakpoints.between("sm", "md")]: {
             fontSize: 17,
         },
-        "@media (min-width : 1280px)":{
+        "@media (min-width : 1280px)": {
             fontSize: 17,
         },
     },
     table: {
-        [theme.breakpoints.down("xs")]: {
-            width: 200,
-        },
-        [theme.breakpoints.between("sm", "md")]:{
-            width: 650
-        },
-        "@media (min-width : 1280px)":{
-            width: 800,
-        },
+        width: 800,
     },
     formControlLab: {
         marginBottom: theme.spacing(0),
@@ -264,26 +259,29 @@ class Search extends Component {
                                     <Table className={classes.table} aria-label="spanning table">
                                         <TableHead>
                                             <TableRow>
-                                                <TableCell className={classes.header} width={150}>
-                                                    Фамилия Имя
+                                                <TableCell className={classes.header} align={"center"}>
+                                                    Фотография
                                                 </TableCell>
-                                                <TableCell className={classes.header} width={75} align={"right"}>
+                                                <TableCell className={classes.header} align={"center"}>
+                                                    ФИО
+                                                </TableCell>
+                                                <TableCell className={classes.header} align={"center"}>
                                                     Логин
                                                 </TableCell>
-                                                <TableCell className={classes.header} width={100} align={"right"}>
+                                                <TableCell className={classes.header} align={"center"}>
                                                     Роль
                                                 </TableCell>
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
                                             {this.state.users &&
-                                            this.state.users.map((user, index) => (
-                                                <StyledTableRow
-                                                    key={index}
-                                                >
-                                                    <UserCard user={user}/>
-                                                </StyledTableRow>
-                                            ))}
+                                                this.state.users.map((user, index) => (
+                                                    <StyledTableRow
+                                                        key={index}
+                                                    >
+                                                        <UserCard user={user}/>
+                                                    </StyledTableRow>
+                                                ))}
                                         </TableBody>
                                     </Table>
                                 </TableContainer>

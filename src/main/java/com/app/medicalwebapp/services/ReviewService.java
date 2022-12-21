@@ -34,12 +34,14 @@ public class ReviewService {
         target.setId(request.getTargetId());
         var timeZoneUnparsed = ZonedDateTime.now().toString();
         String timeZone = timeZoneUnparsed.substring(timeZoneUnparsed.lastIndexOf("[") + 1).split("]")[0];
+        long rating = request.getRating();
         Review review = Review.builder()
                 .content(request.getContent())
                 .creationTime(LocalDateTime.now())
                 .timeZone(timeZone)
                 .creator(creator)
                 .target(target)
+                .rating(rating)
                 .parent(request.getParent())
                 .build();
         reviewRepository.save(review);

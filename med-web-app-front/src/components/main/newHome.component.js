@@ -1,14 +1,14 @@
-import {Component} from "react";
+import {Component, useRef} from "react";
 import {Typography} from "@mui/material";
 import {Grid, Paper, withStyles} from "@material-ui/core";
-import MirfImage from './MirfImage.png';
-import Leftpicture from './LeftPicture.png';
-import UpPic from './UpperPicture.png';
-import BotPic from './BottomPicture.png';
-import RightPic from './RightPicture.png';
+import MirfImage from './MirfImageWithoutText.png';
+import LeftPatientPicture from './LeftPatientPicture.png';
+import MiddleUpperPatientPicture from './MiddleUpperPatientPicture.png';
+import MiddleBottomPatientPicture from './MiddleBottomPatientPicture.png';
+import RightPatientPicture from './RightPatientPicture.png';
 
 const useStyles = theme => ({
-    bigTitle:{
+    bigTitle: {
         position: "absolute",
         width: "1287px",
         height: "62px",
@@ -23,7 +23,8 @@ const useStyles = theme => ({
         textAlign: "center",
         color: "#000000",
     },
-    secondTittle:{
+
+    secondTitle: {
         position: "absolute",
         width: "750px",
         height: "42px",
@@ -38,7 +39,8 @@ const useStyles = theme => ({
         textAlign: "center",
         color: "#5A5A5A",
     },
-    thirdTitle:{
+
+    thirdTitle: {
         position: "absolute",
         width: "818px",
         height: "55px",
@@ -51,11 +53,26 @@ const useStyles = theme => ({
         lineHeight: "28px",
         textAlign: "center",
     },
+    fourthTitle: {
+        position: "absolute",
+        width: "818px",
+        height: "55px",
+        left: "305px",
+        top: "1058px",
+        fontFamily: 'Roboto',
+        fontStyle: "normal",
+        fontWeight: 500,
+        fontSize: "24px",
+        lineHeight: "28px",
+        textAlign: "center",
+    },
+
     div: {
         margin: theme.spacing(3, 0, 1, 0),
 
     },
-    leftBrain:{
+    // Левая пикча с логотипом
+    leftBrain: {
         position: "absolute",
         width: "350px",
         height: "313px",
@@ -66,17 +83,8 @@ const useStyles = theme => ({
         transform: "rotate(-46deg)",
 
     },
-    leftRectangle:{
-        position: "absolute",
-        width: "188.43px",
-        height: "87.49px",
-        left: "131px",
-        top: "320.13px",
-
-        background: "#f8f9fa",
-        transform: "rotate(-48.5deg)",
-    },
-    rightBrain:{
+    // Правая пикча с логотипом
+    rightBrain: {
         position: "absolute",
         width: "350px",
         height: "313px",
@@ -84,17 +92,8 @@ const useStyles = theme => ({
         top: "calc(70% - 313px/2 - 200.5px)",
         transform: "rotate(27deg)",
     },
-    rightRectangle:{
-        position: "absolute",
-        width: "208px",
-        height: "116px",
-        left: "1060.74px",
-        top: "350px",
 
-        background: "#f8f9fa",
-        transform: "rotate(31deg)",
-    },
-    leftBox:{
+    leftPatientBox: {
         boxSizing: "border-box",
 
         position: "absolute",
@@ -103,17 +102,19 @@ const useStyles = theme => ({
         left: "85px",
         top: "561px",
 
-        background:"#FFFFFF",
+        background: "#FFFFFF",
         border: "1px solid rgba(0, 0, 0, 0.5)",
     },
-    leftPicture:{
+
+    leftPatientPicture: {
         position: "absolute",
         width: "300px",
         height: "300px",
         left: "130px",
         top: "593px",
     },
-    leftWords:{
+
+    leftPatientText: {
         position: "absolute",
         width: "350px",
         height: "303px",
@@ -129,8 +130,9 @@ const useStyles = theme => ({
 
         color: "#000000",
 
-},
-    centerBox:{
+    },
+
+    middlePatientBox: {
         boxSizing: "border-box",
 
         position: "absolute",
@@ -141,21 +143,21 @@ const useStyles = theme => ({
         background: "#FFFFFF",
         border: "1px solid rgba(0, 0, 0, 0.5)",
     },
-    centerUpPic:{
+    middleUpperPatientPicture: {
         position: "absolute",
         width: "350px",
         height: "133px",
         left: "568px",
         top: "593px",
     },
-    centerBotPic:{
+    middleBottomPatientPicture: {
         position: "absolute",
         width: "340px",
         height: "133px",
         left: "573px",
         top: "735px",
     },
-    centerText:{
+    middlePatientText: {
         position: "absolute",
         width: "363px",
         height: "303px",
@@ -169,7 +171,7 @@ const useStyles = theme => ({
         lineHeight: "28px",
         textAlign: "center",
     },
-    rightBox:{
+    rightPatientBox: {
         boxSizing: "border-box",
 
         position: "absolute",
@@ -181,14 +183,14 @@ const useStyles = theme => ({
         background: "#FFFFFF",
         border: "1px solid rgba(0, 0, 0, 0.5)",
     },
-    rightPicture:{
+    rightPatientPicture: {
         position: "absolute",
         width: "339px",
         height: "284px",
         left: "1020px",
         top: "584px",
     },
-    rightText:{
+    rightPatientText: {
         position: "absolute",
         width: "355px",
         height: "310px",
@@ -206,9 +208,7 @@ const useStyles = theme => ({
 
 })
 
-
-
-class newHome extends Component{
+class newHome extends Component {
     constructor(props) {
         super(props);
 
@@ -217,25 +217,24 @@ class newHome extends Component{
         };
     }
 
-    render(){
+    render() {
         const {classes} = this.props;
         return (
             <Grid container>
                 <Paper>
-                <Typography variant={"h4"} className={classes.bigTitle}>
-                    Второе мнение по медицинским снимкам
-                </Typography>
+                    <Typography variant={"h4"} className={classes.bigTitle}>
+                        Второе мнение по медицинским снимкам
+                    </Typography>
                 </Paper>
 
                 <Paper>
-                <Typography variant = {"h5"} className = {classes.secondTittle}>
-                    Ранняя диагностика и правильный диагноз могут спасти вашу жизнь
-                </Typography>
+                    <Typography variant={"h5"} className={classes.secondTitle}>
+                        Ранняя диагностика и правильный диагноз могут спасти вашу жизнь!
+                    </Typography>
                 </Paper>
-
                 <Paper>
-                    <Typography variant = {"h6"} className = {classes.thirdTitle}>
-                        Как получить дополнительное мнение по вашему снимку?
+                    <Typography variant={"h6"} className={classes.thirdTitle}>
+                        Если вы пациент и хотите получить дополнительное мнение по вашему снимку:
                     </Typography>
                 </Paper>
 
@@ -244,52 +243,44 @@ class newHome extends Component{
                     <img src={MirfImage} className={classes.leftBrain}/>
                 </div>
 
-                <div className={classes.leftRectangle}/>
+                <div/>
 
                 <div>
                     <img src={MirfImage} className={classes.rightBrain}/>
                 </div>
 
-                <div className={classes.rightRectangle}/>
+                <div/>
 
-                <div className={classes.leftBox}/>
+                <div className={classes.leftPatientBox}/>
                 <div>
-                    <img src={Leftpicture} className={classes.leftPicture}/>
+                    <img src={LeftPatientPicture} className={classes.leftPatientPicture}/>
                 </div>
                 <Paper>
-                    <Typography variant = {"h6"} className = {classes.leftWords}>
-                        Разместите пост на форуме
+                    <Typography variant={"h6"} className={classes.leftPatientText}>
+                        <a href="#/records/view"> Разместите пост на форуме </a>
                     </Typography>
                 </Paper>
 
-
-
-
-
-
-                <div className={classes.centerBox}/>
+                <div className={classes.middlePatientBox}/>
                 <div>
-                    <img src={UpPic} className={classes.centerUpPic}/>
+                    <img src={MiddleUpperPatientPicture} className={classes.middleUpperPatientPicture}/>
                 </div>
                 <div>
-                    <img src={BotPic} className={classes.centerBotPic}/>
+                    <img src={MiddleBottomPatientPicture} className={classes.middleBottomPatientPicture}/>
                 </div>
                 <Paper>
-                    <Typography variant = {"h6"} className = {classes.centerText}>
-                        Выберите подходящего врача
+                    <Typography variant={"h6"} className={classes.middlePatientText}>
+                        <a href="#/search"> Выберите подходящего врача </a>
                     </Typography>
                 </Paper>
 
-
-
-
-                <div className={classes.rightBox}/>
+                <div className={classes.rightPatientBox}/>
                 <div>
-                    <img src={RightPic} className={classes.rightPicture}/>
+                    <img src={RightPatientPicture} className={classes.rightPatientPicture}/>
                 </div>
                 <Paper>
-                    <Typography variant = {"h6"} className = {classes.rightText}>
-                        Получите отчет от искусственного интеллекта
+                    <Typography variant={"h6"} className={classes.rightPatientText}>
+                        <a href="http://localhost:3000/local"> Получите отчет от искусственного интеллекта </a>
                     </Typography>
                 </Paper>
 
@@ -302,8 +293,6 @@ class newHome extends Component{
     }
 
 
-
-
-
 }
+
 export default withStyles(useStyles)(newHome)

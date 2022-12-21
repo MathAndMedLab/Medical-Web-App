@@ -48,13 +48,13 @@ const useStyles = theme => ({
         marginTop: theme.spacing(5),
         marginBottom: theme.spacing(3),
         //minWidth: 200,
-        "@media (max-width: 365px)":{
+        "@media (max-width: 365px)": {
             width: 260,
         },
-        "@media (min-width: 350 px)":{
+        "@media (min-width: 350 px)": {
             width: 300,
         },
-        "@media (min-width: 425px)":{
+        "@media (min-width: 425px)": {
             width: "90%"
         },
     },
@@ -77,15 +77,16 @@ const useStyles = theme => ({
 })
 
 function Register(props) {
+    const defaultUser = "Пользователь";
+    const doctorUser = "Врач";
     const {classes} = props
-
     const [username, setUsername] = useState("")
     const [firstname, setFirstname] = useState("")
     const [lastname, setLastname] = useState("")
     const [patronymic, setPatronymic] = useState("")
     const [password, setPassword] = useState("")
     const [passwordRepeat, setPasswordRepeat] = useState("")
-    const [chosenRole, setChosenRole] = useState("Пользователь")
+    const [chosenRole, setChosenRole] = useState(defaultUser)
     const [successful, setSuccessful] = useState(false)
     const [message, setMessage] = useState("")
     const [loginMessage, setLoginMessage] = useState("")
@@ -97,6 +98,12 @@ function Register(props) {
     const [showPassword, setShowPassword] = useState(false)
     const [passwordMatch, setPasswordMatch] = useState(false)
 
+    // Only for doctors.
+    const [specialization, setSpecialization] = useState(null)
+    const [experience, setExperience] = useState(null)
+    const [experienceCorrectness, setExperienceCorrectness] = useState(true)
+    const [workplace, setWorkplace] = useState(null)
+    const [education, setEducation] = useState(null)
 
     const handleClickShowPassword = () => setShowPassword(!showPassword);
     const handleMouseDownPassword = () => setShowPassword(!showPassword);
@@ -129,7 +136,6 @@ function Register(props) {
         } else {
             setPasswordErrorRepeat(false)
         }
-        console.log(value === password)
         if (value === password) {
             setPasswordMatch(true)
         } else {
@@ -171,7 +177,36 @@ function Register(props) {
     }
 
     function onChangeRole(e) {
+        if (e.target.value === defaultUser) {
+            setExperienceCorrectness(true)
+        }
+        setSpecialization(null)
+        setExperience(null)
+        setWorkplace(null)
+        setEducation(null)
         setChosenRole(e.target.value)
+    }
+
+    function onChangeSpecialization(e) {
+        setSpecialization(e.target.value)
+    }
+
+    function onChangeExperience(e) {
+        if (!isNaN(Number(e.target.value)) && e.target.value > 0 && e.target.value <= 100) {
+            setExperienceCorrectness(true)
+        }
+        else {
+            setExperienceCorrectness(false)
+        }
+        setExperience(e.target.value)
+    }
+
+    function onChangeWorkplace(e) {
+        setWorkplace(e.target.value)
+    }
+
+    function onChangeEducation(e) {
+        setEducation(e.target.value)
     }
 
     function handleRegister(e) {
@@ -187,7 +222,7 @@ function Register(props) {
         } else {
             initials = lastname + " " + firstname
         }
-        if (!usernameError && !passwordError && passwordMatch) {
+        if (!usernameError && !passwordError && passwordMatch && experienceCorrectness) {
             AuthService.register(
                 username,
                 initials,
@@ -197,6 +232,11 @@ function Register(props) {
                 // email,
                 password,
                 chosenRole,
+                // Only for doctors.
+                specialization,
+                experience,
+                workplace,
+                education
             ).then(
                 response => {
                     setMessage(response.data.message)
@@ -207,8 +247,8 @@ function Register(props) {
                     setPatronymic("")
                     setPassword("")
                     setPasswordRepeat("")
-                    setChosenRole("Пользователь")
-                    AuthService.login(username,password).then(
+                    setChosenRole(defaultUser)
+                    AuthService.login(username, password).then(
                         () => {
                             setLoginSuccessful(true)
                             props.history.push("/records/view");
@@ -234,9 +274,80 @@ function Register(props) {
         }
     }
 
+    function getGridsForDoctorRole() {
+        if (chosenRole === defaultUser) {
+            return;
+        }
+
+        return (
+            <span>
+                <Grid container spacing={2}>
+                <Grid item xs={12}>
+                <TextField
+                    required
+                    className={classes.root}
+                    variant="outlined"
+                    fullWidth
+                    id="specialization"
+                    label="Специализация"
+                    name="specialization"
+                    autoComplete="on"
+                    value={specialization}
+                    onChange={onChangeSpecialization}
+                />
+            </Grid>
+                <Grid item xs={12}>
+                    <TextField
+                        required
+                        className={classes.root}
+                        variant="outlined"
+                        fullWidth
+                        id="experience"
+                        label="Стаж (лет)"
+                        name="experience"
+                        autoComplete="on"
+                        value={experience}
+                        error={!experienceCorrectness}
+                        helperText={"Стаж должен быть в пределах от 1 до 100"}
+                        onChange={onChangeExperience}
+                    />
+                </Grid>
+                <Grid item xs={12}>
+                    <TextField
+                        required
+                        className={classes.root}
+                        variant="outlined"
+                        fullWidth
+                        id="workplace"
+                        label="Место работы"
+                        name="workplace"
+                        autoComplete="on"
+                        value={workplace}
+                        onChange={onChangeWorkplace}
+                    />
+                    </Grid>
+                <Grid item xs={12}>
+                    <TextField
+                        required
+                        className={classes.root}
+                        variant="outlined"
+                        fullWidth
+                        id="education"
+                        label="Образование"
+                        name="education"
+                        autoComplete="on"
+                        value={education}
+                        onChange={onChangeEducation}
+                    />
+
+                </Grid>
+
+                </Grid>
+            </span>)
+    }
 
     return (
-        <Container component="main" maxWidth="sm" disableGutters={true} >
+        <Container component="main" maxWidth="sm" disableGutters={true}>
             <Card className={classes.paper}>
                 <Grid className={classes.div}>
                     <Typography component="h1" variant="h5">
@@ -366,11 +477,12 @@ function Register(props) {
                                     }}
                                 />
                             </Grid>
+
                             <Grid item xs={12}>
                                 {!passwordMatch && password.length > 0 && passwordRepeat.length > 0 &&
-                                <Alert className={classes.alrt} variant="outlined" severity="error">
-                                    Пароли не совпадают
-                                </Alert>}
+                                    <Alert className={classes.alrt} variant="outlined" severity="error">
+                                        Пароли не совпадают
+                                    </Alert>}
                             </Grid>
                             {/*<Grid item xs={12}>*/}
                             {/*    <FormControlLabel*/}
@@ -379,6 +491,7 @@ function Register(props) {
                             {/*    />*/}
                             {/*</Grid>*/}
                         </Grid>
+                        {getGridsForDoctorRole()}
                         <FormLabel className={classes.label}>Выберите роль:</FormLabel>
                         <FormControl>
                             <RadioGroup value={chosenRole} onChange={onChangeRole}>
@@ -402,9 +515,9 @@ function Register(props) {
                             fullWidth
                             variant="contained"
                             color="primary"
-                            // onClick={handleRegister}
+                            //onClick={handleRegister}
                             className={classes.submit}
-                            title = {"Зарегистрироваться"}
+                            title={"Зарегистрироваться"}
                         >
                             Зарегистрироваться
                         </Button>

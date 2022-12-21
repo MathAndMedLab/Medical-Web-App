@@ -55,5 +55,20 @@ public class User {
 
     @Column(name = "avatar")
     private byte[] avatar;
+
+
+
+    // Only for doctors, users have null on these columns
+    @Column(name = "specialization", nullable = true)
+    private String specialization;
+
+    @Column(name = "experience", nullable = true)
+    private int experience;
+
+    @Column(name = "workplace", nullable = true)
+    private String workplace;
+
+    @Column(name = "education", nullable = true)
+    private String education;
 }
 

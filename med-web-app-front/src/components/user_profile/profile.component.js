@@ -10,6 +10,9 @@ import Button from "@material-ui/core/Button";
 import {Link, useParams} from "react-router-dom";
 import UserService from "../../services/user.service"
 import PhotoCameraOutlinedIcon from '@mui/icons-material/PhotoCameraOutlined';
+import StarRatings from 'react-star-ratings';
+import GetAllReviews from "../../requests_and_responses/review-request";
+import GetAvgRating from "../../avg_rating/get-avg-rating";
 
 const useStyles = theme => ({
     txtField: {
@@ -28,6 +31,13 @@ const useStyles = theme => ({
     },
     txtFieldRole: {
         width: 180,
+        margin: theme.spacing(1),
+        "& .MuiInputBase-input": {
+            textAlign: 'center'
+        },
+    },
+    txtDoctorFields: {
+        width: 350,
         margin: theme.spacing(1),
         "& .MuiInputBase-input": {
             textAlign: 'center'
@@ -119,6 +129,12 @@ const useStyles = theme => ({
     typography: {
         fontWeight: 500,
         fontSize: 13
+    },
+    gridDoctorData: {
+        marginLeft: theme.spacing(0),
+        alignItems: 'center',
+        flexDirection: 'column',
+        display: 'flex',
     }
 });
 
@@ -131,6 +147,8 @@ function Profile(props) {
     const fileInput = useRef(null)
     const [selectedFile, setSelectedFile] = useState(null)
     const [checked, setChecked] = useState(false)
+    const [reviews, setReviews] = useState([])
+    const [reviewsCounter, setReviewsCounter] = useState(0)
 
     function selectFile() {
         if (user && user.username === AuthService.getCurrentUser().username) {
@@ -138,11 +156,11 @@ function Profile(props) {
         }
     }
 
-
     function getUser(username1) {
         ProfileService.getProfile(username1).then(
             async response => {
                 const user = response.data;
+                console.log(user)
                 if (user.avatar) {
                     const base64Data = user.avatar
                     const base64Response = await fetch(`data:application/json;base64,${base64Data}`)
@@ -151,6 +169,11 @@ function Profile(props) {
                 }
                 refreshList();
                 setUser(user)
+
+                GetAllReviews(user.id).then((result) => {
+                    setReviews(result)
+                    setReviewsCounter(result.length)
+                })
             })
             .catch((e) => {
                 console.log(e);
@@ -160,6 +183,7 @@ function Profile(props) {
     function refreshList() {
         setUser(null)
     }
+
 
     useEffect(() => {
         setUsername(usernamePath)
@@ -174,6 +198,51 @@ function Profile(props) {
             UserService.uploadAvatar(e.target.files[0])
             setSelectedFile(URL.createObjectURL(e.target.files[0]))
         }
+    }
+
+    function getTextFieldsForDoctorRole() {
+        if (user.role === "Пользователь") {
+            return;
+        }
+        return (
+            <Grid className={classes.gridDoctorData}>
+                <TextField
+                    multiline
+                    className={classes.txtDoctorFields}
+                    id="standard-read-only-input"
+                    defaultValue={"Специальность: " + user.specialization}
+                    InputProps={{
+                        readOnly: true,
+                    }}
+                />
+                <TextField
+                    multiline
+                    className={classes.txtDoctorFields}
+                    id="standard-read-only-input"
+                    defaultValue={"Стаж: " + user.experience + " лет"}
+                    InputProps={{
+                        readOnly: true,
+                    }}
+                />
+                <TextField
+                    multiline
+                    className={classes.txtDoctorFields}
+                    id="standard-read-only-input"
+                    defaultValue={"Место работы: " + user.workplace}
+                    InputProps={{
+                        readOnly: true,
+                    }}
+                />
+                <TextField
+                    multiline
+                    className={classes.txtDoctorFields}
+                    id="standard-read-only-input"
+                    defaultValue={"Образование: " + user.education}
+                    InputProps={{
+                        readOnly: true,
+                    }}
+                /> </Grid>);
+
     }
 
     return (
@@ -196,16 +265,26 @@ function Profile(props) {
                                                 <PhotoCameraOutlinedIcon style={{fontSize: 60}}/>
                                             </Avatar>
                                             {user && user.username === AuthService.getCurrentUser().username &&
-                                            <Collapse in={checked} className={classes.collapsed}>
-                                                <Paper className={classes.paperUploadAvatar} onClick={selectFile}>
-                                                    <Typography className={classes.typography}>
-                                                        Загрузить фотографию
-                                                    </Typography>
-                                                </Paper>
-                                            </Collapse>}
+                                                <Collapse in={checked} className={classes.collapsed}>
+                                                    <Paper className={classes.paperUploadAvatar} onClick={selectFile}>
+                                                        <Typography className={classes.typography}>
+                                                            Загрузить фотографию
+                                                        </Typography>
+                                                    </Paper>
+                                                </Collapse>}
                                         </ButtonBase>
+
                                         <div>Дата регистрации:</div>
                                         <div>{new Date(user.registeredDate).toLocaleDateString()}</div>
+                                        <div>Отзывов: {reviewsCounter}</div>
+                                        <div><StarRatings rating={GetAvgRating(reviews, reviewsCounter)}
+                                                          starRatedColor="orange"
+                                                          numberOfStars={5}
+                                                          name='rating'
+                                                          starDimension="20px"
+                                                          starSpacing="1px"
+                                        /></div>
+                                        <span>{user.active}</span>
                                     </Grid>
                                     <Grid className={classes.gridData}>
                                         <TextField
@@ -236,34 +315,40 @@ function Profile(props) {
                                                 readOnly: true,
                                             }}
                                         />
+                                        {getTextFieldsForDoctorRole()}
                                         {user && user.username !== AuthService.getCurrentUser().username &&
-                                        <Link to={"/msg/" + user.username} style={{textDecoration: 'none'}}>
-                                            <Button className={classes.write}>
-                                                Написать
-                                            </Button>
-                                        </Link>
+                                            <Link to={"/msg/" + user.username} style={{textDecoration: 'none'}}>
+                                                <Button className={classes.write}>
+                                                    Написать
+                                                </Button>
+                                            </Link>
                                         }
                                     </Grid>
                                 </Grid>
                             </Card>
                         </Grid>
                         {user && user.username === AuthService.getCurrentUser().username &&
-                        <Grid xs={4} item>
-                            <Card className={classes.paper2}>
-                                <Grid className={classes.grid}>
-                                    <Link to={"/files/view"} style={{textDecoration: 'none'}}>
-                                        <Button className={classes.button} title={"Мои файлы"}>
-                                            Мои файлы
-                                        </Button>
-                                    </Link>
-                                    <Link to={"/files/upload"} style={{textDecoration: 'none'}}>
-                                        <Button className={classes.button} title={"Загрузить файл"}>
-                                            Загрузить файл
-                                        </Button>
-                                    </Link>
-                                </Grid>
-                            </Card>
-                        </Grid>
+                            <Grid xs={4} item>
+                                <Card className={classes.paper2}>
+                                    <Grid className={classes.grid}>
+                                        <Link to={"/edit"} style={{textDecoration: 'none'}}>
+                                            <Button className={classes.button} title={"Редактировать профиль"}>
+                                                Редактировать профиль
+                                            </Button>
+                                        </Link>
+                                        <Link to={"/files/view"} style={{textDecoration: 'none'}}>
+                                            <Button className={classes.button} title={"Мои файлы"}>
+                                                Мои файлы
+                                            </Button>
+                                        </Link>
+                                        <Link to={"/files/upload"} style={{textDecoration: 'none'}}>
+                                            <Button className={classes.button} title={"Загрузить файл"}>
+                                                Загрузить файл
+                                            </Button>
+                                        </Link>
+                                    </Grid>
+                                </Card>
+                            </Grid>
                         }
                     </Grid>
 
@@ -272,10 +357,12 @@ function Profile(props) {
                     )}
                 </Grid>
             }
+
         </div>
     );
 
 
 }
+
 
 export default withStyles(useStyles)(Profile)

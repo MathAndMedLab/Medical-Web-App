@@ -78,6 +78,7 @@ function Login(props) {
                 props.history.push("/records/view");
                 window.location.reload();
             },
+
             error => {
                 const resMessage =
                     (error.response && error.response.data && error.response.data.message) ||
@@ -85,6 +86,7 @@ function Login(props) {
                 setSuccessful(false)
                 setMessage(resMessage)
             }
+
         );
 
     }

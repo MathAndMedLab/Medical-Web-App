@@ -48,4 +48,7 @@ public class Review {
 
     @Column(name = "dislikes")
     private int dislikes;
+
+    @Column(name = "rating")
+    private long rating;
 }

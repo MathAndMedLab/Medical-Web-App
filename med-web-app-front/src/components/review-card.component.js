@@ -5,6 +5,8 @@ import {Card, withStyles} from "@material-ui/core";
 import Grid from "@material-ui/core/Grid";
 import Avatar from "@material-ui/core/Avatar";
 import Typography from "@material-ui/core/Typography";
+import StarRatings from 'react-star-ratings';
+import PhotoCameraOutlinedIcon from "@mui/icons-material/PhotoCameraOutlined";
 
 const useStyles = theme => ({
     hMargin: {
@@ -27,7 +29,7 @@ const useStyles = theme => ({
     },
     paper: {
         margin: theme.spacing(3),
-        marginLeft : theme.spacing(1),
+        marginLeft: theme.spacing(1),
         borderRadius: 20,
         backgroundColor: "#eeeeee"
     },
@@ -43,6 +45,7 @@ class ReviewCard extends Component {
 
         this.formatTime = this.formatTime.bind(this);
         this.getContent = this.getContent.bind(this);
+        this.getRating = this.getRating.bind(this);
         this.replyToReview = this.replyToReview.bind(this);
         this.getOffsetBetweenTimezonesForDate = this.getOffsetBetweenTimezonesForDate.bind(this);
         this.convertDateToAnotherTimeZone = this.convertDateToAnotherTimeZone.bind(this);
@@ -57,6 +60,7 @@ class ReviewCard extends Component {
         this.isReply = this.props.isReply;
 
         this.creationTime = this.formatTime();
+
     }
 
     replyToReview() {
@@ -85,10 +89,26 @@ class ReviewCard extends Component {
         return content;
     }
 
+    getRating(rating) {
+        return rating;
+    }
+
     formatTime() {
         let timeZone = (Intl.DateTimeFormat().resolvedOptions().timeZone)
         const difsTimeZones = this.getOffsetBetweenTimezonesForDate(new Date(), this.review.timeZone, timeZone)
         return (new Date(new Date(this.review.creationTime).getTime() - difsTimeZones))
+    }
+
+    getStarsRating() {
+        if (!this.isReply) {
+            return (<StarRatings rating={this.review.rating}
+                                 starRatedColor="orange"
+                                 numberOfStars={5}
+                                 name='rating'
+                                 starDimension="20px"
+                                 starSpacing="1px"
+            />)
+        }
     }
 
     render() {
@@ -99,12 +119,13 @@ class ReviewCard extends Component {
                     <Grid className={classes.mainGrid}>
                         <Grid>
                             <Avatar className={classes.avatar}>
-                                Photo
+                                <PhotoCameraOutlinedIcon style={{fontSize: 19}}/>
                             </Avatar>
                         </Grid>
                         <Grid className={classes.grid}>
                             <Grid className={classes.grid} title={this.review.creator.username}>
-                                <Link to={"/profile/" + this.review.creator.username} style={{ textDecoration: 'none', color: 'dark-blue'}}>
+                                <Link to={"/profile/" + this.review.creator.username}
+                                      style={{textDecoration: 'none', color: 'dark-blue'}}>
                                     <h6 className={classes.hMargin}> {this.review.creator.username}</h6>
                                 </Link>
                             </Grid>
@@ -126,6 +147,8 @@ class ReviewCard extends Component {
                     <Grid className={classes.gridContent}>
                         <Typography className={classes.content}>
                             {this.getContent(this.review.content)}
+                            {'\n'}
+                            {this.getStarsRating()}
                         </Typography>
                     </Grid>
                 </Card>

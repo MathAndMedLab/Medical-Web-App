@@ -33,6 +33,7 @@ function EditProfile(props) {
     const [workplace, setWorkplace] = useState(null);
     const [education, setEducation] = useState(null);
     const [experience, setExperience] = useState(null);
+    const [price, setPrice] = useState(null);
 
     useEffect(() => {
         let username1 = AuthService.getCurrentUser().username;
@@ -50,7 +51,7 @@ function EditProfile(props) {
         if (!isFieldsCorrect()) {
             return;
         }
-        AuthService.editProfile(user.username, firstname, lastname, patronymic, initials, specialization, experience, workplace, education).then(
+        AuthService.editProfile(user.username, firstname, lastname, patronymic, initials, specialization, experience, workplace, education, price).then(
             async response => {
                 console.log(response.data.message)
             })
@@ -122,6 +123,19 @@ function EditProfile(props) {
                         onChange={(e) => setEducation(e.target.value)}
                     />
                 </Grid>
+                <Grid item xs={12}>
+                    <TextField
+                        required
+                        variant="outlined"
+                        fullWidth
+                        id="price"
+                        label="Цена (RUB)"
+                        name="price"
+                        autoComplete="on"
+                        value={price}
+                        onChange={(e) => setPrice(e.target.value)}
+                    />
+                </Grid>
             </Grid>
         )
     }
@@ -139,6 +153,13 @@ function EditProfile(props) {
         if (experience <= 0 || experience > 100) {
             return false;
         }
+
+        if (isNaN(Number(price))) {
+            return false;
+        }
+        if (price < 0 || price > 100000) {
+            return false;
+        }
         if (specialization === "" || workplace === "" || education === ""
             || specialization === null || workplace === null || education === null) {
             return false;
@@ -148,7 +169,7 @@ function EditProfile(props) {
 
     function getInfoAboutFieldsCorrectness() {
         if (!isFieldsCorrect() && user.role === "Врач") {
-            return (<div>Заполните все обязательные поля и укажите корректный стаж.</div>)
+            return (<div>Заполните все обязательные поля и укажите корректный стаж с минимальной ценой, за которую вы готовы принять пациента.</div>)
         }
         if (!isFieldsCorrect() && user.role === "Пользователь") {
             return (<div>Заполните все обязательные поля.</div>)

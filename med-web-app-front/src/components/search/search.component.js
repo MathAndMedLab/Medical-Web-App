@@ -97,25 +97,33 @@ const useStyles = theme => ({
         marginLeft: 50,
         paddingLeft: 10,
         paddingTop: 3,
-        paddingRight: 25
+        paddingRight: 25,
+        marginTop: 10
     }
-
 });
 
 
 class Search extends Component {
     constructor(props) {
         super(props);
-        this.getUsers = this.getUsers.bind(this)
-        this.onChangeSearchString = this.onChangeSearchString.bind(this)
-        this.onChangeParamsTypeSearch = this.onChangeParamsTypeSearch.bind(this)
-        this.onChangeParamsRoleSearch = this.onChangeParamsRoleSearch.bind(this)
+        this.getUsers = this.getUsers.bind(this);
+        this.onChangeSearchString = this.onChangeSearchString.bind(this);;
+        this.onChangeParamsTypeSearch = this.onChangeParamsTypeSearch.bind(this);
+        this.onChangeParamsRoleSearch = this.onChangeParamsRoleSearch.bind(this);
+        this.onChangeMaxPrice = this.onChangeMaxPrice.bind(this);
         this.state = {
             searchParamsType: "login",
             searchParamsRole: "Все",
             searchString: "",
             users: [],
+            maxPrice: 100000
         };
+    }
+
+    onChangeMaxPrice(e) {
+        this.setState({
+            maxPrice: e.target.value
+        });
     }
 
     onChangeSearchString(e) {
@@ -137,6 +145,17 @@ class Search extends Component {
         });
     }
 
+    removeDoctorsWithExpensivePrices(users) {
+        for (let i = 0; i < users.length; i++) {
+            if (users[i].price > this.state.maxPrice) {
+
+                users.splice(i, 1);
+                i--;
+            }
+        }
+        return users;
+    }
+
     getUsers() {
         const {searchString} = this.state
         if (this.state.searchParamsType === "login" && this.state.searchParamsRole === "Все") {
@@ -154,7 +173,7 @@ class Search extends Component {
         } else if (this.state.searchParamsType === "login") {
             UserService.getByUsername(searchString, this.state.searchParamsRole)
                 .then((response) => {
-                    const users = response.data;
+                    const users = (this.state.searchParamsRole === "Врач") ? this.removeDoctorsWithExpensivePrices(response.data) : response.data;
                     this.refreshList();
                     this.setState({
                         users: users,
@@ -178,7 +197,7 @@ class Search extends Component {
         } else {
             UserService.getByInitials(searchString, this.state.searchParamsRole)
                 .then((response) => {
-                    const users = response.data;
+                    const users = (this.state.searchParamsRole === "Врач") ? this.removeDoctorsWithExpensivePrices(response.data) : response.data;
                     this.refreshList();
                     this.setState({
                         users: users,
@@ -198,6 +217,19 @@ class Search extends Component {
 
     componentDidMount() {
         this.getUsers();
+    }
+
+    printMaxPriceSlider(paperStyle) {
+        if (this.state.searchParamsRole === "Врач") {
+            return (<Paper className={paperStyle}><Grid>Цена: до {this.state.maxPrice} ₽<br/><input id="price_slider"  style={{
+                background: 'linear-gradient(to right, #f50057 0%, #f50057 100%)',
+                border: 'solid 1px #82CFD0',
+                borderRadius: '8px',
+                height: '7px',
+                width: '285px',
+                WebkitAppearance: 'none'}} min="0" max="100000" step="100" type="range" value={this.state.maxPrice}
+                                         onChange={this.onChangeMaxPrice} /></Grid></Paper>)
+        }
     }
 
     render() {
@@ -338,6 +370,7 @@ class Search extends Component {
                             </FormControl>
                         </Grid>
                     </Paper>
+                    {this.printMaxPriceSlider(classes.paper)}
                 </Grid>
             </Grid>
         );

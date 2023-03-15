@@ -241,7 +241,17 @@ function Profile(props) {
                     InputProps={{
                         readOnly: true,
                     }}
-                /> </Grid>);
+                />
+                <TextField
+                    multiline
+                    className={classes.txtDoctorFields}
+                    id="standard-read-only-input"
+                    defaultValue={"От " + user.price + " рублей"}
+                    InputProps={{
+                        readOnly: true,
+                    }}
+                />
+            </Grid>);
 
     }
 

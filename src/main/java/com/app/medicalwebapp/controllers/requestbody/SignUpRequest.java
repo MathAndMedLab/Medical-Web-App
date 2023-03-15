@@ -37,4 +37,6 @@ public class SignUpRequest {
     private String workplace;
 
     private String education;
+
+    private int price;
 }

@@ -29,4 +29,6 @@ public class EditProfileRequest {
     private String workplace;
 
     private String education;
+
+    private int price;
 }

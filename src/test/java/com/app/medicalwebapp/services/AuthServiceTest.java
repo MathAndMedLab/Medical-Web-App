@@ -40,6 +40,7 @@ public class AuthServiceTest {
         user.setSpecialization(editProfileRequest.getSpecialization());
         user.setWorkplace(editProfileRequest.getWorkplace());
         user.setExperience(editProfileRequest.getExperience());
+        user.setPrice(editProfileRequest.getPrice());
         //
         assertEquals(user.getFirstname(), "test_firstname");
         assertEquals(user.getLastname(), "test_lastname");

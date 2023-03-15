@@ -98,6 +98,7 @@ public class AuthController {
         user.setExperience(signUpRequest.getExperience());
         user.setWorkplace(signUpRequest.getWorkplace());
         user.setEducation(signUpRequest.getEducation());
+        user.setPrice(signUpRequest.getPrice());
         //
 
 //        user.setRealName(signUpRequest.getRealName());
@@ -143,6 +144,7 @@ public class AuthController {
             user2.setSpecialization(editProfileRequest.getSpecialization());
             user2.setWorkplace(editProfileRequest.getWorkplace());
             user2.setExperience(editProfileRequest.getExperience());
+            user2.setPrice(editProfileRequest.getPrice());
             userRepository.save(user2);
         }
     }

@@ -70,5 +70,8 @@ public class User {
 
     @Column(name = "education", nullable = true)
     private String education;
+
+    @Column(name = "price", nullable = true)
+    private int price;
 }
 

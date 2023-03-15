@@ -47,6 +47,7 @@ class UserCard extends Component {
                 <div style={{textAlign: "left"}}>{"\nМесто работы: " + this.user.workplace}</div>
                 <div style={{textAlign: "left"}}>{"\nОбразование: " + this.user.education}</div>
                 <div style={{textAlign: "left"}}>{"\nСтаж: " + this.user.experience + " лет"}</div>
+                <div style={{textAlign: "left"}}>{"\nОт " + this.user.price + " рублей"}</div>
             </span>)
         }
     }

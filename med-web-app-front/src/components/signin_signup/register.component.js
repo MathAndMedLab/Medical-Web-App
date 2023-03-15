@@ -104,6 +104,8 @@ function Register(props) {
     const [experienceCorrectness, setExperienceCorrectness] = useState(true)
     const [workplace, setWorkplace] = useState(null)
     const [education, setEducation] = useState(null)
+    const [price, setPrice] = useState(null)
+    const [priceCorrectness, setPriceCorrectness] = useState(true)
 
     const handleClickShowPassword = () => setShowPassword(!showPassword);
     const handleMouseDownPassword = () => setShowPassword(!showPassword);
@@ -179,11 +181,13 @@ function Register(props) {
     function onChangeRole(e) {
         if (e.target.value === defaultUser) {
             setExperienceCorrectness(true)
+            setPriceCorrectness(true)
         }
         setSpecialization(null)
         setExperience(null)
         setWorkplace(null)
         setEducation(null)
+        setPrice(null)
         setChosenRole(e.target.value)
     }
 
@@ -209,6 +213,16 @@ function Register(props) {
         setEducation(e.target.value)
     }
 
+    function onChangePrice(e) {
+        if (!isNaN(Number(e.target.value)) && e.target.value >= 0 && e.target.value <= 100000) {
+            setPriceCorrectness(true)
+        }
+        else {
+            setPriceCorrectness(false)
+        }
+        setPrice(e.target.value)
+    }
+
     function handleRegister(e) {
         e.preventDefault()
         setMessage("")
@@ -222,7 +236,7 @@ function Register(props) {
         } else {
             initials = lastname + " " + firstname
         }
-        if (!usernameError && !passwordError && passwordMatch && experienceCorrectness) {
+        if (!usernameError && !passwordError && passwordMatch && experienceCorrectness && priceCorrectness) {
             AuthService.register(
                 username,
                 initials,
@@ -236,7 +250,8 @@ function Register(props) {
                 specialization,
                 experience,
                 workplace,
-                education
+                education,
+                price
             ).then(
                 response => {
                     setMessage(response.data.message)
@@ -295,53 +310,67 @@ function Register(props) {
                     value={specialization}
                     onChange={onChangeSpecialization}
                 />
-            </Grid>
-                <Grid item xs={12}>
-                    <TextField
-                        required
-                        className={classes.root}
-                        variant="outlined"
-                        fullWidth
-                        id="experience"
-                        label="Стаж (лет)"
-                        name="experience"
-                        autoComplete="on"
-                        value={experience}
-                        error={!experienceCorrectness}
-                        helperText={"Стаж должен быть в пределах от 1 до 100"}
-                        onChange={onChangeExperience}
-                    />
                 </Grid>
-                <Grid item xs={12}>
-                    <TextField
-                        required
-                        className={classes.root}
-                        variant="outlined"
-                        fullWidth
-                        id="workplace"
-                        label="Место работы"
-                        name="workplace"
-                        autoComplete="on"
-                        value={workplace}
-                        onChange={onChangeWorkplace}
-                    />
+                    <Grid item xs={12}>
+                        <TextField
+                            required
+                            className={classes.root}
+                            variant="outlined"
+                            fullWidth
+                            id="experience"
+                            label="Стаж (лет)"
+                            name="experience"
+                            autoComplete="on"
+                            value={experience}
+                            error={!experienceCorrectness}
+                            helperText={"Стаж должен быть в пределах от 1 до 100"}
+                            onChange={onChangeExperience}
+                        />
                     </Grid>
-                <Grid item xs={12}>
-                    <TextField
-                        required
-                        className={classes.root}
-                        variant="outlined"
-                        fullWidth
-                        id="education"
-                        label="Образование"
-                        name="education"
-                        autoComplete="on"
-                        value={education}
-                        onChange={onChangeEducation}
-                    />
-
-                </Grid>
-
+                    <Grid item xs={12}>
+                        <TextField
+                            required
+                            className={classes.root}
+                            variant="outlined"
+                            fullWidth
+                            id="workplace"
+                            label="Место работы"
+                            name="workplace"
+                            autoComplete="on"
+                            value={workplace}
+                            onChange={onChangeWorkplace}
+                        />
+                        </Grid>
+                    <Grid item xs={12}>
+                        <TextField
+                            required
+                            className={classes.root}
+                            variant="outlined"
+                            fullWidth
+                            id="education"
+                            label="Образование"
+                            name="education"
+                            autoComplete="on"
+                            value={education}
+                            onChange={onChangeEducation}
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField
+                            required
+                            className={classes.root}
+                            variant="outlined"
+                            fullWidth
+                            id="price"
+                            label="Цена (RUB)"
+                            name="price"
+                            autoComplete="on"
+                            value={price}
+                            error={!priceCorrectness}
+                            helperText={"Минимальная стоимость обращения пациента (в пределах от 0 до 100000 ₽)"}
+                            onChange={onChangePrice}
+                        />
+                    </Grid>
                 </Grid>
             </span>)
     }

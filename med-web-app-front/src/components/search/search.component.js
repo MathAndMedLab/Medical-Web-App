@@ -21,7 +21,8 @@ import {
 } from "@material-ui/core";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import SearchIcon from '@material-ui/icons/Search';
-import Button from "@material-ui/core/Button";
+import CreatableSelect from "react-select/creatable";
+import specialtiesList from "./../../specialties-of-doctors/specialties-of-doctors"
 
 
 const StyledTableRow = withStyles((theme) => ({
@@ -79,6 +80,7 @@ const useStyles = theme => ({
     },
     formControlLab: {
         marginBottom: theme.spacing(0),
+        marginTop: theme.spacing(0)
     },
     label: {
         margin: theme.spacing(2, 0, 1),
@@ -98,7 +100,15 @@ const useStyles = theme => ({
         paddingLeft: 10,
         paddingTop: 3,
         paddingRight: 25,
-        marginTop: 10
+        marginTop: 0,
+    },
+    nextPaper: {
+        marginLeft: 50,
+        paddingLeft: 10,
+        paddingTop: 3,
+        paddingRight: 25,
+        marginTop: 15,
+        paddingBottom: 3
     }
 });
 
@@ -107,20 +117,39 @@ class Search extends Component {
     constructor(props) {
         super(props);
         this.getUsers = this.getUsers.bind(this);
-        this.onChangeSearchString = this.onChangeSearchString.bind(this);;
+        this.onChangeSearchString = this.onChangeSearchString.bind(this);
         this.onChangeParamsTypeSearch = this.onChangeParamsTypeSearch.bind(this);
         this.onChangeParamsRoleSearch = this.onChangeParamsRoleSearch.bind(this);
         this.onChangeMaxPrice = this.onChangeMaxPrice.bind(this);
+        this.onChangeSelectedSpecialties = this.onChangeSelectedSpecialties.bind(this);
+        this.onChangeMinExperience = this.onChangeMinExperience.bind(this);
         this.state = {
             searchParamsType: "login",
             searchParamsRole: "Все",
             searchString: "",
             users: [],
-            maxPrice: 100000
+            maxPrice: 100000,
+            minExperience: 0, // Минимальный стаж врача.
+            selectedSpecialties: []
         };
     }
 
+    onChangeMinExperience(e) {
+        this.setState({
+            minExperience: e.target.value
+        });
+    }
+
+    onChangeSelectedSpecialties(e) {
+        this.setState({
+            selectedSpecialties: e
+        });
+    }
+
     onChangeMaxPrice(e) {
+        if (isNaN(e.target.value)) {
+            return;
+        }
         this.setState({
             maxPrice: e.target.value
         });
@@ -219,16 +248,63 @@ class Search extends Component {
         this.getUsers();
     }
 
-    printMaxPriceSlider(paperStyle) {
+    printSearchParamsAboutDoctors(nextPaperClass, labelClass) {
         if (this.state.searchParamsRole === "Врач") {
-            return (<Paper className={paperStyle}><Grid>Цена: до {this.state.maxPrice} ₽<br/><input id="price_slider"  style={{
-                background: 'linear-gradient(to right, #f50057 0%, #f50057 100%)',
-                border: 'solid 1px #82CFD0',
-                borderRadius: '8px',
-                height: '7px',
-                width: '285px',
-                WebkitAppearance: 'none'}} min="0" max="100000" step="100" type="range" value={this.state.maxPrice}
-                                         onChange={this.onChangeMaxPrice} /></Grid></Paper>)
+            return (
+                <span>
+                <Paper className={nextPaperClass}>
+                    <Grid>
+                        <FormLabel className={labelClass}>
+                        Цена: до <input required minLength="3" maxLength="8" size="8" value={this.state.maxPrice}
+                                          onChange={this.onChangeMaxPrice}/> ₽
+                            </FormLabel>
+                        <input id="price_slider" style={{
+                            background: `linear-gradient(to right, #f50057 0% ${this.state.maxPrice * 100 / 100000}%, #ffffff ${this.state.maxPrice * 100 / 100000}%)`,
+                            border: 'solid 1px #82CFD0',
+                            borderRadius: '8px',
+                            height: '7px',
+                            width: '285px',
+                            WebkitAppearance: 'none'
+                        }} min="0" max="100000" step="100" type="range" value={this.state.maxPrice}
+                               onChange={this.onChangeMaxPrice}/>
+                    </Grid>
+                </Paper>
+                    <Paper className={nextPaperClass}>
+                        <FormLabel className={labelClass}>
+                        Специальность:
+                        </FormLabel>
+                            <CreatableSelect
+                                placeholder="Выберите врача..."
+                                formatCreateLabel={(unknownSpeciality) => `Искать ${unknownSpeciality}`}
+                                noOptionsMessage={() => "Выбраны все специальности."}
+                                options={specialtiesList}
+                                value={this.state.selectedSpecialties}
+                                onChange={this.onChangeSelectedSpecialties}
+                                isSearchable={true}
+                                isMulti
+                            />
+                        <br/>
+                    </Paper>
+                    <Paper className={nextPaperClass}>
+                    <Grid>
+                        <FormLabel className={labelClass}>
+                        Стаж: от <input required minLength="3" maxLength="8" size="8" value={this.state.minExperience}
+                                        onChange={this.onChangeMinExperience}/> лет
+                            </FormLabel>
+                        <input id="price_slider" style={{
+                            background: `linear-gradient(to right, #f50057 0% ${this.state.minExperience * 100 / 30}%, #ffffff ${this.state.minExperience * 100 / 30}%)`,
+                            border: 'solid 1px #82CFD0',
+                            borderRadius: '8px',
+                            height: '7px',
+                            width: '285px',
+                            WebkitAppearance: 'none'
+                        }} min="0" max="30" step="1" type="range" value={this.state.minExperience}
+                               onChange={this.onChangeMinExperience}/>
+                    </Grid>
+                </Paper>
+                </span>
+
+            )
         }
     }
 
@@ -330,9 +406,37 @@ class Search extends Component {
                         <FormLabel className={classes.label}>Параметры поиска:</FormLabel>
                         <Grid className={classes.mainGrid}>
                             <FormControl>
+                                <RadioGroup value={this.state.searchParamsRole}
+                                            onChange={this.onChangeParamsRoleSearch}>
+                                    <FormControlLabel className={classes.formControlLab}
+                                                      control={<Radio/>}
+                                                      value="Все"
+                                                      label="по всем"
+                                    />
+                                    {/*<FormControlLabel className={classes.formControlLab}*/}
+                                    {/*                  control={<Radio/>}*/}
+                                    {/*                  value="Пользователь"*/}
+                                    {/*                  label="по пользователям"*/}
+                                    {/*                  labelPlacement='end'*/}
+                                    {/*/>*/}
+                                    <FormControlLabel className={classes.formControlLab}
+                                                      control={<Radio/>}
+                                                      value="Врач"
+                                                      label="по врачам"
+                                                      labelPlacement='end'
+                                    />
+                                </RadioGroup>
+                            </FormControl>
+                        </Grid>
+                    </Paper>
+                    <Paper className={classes.nextPaper}>
+                        <FormLabel className={classes.label}>
+                            Искать по:
+                        </FormLabel>
+                        <Grid>
+                            <FormControl>
                                 <RadioGroup value={this.state.searchParamsType}
                                             onChange={this.onChangeParamsTypeSearch}>
-
                                     <FormControlLabel className={classes.formControlLab}
                                                       control={<Radio/>}
                                                       value="login"
@@ -346,31 +450,10 @@ class Search extends Component {
                                     />
                                 </RadioGroup>
                             </FormControl>
-                            <FormControl>
-                                <RadioGroup value={this.state.searchParamsRole}
-                                            onChange={this.onChangeParamsRoleSearch}>
-                                    <FormControlLabel className={classes.formControlLab}
-                                                      control={<Radio/>}
-                                                      value="Все"
-                                                      label="по всем"
-                                    />
-                                    <FormControlLabel className={classes.formControlLab}
-                                                      control={<Radio/>}
-                                                      value="Пользователь"
-                                                      label="по пользователям"
-                                                      labelPlacement='end'
-                                    />
-                                    <FormControlLabel className={classes.formControlLab}
-                                                      control={<Radio/>}
-                                                      value="Врач"
-                                                      label="по врачам"
-                                                      labelPlacement='end'
-                                    />
-                                </RadioGroup>
-                            </FormControl>
                         </Grid>
                     </Paper>
-                    {this.printMaxPriceSlider(classes.paper)}
+
+                        {this.printSearchParamsAboutDoctors(classes.nextPaper, classes.label)}
                 </Grid>
             </Grid>
         );

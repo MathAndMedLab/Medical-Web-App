@@ -103,7 +103,6 @@ const useStyles = theme => ({
         justifyContent: 'center',
     },
     gridInput: {
-        // margin: theme.spacing(30, 5, 20, 5),
         padding: theme.spacing(2, 5, 2, 5),
         borderRadius: 15,
         cursor: 'pointer',
@@ -152,7 +151,7 @@ class UploadAttachmentsComponent extends Component {
     deleteElement(index) {
         let files = [...this.state.selectedFiles];
         files.splice(index, 1);
-        if(files.length === 0) files = undefined
+        if (files.length === 0) files = undefined
         this.setState({
             selectedFiles: files,
         });
@@ -166,13 +165,13 @@ class UploadAttachmentsComponent extends Component {
         let selectedFiles = []
         let files = [...e.target.files]
         let errorMessage = []
-        if(this.state.selectedFiles !== undefined) selectedFiles = [...this.state.selectedFiles]
+        if (this.state.selectedFiles !== undefined) selectedFiles = [...this.state.selectedFiles]
         files.map(file => {
             selectedFiles.push(file)
         })
-        if(selectedFiles.length === 0) {
+        if (selectedFiles.length === 0) {
             selectedFiles = undefined;
-            errorMessage = ["Произошла ошибка попробуйте выбрать файлы снова"]
+            errorMessage = ["Произошла ошибка, попробуйте выбрать файлы снова"]
         } 
         this.setState({
             progressInfos: [],
@@ -187,13 +186,13 @@ class UploadAttachmentsComponent extends Component {
         let selectedFiles = []
         let files = [...e.dataTransfer.files]
         let errorMessage = []
-        if(this.state.selectedFiles !== undefined) selectedFiles = [...this.state.selectedFiles]
+        if (this.state.selectedFiles !== undefined) selectedFiles = [...this.state.selectedFiles]
         files.map(file => {
             selectedFiles.push(file)
         })
-        if(selectedFiles.length === 0) {
+        if (selectedFiles.length === 0) {
             selectedFiles = undefined
-            errorMessage = ["Произошла ошибка попробуйте перетащить файлы снова"]
+            errorMessage = ["Произошла ошибка, попробуйте перетащить файлы снова"]
         } 
         this.setState({
             progressInfos: [],
@@ -288,7 +287,7 @@ class UploadAttachmentsComponent extends Component {
             .catch(() => {
                 _progressInfos[idx].percentage = 0;
                 this.setState((prev) => {
-                    let message: String;
+                    let message
                     if (file.size > 0) message = "Не удалось загрузить файл: " + file.name + ". Превышен максимальный размер 5 МБ"
                     else message = "Не удалось загрузить файл: " + file.name;
                     let nextMessage = [...prev.message, message];
@@ -333,7 +332,11 @@ class UploadAttachmentsComponent extends Component {
                                     </div>
                                 ))}
                                 <Card className={classes.paperGrey}>
-                                    <div className={classes.dropZone} onDragEnter={this.dragEnterHandler} onDragLeave={this.dragLeaveHandler} onDragOver={this.dragEnterHandler} onDrop={(e) => this.dropHandler(e)}>
+                                    <div className={classes.dropZone} 
+                                        onDragEnter={this.dragEnterHandler} 
+                                        onDragLeave={this.dragLeaveHandler} 
+                                        onDragOver={this.dragEnterHandler} 
+                                        onDrop={(e) => this.dropHandler(e)}>
                                        <Grid className={classes.gridContent}>
                                             { !dragEnter ? (
                                                 <Grid>
@@ -347,7 +350,10 @@ class UploadAttachmentsComponent extends Component {
 
                                             <Grid className={classes.gridInput} as="button" variant="contained" onClick={this.selectFiles}>
                                                 <AttachFileIcon />
-                                                <input type="file" style={{ display: "none" }} ref={this.fileInput} multiple onChange={(e) => this.handleFiles(e)}/>
+                                                <input type="file" 
+                                                    style={{ display: "none" }} 
+                                                    ref={this.fileInput} 
+                                                    multiple onChange={(e) => this.handleFiles(e)}/>
                                             </Grid>
                                         </Grid>
                                     </div>
@@ -371,7 +377,12 @@ class UploadAttachmentsComponent extends Component {
                                                         <TableCell>{i+1}</TableCell>
                                                         <TableCell align="left">{file.name}</TableCell>
                                                         <TableCell align="center">
-                                                            <span as="button" key={file.id} style={{cursor: "pointer", '&:hover': {color: "#fff",},}} onClick={() => this.deleteElement(i)}><HighlightOffIcon/></span>
+                                                            <span as="button" 
+                                                                key={file.id} 
+                                                                style={{cursor: "pointer", '&:hover': {color: "#fff",},}} 
+                                                                onClick={() => this.deleteElement(i)}>
+                                                                    <HighlightOffIcon/>
+                                                                </span>
                                                             </TableCell>
                                                     </TableRow>
                                                     )}

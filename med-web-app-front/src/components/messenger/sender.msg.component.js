@@ -124,6 +124,7 @@ function SenderMsg(props) {
                     if (msg.attachmentsBlobForImageClient[i].name.endsWith(".jpg") ||
                         msg.attachmentsBlobForImageClient[i].name.endsWith(".png")
                     ) {
+                        console.log(msg.attachmentsBlobForImageClient[i])
                         imagesPreview.push({
                             image: URL.createObjectURL(msg.attachmentsBlobForImageClient[i])
                         })

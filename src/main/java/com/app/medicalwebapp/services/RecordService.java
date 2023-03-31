@@ -95,13 +95,13 @@ public class RecordService {
                     .collect(Collectors.toSet());
         }
         if (request.getNewFiles() != null && !request.getNewFiles().isEmpty()) {
-            files = request.getNewFiles().stream().map(file -> {
+            files = request.getNewFiles().stream()
+            .map(file -> {
                 try {
                     Base64.Decoder decoder = Base64.getDecoder();
                     String fileBase64 = file.getFileContent().split(",")[1];
                     byte[] decodedFileByte = decoder.decode(fileBase64);
-                    FileObject fileObject = fileService.saveFile(file.getFileName(), decodedFileByte, creatorId, file.getUid());
-                    return fileObject;
+                    return fileService.saveFile(file.getFileName(), decodedFileByte, creatorId, file.getUid());
                 } catch(Exception e) {
                     e.printStackTrace();
                 }

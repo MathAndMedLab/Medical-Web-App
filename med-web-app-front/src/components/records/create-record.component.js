@@ -3,7 +3,6 @@ import RecordService from "../../services/record.service"
 import AttachmentService from "../../services/attachment.service"
 import AuthService from "../../services/auth.service"
 import TopicService from "../../services/topic.service"
-import DicomAnonymizerService from "../../services/dicom-anonymizer.service"
 import {Card, withStyles} from "@material-ui/core"
 import Grid from "@material-ui/core/Grid"
 import Typography from '@material-ui/core/Typography'
@@ -22,6 +21,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import HighlightOffIcon from '@mui/icons-material/HighlightOff'
 import AttachFileIcon from "@mui/icons-material/AttachFile"
 import Modal from 'react-bootstrap/Modal'
+import Upload from "../messenger/upload-files.component"
 
 /**
  * Стили для компонентов mui и react.
@@ -167,6 +167,14 @@ const MenuProps = {
     },
 };
 
+const outputFile = class {
+    constructor (fileName, fileContent, uid) {
+        this.fileName = fileName;
+        this.fileContent = fileContent;
+        this.uid = uid;
+    }
+}
+
 class CreateRecordComponent extends Component {
     constructor(props) {
         super(props);
@@ -246,13 +254,13 @@ class CreateRecordComponent extends Component {
 
     /**
      * Метод принимает выбранные файлы  
-     * @param e 
+     * @param event
      */
-    fileHandler(e) {
+    fileHandler(event) {
         let filesValue = []
-        let files = [...e.target.files]
+        let files = [...event.target.files]
         files.map(file => {
-            if(this.state.selectedFilesUpload !== undefined){
+            if (this.state.selectedFilesUpload !== undefined){
                 filesValue = this.state.selectedFilesUpload
             } 
             filesValue.push(file)
@@ -264,20 +272,20 @@ class CreateRecordComponent extends Component {
 
     /**
      * Обработчик событий при отпускании файлов над дроп зоной
-     * @param e 
+     * @param event
      */
-    dropHandler(e) {
-        e.preventDefault()
-        e.stopPropagation()
+    dropHandler(event) {
+        event.preventDefault()
+        event.stopPropagation()
         let filesValue = []
-        let files = [...e.dataTransfer.files]
+        let files = [...event.dataTransfer.files]
         let errorMessage = null
-        if(files.length === 0) {
+        if (files.length === 0) {
             files = undefined
-            errorMessage = ["Произошла ошибка попробуйте перетащить файлы снова"]
+            errorMessage = ["Произошла ошибка, попробуйте перетащить файлы снова"]
         }
         files.map(file => {
-            if(this.state.selectedFilesUpload !== undefined){
+            if (this.state.selectedFilesUpload !== undefined){
                 filesValue = this.state.selectedFilesUpload
             } 
             filesValue.push(file)
@@ -285,24 +293,25 @@ class CreateRecordComponent extends Component {
         this.setState({
             selectedFilesUpload: filesValue,
             dragEnter: false,
+            message: errorMessage
         })
     }
 
     /**
      * Обработчики событий для перетаскивания файлов в поле загрузки
-     * @param e 
+     * @param event
      */
-    dragEnterHandler(e) {
-        e.preventDefault()
-        e.stopPropagation()
+    dragEnterHandler(event) {
+        event.preventDefault()
+        event.stopPropagation()
         this.setState({
             dragEnter: true,
         })
     }
 
-    dragLeaveHandler(e) {
-        e.preventDefault()
-        e.stopPropagation()
+    dragLeaveHandler(event) {
+        event.preventDefault()
+        event.stopPropagation()
         this.setState({
             dragEnter: false,
         })
@@ -337,31 +346,31 @@ class CreateRecordComponent extends Component {
 
     /**
      * Метод отвечает за нажатие на поле Заголовок
-     * @param e 
+     * @param event
      */
-    onChangeTitle(e) {
+    onChangeTitle(event) {
         this.setState({
-            title: e.target.value
+            title: event.target.value
         });
     }
 
     /**
      * Метод отвечает за нажатие на поле Содержание
-     * @param e 
+     * @param event
      */
-    onChangeContent(e) {
-        let str = e.target.value
+    onChangeContent(event) {
+        let str = event.target.value
         str = str.replace(/ {2,}/g, ' ').trim();
         str = str.replace(/[\n\r ]{3,}/g, '\n\r\n\r');
         if (str.charCodeAt(0) > 32) {
             this.setState({
-                content: e.target.value,
+                content: event.target.value,
                 contentCorrect: str,
                 contentPresence: true
             });
         } else {
             this.setState({
-                content: e.target.value,
+                content: event.target.value,
                 contentCorrect: str,
                 contentPresence: false
             });
@@ -370,37 +379,37 @@ class CreateRecordComponent extends Component {
 
     /**
      * Метод принимает выбранные теги из списка тегов
-     * @param e 
+     * @param event
      */
-    handleTopics(e) {
+    handleTopics(event) {
         let topicIds = [];
         this.state.availableTopics.map(topic => {
-            if (e.target.value.find(x => x.value === topic.value)) {
+            if (event.target.value.find(x => x.value === topic.value)) {
                 topicIds.push(topic.value)
             }
         });
 
         this.setState({
             selectedTopicsId: topicIds,
-            selectedTopicsValue: e.target.value
+            selectedTopicsValue: event.target.value
         })
 
     }
 
     /**
      * Метод принимает выбранные файлы из списка файлов, которые загружены в профиль
-     * @param e 
+     * @param event
      */
-    handleFiles(e) {
+    handleFiles(event) {
         let filesIds = [];
         this.state.availableFiles.map(file => {
-            if (e.target.value.find(x => x.value === file.value)) {
+            if (event.target.value.find(x => x.value === file.value)) {
                 filesIds.push(file.value)
             }
         });
         this.setState({
             selectedFilesId: filesIds,
-            selectedFilesValue: e.target.value
+            selectedFilesValue: event.target.value
         })
     }
 
@@ -413,50 +422,29 @@ class CreateRecordComponent extends Component {
         })
     }
 
+    
+
     /**
      * Метод отвечает за создание постов
-     * @param e 
+     * @param event
      */
-    async handleSubmitRecord(e) {
-        e.preventDefault();
+    async handleSubmitRecord(event) {
+        event.preventDefault();
 
         let fileNameUidAndStringBase64 = []
         let fileNameUidBase64
         
         // Для прикрепления не загруженных файлов в профиль, нужно перевести их в строку base64
-        if(this.state.selectedFilesUpload !== undefined) {
+        if (this.state.selectedFilesUpload !== undefined) {
             let uid = null
             let selectedFiles = [...this.state.selectedFilesUpload]
             for (let i = 0; i < selectedFiles.length; i++) {
                 if (selectedFiles[i].name.endsWith(".dcm")) {
-                    // Изображения формата .dcm должны быть анонимизированы.
-                    var dicomContAndUID = await DicomAnonymizerService.anonymizeInstance(selectedFiles[i]);
-                    var anonymizedDicomBlobArrayBuff = dicomContAndUID.dicom;
-                    uid = dicomContAndUID.UID;
-                    const blobDicom = new Blob([anonymizedDicomBlobArrayBuff])
-                    let readerPromise = new Promise((resolve, reject) => {
-                        let reader = new FileReader();
-                        reader.onload = () => {
-                            resolve(reader.result);
-                        };
-                        reader.onerror = reject;
-                        reader.readAsDataURL(blobDicom);
-                    })
-                    // Для отправления файлов по websocket, необходимо перевести их в строку base64.
-                    const fileStringBase64 = await readerPromise;
-                    fileNameUidBase64 = {fileName: selectedFiles[i].name, fileContent: fileStringBase64 , uid: uid}
+                    const fileBase64 = await Upload.uploadFiles(selectedFiles[i], true)
+                    fileNameUidBase64 = {fileName: fileBase64.name, fileContent: fileBase64.image , uid: fileBase64.uid}
                 } else {
-                    let readerPromise = new Promise((resolve, reject) => {
-                        let reader = new FileReader();
-                        reader.onload = () => {
-                            resolve(reader.result);
-                        };
-                        reader.onerror = reject;
-                        reader.readAsDataURL(selectedFiles[i]);
-                    })
-                    // Для отправления файлов по websocket, необходимо перевести их в строку base64.
-                    const fileStringBase64 = await readerPromise;
-                    fileNameUidBase64 = {fileName: selectedFiles[i].name, fileContent: fileStringBase64, uid: uid}
+                    const fileBase64 = await Upload.uploadFiles(selectedFiles[i], false)
+                    fileNameUidBase64 = {fileName: fileBase64.name, fileContent: fileBase64.image, uid: fileBase64.uid}
                 }
                 fileNameUidAndStringBase64.push(fileNameUidBase64)
             }

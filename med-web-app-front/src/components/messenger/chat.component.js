@@ -1,6 +1,6 @@
 import {Card, Divider, List, Paper, TextField, Typography, withStyles} from "@material-ui/core"
-import { Link, useParams } from "react-router-dom"
-import React, { useEffect, useRef, useState } from "react"
+import {Link, useParams} from "react-router-dom"
+import React, {useEffect, useRef, useState} from "react"
 import UserService from "../../services/user.service"
 import Grid from "@material-ui/core/Grid"
 import AuthService from "../../services/auth.service"
@@ -15,7 +15,6 @@ import Avatar from "@material-ui/core/Avatar"
 import AttachFileIcon from "@mui/icons-material/AttachFile"
 import HighlightOffIcon from '@mui/icons-material/HighlightOff'
 import SendIcon from "@mui/icons-material/Send"
-import DicomAnonymizerService from "../../services/dicom-anonymizer.service"
 import PhotoCameraOutlinedIcon from "@mui/icons-material/PhotoCameraOutlined"
 import Dropdown from "react-bootstrap/Dropdown"
 import ButtonGroup from "react-bootstrap/ButtonGroup"
@@ -28,11 +27,11 @@ import FormControl from "@material-ui/core/FormControl"
 import Container from "@material-ui/core/Container"
 import InputLabel from "@material-ui/core/InputLabel"
 import Modal from "react-bootstrap/Modal"
+import Upload from "./upload-files.component"
 
 /**
  * Стили для компонентов mui и react.
  */
-
 const useStyles = theme => ({
     root: {
         width: 510,
@@ -203,13 +202,13 @@ const useStyles = theme => ({
 })
 
 function Chat(props) {
-    const {classes} = props
     const {stompClient} = props
     const {minusUnRead} = props
     const {usersWithLastMsg} = props
     const {setUsersWithLastMsg} = props
     const {allMessages} = props
     const {setAllMessages} = props
+    const {classes} = props
     const {selected} = useParams() // Для selected устанавливается строка с логином, полученным из url. Например medwebapp.ru/msg/SELECTED_USERNAME
     const [processedUnreadMessages, setProcessedUnreadMessages] = useState([])
     const [content, setContent] = useState("")
@@ -235,7 +234,15 @@ function Chat(props) {
     useEffect(() => {
         getFiles();
         getContacts();
+        window.addEventListener("keydown", handler, true);
+        return () => window.removeEventListener("keydown", handler, true);
     }, [])
+
+    const handler = (e) => {
+        if (e.keyCode === 27) {
+            setSelectedUser(null)
+        }
+    };
 
     /**
      * Функция добавляет выбранного пользователя в контакты.
@@ -326,7 +333,7 @@ function Chat(props) {
                 } else if (selected && user) {
                     selectUser(user.first)
                 }
-                // Данное состояние обновляется для принудительного рендеринга страницы.
+                // Данное состояние обновляется для принудительного рендеринга страниц
                 setRefresh({})
             })
             .catch((e) => {
@@ -396,69 +403,35 @@ function Chat(props) {
             if (selectFiles.length === 0) {
                 if (selectedFiles) {
                     for (let i = 0; i < selectedFiles.length; i++) {
-
                         if (selectedFiles[i].name.endsWith(".dcm")) {
-                            // Изображения формата .dcm должны быть анонимизированы.
-                            var dicomContAndUID = await DicomAnonymizerService.anonymizeInstance(selectedFiles[i]);
-                            var anonymizedDicomBlobArrayBuff = dicomContAndUID.dicom;
-                            uid = dicomContAndUID.UID;
-                            const blobDicom = new Blob([anonymizedDicomBlobArrayBuff])
-                            let readerPromise = new Promise((resolve, reject) => {
-                                let reader = new FileReader();
-                                reader.onload = () => {
-                                    resolve(reader.result);
-                                };
-                                reader.onerror = reject;
-                                reader.readAsDataURL(blobDicom);
-                            })
-                            // Для отправления файлов по websocket, необходимо перевести их в строку base64.
-                            const fileStringBase64 = await readerPromise;
-                            selectedFiles[i] = {name: selectedFiles[i].name, uid: uid}
-                            pairFileNameBase64 = {fileName: selectedFiles[i].name, fileContent: fileStringBase64}
+                            const fileBase64 = await Upload.uploadFiles(selectedFiles[i], true)
+                            uid = fileBase64.uid
+                            selectedFiles[i] = {name: fileBase64.name, uid: fileBase64.uid}
+                            pairFileNameBase64 = {fileName: fileBase64.name, fileContent: fileBase64.image}
                         } else {
-                            let readerPromise = new Promise((resolve, reject) => {
-                                let reader = new FileReader();
-                                reader.onload = () => {
-                                    resolve(reader.result);
-                                };
-                                reader.onerror = reject;
-                                reader.readAsDataURL(selectedFiles[i]);
-                            })
-                            // Для отправления файлов по websocket, необходимо перевести их в строку base64.
-                            const fileStringBase64 = await readerPromise;
-                            pairFileNameBase64 = {fileName: selectedFiles[i].name, fileContent: fileStringBase64}
+                            const fileBase64 = await Upload.uploadFiles(selectedFiles[i], false)
+                            pairFileNameBase64 = {fileName: fileBase64.name, fileContent: fileBase64.image}
                         }
                         fileNameAndStringBase64.push(pairFileNameBase64)
                     }
                 }
             } else {
-                for(let i = 0; i < selectedFiles.length; i++) {
+                for (let i = 0; i < selectedFiles.length; i++) {
                     if (selectedFiles[i].name.endsWith(".jpg") ||
                         selectedFiles[i].name.endsWith(".png") ||
                         selectedFiles[i].name.endsWith(".dcm")) {
-                        let response = await AttachmentService.getPreviewNew(selectedFiles[i].id).then(response => {
-                            return response.data
-                        }).catch(error => {
-                            console.log(error)
-                        })
-                        let readerPromise = new Promise((resolve, reject) => {
-                        let reader = new FileReader();
-                            reader.onload = () => {
-                                resolve(reader.result);
-                            };
-                            reader.onerror = reject;
-                            reader.readAsDataURL(response);
-                        });
-
-                        uid = selectFiles[i].uid
-
-                        // Для отправления файлов по websocket, необходимо перевести их в строку base64.
-                        const fileStringBase64 = await readerPromise;
-                        selectedFiles[i] = {name: selectedFiles[i].name, image: fileStringBase64, uid: selectedFiles[i].uid}
-                        pairFileNameBase64 = {fileName: selectedFiles[i].name, fileContent: selectedFiles[i].image};
-                      }
-                  }
-                  fileNameAndStringBase64.push(pairFileNameBase64);
+                            let response = await AttachmentService.getPreviewNew(selectedFiles[i].id).then(response => {
+                                return response.data
+                            }).catch(error => {
+                                console.log(error)
+                            })
+                            const fileBase64 = await Upload.uploadFiles(response, true)
+                            uid = selectFiles[i].uid
+                            selectedFiles[i] = {name: fileBase64.name, image: fileBase64.image, uid: selectedFiles[i].uid}
+                            pairFileNameBase64 = {fileName: selectedFiles[i].name, fileContent: selectedFiles[i].image};
+                    }
+                }
+                fileNameAndStringBase64.push(pairFileNameBase64);
             }
             const tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
             const localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
@@ -469,7 +442,9 @@ function Chat(props) {
                 recipientName: selectedUser.username,
                 senderId: AuthService.getCurrentUser().id,
                 senderName: AuthService.getCurrentUser().username,
-                attachmentsBlobForImageClient: selectedFiles, // Переменная используется для быстрой отрисовки отправленных изображений, чтобы не делать лишних запросов к базе данных.
+                attachmentsBlobForImageClient: selectedFiles,
+                // Переменная используется для быстрой отрисовки отправленных изображений,
+                // чтобы не делать лишних запросов к базе данных.
                 files: fileNameAndStringBase64,
                 sendDate: localISOTime,
                 timeZone: timeZone,
@@ -727,8 +702,7 @@ function Chat(props) {
 
     function disableButton() {
         if (selectedUser) {
-            return !(contentPresence || selectedFiles);
-
+            return !(contentPresence || selectedFiles)
         }
         return true
     }
@@ -736,22 +710,22 @@ function Chat(props) {
     /**
      * Функция проверяет выбранные файлы на ограничения:
      * кол-во файлов <= 6, размер <= 50МБ.
-     * @param e
+     * @param files
      */
-    function uploadFiles(e) {
+    function uploadFiles(files) {
         const MAX_NUM_FILES = 6
         const MAX_SIZE_FILES = 52428800
         let err_files = false
-        let files = Array.from(e.target.files)
-        if (files.length > MAX_NUM_FILES) {
-            files.splice(MAX_NUM_FILES)
+        let filesArray = Array.from(files.target.files)
+        if (filesArray.length > MAX_NUM_FILES) {
+            filesArray.splice(MAX_NUM_FILES)
             err_files = true
         }
         let removedCount = 0
-        const length = files.length
+        const length = filesArray.length
         for (let i = 0; i < length; i++) {
-            if (files[i - removedCount].size > MAX_SIZE_FILES) {
-                files.splice(i - removedCount, 1)
+            if (filesArray[i - removedCount].size > MAX_SIZE_FILES) {
+                filesArray.splice(i - removedCount, 1)
                 removedCount++
                 err_files = true
             }
@@ -759,10 +733,10 @@ function Chat(props) {
         if (err_files) {
             alert("Кол-во <= 6, размер <= 50МБ")
         }
-        if (files.length === 0) {
-            files = null
+        if (filesArray.length === 0) {
+            filesArray = null
         }
-        setSelectedFiles(files)
+        setSelectedFiles(filesArray)
     }
 
     function getFiles() {
@@ -771,7 +745,7 @@ function Chat(props) {
         ).then(
         (response) => {
             let filteredDicomsForSelect = response.data.map((el) => {
-            return { id: el.id, name: el.initialName, uid: el.uid };
+                return { id: el.id, name: el.initialName, uid: el.uid };
             });
             setAllFiles(filteredDicomsForSelect)
         },
@@ -783,22 +757,22 @@ function Chat(props) {
     /**
      * Функция проверяет выбранные файлы на ограничение:
      * кол-во файлов <= 6.
-     * @param e 
+     * @param files
      */
-    function handleFiles(e) {
-        let files = [...e.target.value]
+    function handleFiles(files) {
+        let filesArray = [...files.target.value]
         
-        if(files.length > 6){
+        if (filesArray.length > 6) {
             alert("Кол-во файлов должно быть <= 6.")
-            files.splice(files.length - 1, 1)
+            filesArray.splice(filesArray.length - 1, 1)
         }
         
-        if (files.length === 0) {
+        if (filesArray.length === 0) {
             setSelectFiles([])
             setSelectedFiles(null)
         } else {
-            setSelectFiles(files)
-            setSelectedFiles(files)
+            setSelectFiles(filesArray)
+            setSelectedFiles(filesArray)
         }
     }
 
@@ -875,12 +849,14 @@ function Chat(props) {
                 </Card>
             </Grid>
 
-            <Grid xs={9} item>
+            <Grid xs={9} item
+                  // onKeyDown={(key) => deactivateChat(key)}
+                  // tabIndex={0}
+            >
                 <Card className={classes.paper2}>
                     {selectedUser &&
                     <Grid>
                         <Grid container>
-                            {/*<Grid xs={2}><UserCardMessage user={selectedUser}/></Grid>*/}
                             <Grid>
                                 <TextField size="small"
                                            fullWidth
@@ -900,12 +876,15 @@ function Chat(props) {
                             className={classes.messageGrid}>
 
                             <Grid>
+                                {selectedUser &&
+                                    (allMessages.get(selectedUser.username)) &&
+                                    ([...allMessages.get(selectedUser.username).messages]
+                                        .filter((msg) => msg.content.includes(searchContent))
+                                        .map((msg, index) => (
 
-                                {selectedUser && (allMessages.get(selectedUser.username)) && ([...allMessages.get(selectedUser.username).messages].filter((msg) => msg.content.includes(searchContent)).map((msg, index) => (
-
-                                    ((((msg.senderName !== selectedUser.username) || (msg.senderName === msg.recipientName)) &&
-                                        (
-                                            <SenderMsg msg={msg} key={index} scrollToBottom={scrollToBottom}
+                                    ((((msg.senderName !== selectedUser.username) ||
+                                            (msg.senderName === msg.recipientName)) &&
+                                        (<SenderMsg msg={msg} key={index} scrollToBottom={scrollToBottom}
                                                        deleteMsgClient={deleteMsgClient}/>
                                         )) || (((msg.senderName === selectedUser.username) &&
                                             (
@@ -916,7 +895,6 @@ function Chat(props) {
                                                 />
                                             ))
                                     ))
-
                                 )))
                                 }
                             </Grid>
@@ -956,7 +934,7 @@ function Chat(props) {
                                     title={"Прикрепить файл"}
                                     >
                                         <span
-                                            as="button"
+                                            is="button"
                                             variant="contained"
                                             onClick={handleOpen}>
                                             Из профиля
@@ -1012,7 +990,7 @@ function Chat(props) {
                                             </Container>
                                             </Modal.Body>
                                             <Modal.Footer>
-                                                <Button onClick={() => acceptButton()} >Принять</Button>
+                                                <Button onClick={() => acceptButton()}>Принять</Button>
                                                 <Button onClick={() => handleClose()}>Отменить</Button>
                                             </Modal.Footer>
                                         </Modal>
@@ -1051,7 +1029,10 @@ function Chat(props) {
                                 {selectedFiles && createFilesArray().map((file, i) => 
                                     <div>
                                         <span>{file.name} {"\n"}</span>
-                                        <span as="button" key={i} style={{cursor: "pointer", '&:hover': {color: "#fff",},}} onClick={() => delSelectedFiles(i)}><HighlightOffIcon/></span>
+                                        <span as="button"
+                                              key={i}
+                                              style={{cursor: "pointer", '&:hover': {color: "#fff",},}}
+                                              onClick={() => delSelectedFiles(i)}><HighlightOffIcon/></span>
                                     </div>
                                 )}
                             </Grid>

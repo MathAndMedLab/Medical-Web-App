@@ -7,5 +7,4 @@ import lombok.Getter;
 public class ChatFileRequest {
     private String fileContent;
     private String fileName;
-//    private FileObjectFormat format;
 }

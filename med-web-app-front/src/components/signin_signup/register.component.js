@@ -11,6 +11,9 @@ import {TextField, InputAdornment, IconButton} from "@material-ui/core";
 import Visibility from "@material-ui/icons/Visibility";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
 import {Alert} from "@material-ui/lab";
+import CreatableSelect from "react-select/creatable";
+import specialtiesList from "../../specialties-of-doctors/specialties-of-doctors";
+import Paper from "@material-ui/core/Paper";
 
 // const required = value => {
 //     if (!value) {
@@ -73,6 +76,10 @@ const useStyles = theme => ({
         margin: theme.spacing(2, 0, 1),
         color: "black"
     },
+    specializationGrid: {
+        zIndex: 999999,
+        height: '100px'
+    }
 
 })
 
@@ -99,7 +106,7 @@ function Register(props) {
     const [passwordMatch, setPasswordMatch] = useState(false)
 
     // Only for doctors.
-    const [specialization, setSpecialization] = useState(null)
+    const [specialization, setSpecialization] = useState([])
     const [experience, setExperience] = useState(null)
     const [experienceCorrectness, setExperienceCorrectness] = useState(true)
     const [workplace, setWorkplace] = useState(null)
@@ -183,7 +190,7 @@ function Register(props) {
             setExperienceCorrectness(true)
             setPriceCorrectness(true)
         }
-        setSpecialization(null)
+        setSpecialization([])
         setExperience(null)
         setWorkplace(null)
         setEducation(null)
@@ -192,8 +199,9 @@ function Register(props) {
     }
 
     function onChangeSpecialization(e) {
-        setSpecialization(e.target.value)
+        setSpecialization(e)
     }
+
 
     function onChangeExperience(e) {
         if (!isNaN(Number(e.target.value)) && e.target.value > 0 && e.target.value <= 100) {
@@ -236,6 +244,11 @@ function Register(props) {
         } else {
             initials = lastname + " " + firstname
         }
+
+        let specializationStr = "";
+        specialization.forEach(item => specializationStr += (item.value + ', '));
+        specializationStr = specializationStr.substring(0, specializationStr.length - 2);
+
         if (!usernameError && !passwordError && passwordMatch && experienceCorrectness && priceCorrectness) {
             AuthService.register(
                 username,
@@ -247,7 +260,7 @@ function Register(props) {
                 password,
                 chosenRole,
                 // Only for doctors.
-                specialization,
+                specializationStr,
                 experience,
                 workplace,
                 education,
@@ -297,20 +310,34 @@ function Register(props) {
         return (
             <span>
                 <Grid container spacing={2}>
-                <Grid item xs={12}>
-                <TextField
-                    required
-                    className={classes.root}
-                    variant="outlined"
-                    fullWidth
-                    id="specialization"
-                    label="Специализация"
-                    name="specialization"
-                    autoComplete="on"
-                    value={specialization}
-                    onChange={onChangeSpecialization}
-                />
-                </Grid>
+                    <Grid item xs={12} className={classes.specializationGrid}>
+                            <CreatableSelect
+                                maxMenuHeight={190}
+                                placeholder="Выберите специальность..."
+                                formatCreateLabel={(unknownSpeciality) => `Выбрать ${unknownSpeciality}`}
+                                noOptionsMessage={() => "Выбраны все специальности."}
+                                options={specialtiesList}
+                                value={specialization}
+                                onChange={onChangeSpecialization}
+                                isSearchable={true}
+                                isMulti
+                            />
+
+                    </Grid>
+                {/*<Grid item xs={12}>*/}
+                {/*<TextField*/}
+                {/*    required*/}
+                {/*    className={classes.root}*/}
+                {/*    variant="outlined"*/}
+                {/*    fullWidth*/}
+                {/*    id="specialization"*/}
+                {/*    label="Специализация"*/}
+                {/*    name="specialization"*/}
+                {/*    autoComplete="on"*/}
+                {/*    value={specialization}*/}
+                {/*    onChange={onChangeSpecialization}*/}
+                {/*/>*/}
+                {/*</Grid>*/}
                     <Grid item xs={12}>
                         <TextField
                             required

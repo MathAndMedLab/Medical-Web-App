@@ -46,15 +46,21 @@ import MessageIcon from '@material-ui/icons/Message'
 import AccountCircleRoundedIcon from '@material-ui/icons/AccountCircleRounded'
 import Chat from "./components/messenger/chat.component"
 import SockJS from "sockjs-client"
-import {over} from "stompjs"
+import { over } from "stompjs"
 import UserService from "./services/user.service"
 import ChatService from "./services/chat.service"
 import ListItemButton from "@mui/material/ListItemButton";
 import Button from "@material-ui/core/Button";
 import { lightBlue } from "@material-ui/core/colors";
+<<<<<<< HEAD
 import {Logout, LogoutSharp} from "@mui/icons-material";
 import {RemoveRedEye} from "@material-ui/icons";
 import {SwipeableDrawer} from "@mui/material";
+=======
+import { Logout, LogoutSharp } from "@mui/icons-material";
+import { RemoveRedEye } from "@material-ui/icons";
+import { SwipeableDrawer } from "@mui/material";
+>>>>>>> 71a4d7e541ce238445b238788543a4918e243121
 import NewHomeComponent from "./components/main/newHome.component";
 
 const drawerWidth = 240
@@ -89,6 +95,10 @@ const useStyles = theme => ({
         zIndex: theme.zIndex.drawer - 100,
     },
     drawerPaperClose: {
+<<<<<<< HEAD
+=======
+
+>>>>>>> 71a4d7e541ce238445b238788543a4918e243121
         transition: theme.transitions.create('width', {
             easing: theme.transitions.easing.easeIn,
             duration: theme.transitions.duration.leavingScreen,
@@ -113,6 +123,11 @@ const useStyles = theme => ({
         "@media (min-width: 1280px)": {
             width: 200
         },
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 71a4d7e541ce238445b238788543a4918e243121
     },
     active: {
         background: '#f4f4f4'
@@ -263,8 +278,8 @@ function App(props) {
                     setCurrentUser(user)
                 })
                 .catch(error => {
-                        logOut()
-                    }
+                    logOut()
+                }
                 )
             connectToChat()
             getUnreadMessages()
@@ -501,9 +516,9 @@ function App(props) {
             numberOfUnRead: numberOfUnRead,
             numberMsg: <Paper
                 className={classes.noticeMsg}>{
-                (numberOfUnRead !== 0 && numberOfUnRead < 999 && numberOfUnRead)
-                ||
-                (numberOfUnRead !== 0 && numberOfUnRead >= 999 && "999+")}
+                    (numberOfUnRead !== 0 && numberOfUnRead < 999 && numberOfUnRead)
+                    ||
+                    (numberOfUnRead !== 0 && numberOfUnRead >= 999 && "999+")}
             </Paper>,
         },
         {
@@ -636,7 +651,7 @@ function App(props) {
         else {
             return (
                 <Grid container alignItems={"center"} justifyContent={"flex-start"}
-                      direction={"row"} >
+                    direction={"row"} >
                     <Grid item width={'25px'} >
                         <IconButton color="inherit" >
                             <Badge badgeContent={4} color="secondary">
@@ -837,9 +852,15 @@ function App(props) {
                         <MenuIcon />
                     </IconButton>
                     <ListItemButton component={Link} to={"/newHome"} variant={"text"} className={classes.button} color={"inherit"}
+<<<<<<< HEAD
                                     disableGutters title={"На главную страницу"}>
                         <Typography component="h1" variant="h6" color="inherit" noWrap
                                     className={classes.title}>
+=======
+                        disableGutters title={"На главную страницу"}>
+                        <Typography component="h1" variant="h6" color="inherit" noWrap
+                            className={classes.title}>
+>>>>>>> 71a4d7e541ce238445b238788543a4918e243121
                             Medical web app
                         </Typography>
                     </ListItemButton>
@@ -876,10 +897,17 @@ function App(props) {
                             <Route exact path={["/msg", "/msg/:selected"]}>
                                 {((AuthService.getCurrentUser())) ?
                                     (<Chat stompClient={stompClient} allMessages={allMessages}
+<<<<<<< HEAD
                                            setAllMessages={setAllMessages}
                                            number={numberOfUnRead} minusUnRead={minusUnRead}
                                            usersWithLastMsg={usersWithLastMsgReceived}
                                            setUsersWithLastMsg={setUsersWithLastMsgReceived}
+=======
+                                        setAllMessages={setAllMessages}
+                                        number={numberOfUnRead} minusUnRead={minusUnRead}
+                                        usersWithLastMsg={usersWithLastMsgReceived}
+                                        setUsersWithLastMsg={setUsersWithLastMsgReceived}
+>>>>>>> 71a4d7e541ce238445b238788543a4918e243121
                                     />) : (<Redirect to="/login" />)}
                             </Route>
                             <Route exact path="/register" component={Register} />

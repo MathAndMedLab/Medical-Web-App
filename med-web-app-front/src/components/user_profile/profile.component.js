@@ -4,7 +4,7 @@ import ProfileService from "../../services/profile.service";
 import Grid from '@material-ui/core/Grid';
 import '../../styles/Profile.css'
 import Review from "./review.component"
-import {ButtonBase, Card, Collapse, Paper, TextField, Typography, withStyles} from "@material-ui/core";
+import {ButtonBase, Card, Collapse, ListItem, Paper, TextField, Typography, withStyles} from "@material-ui/core";
 import Avatar from '@material-ui/core/Avatar';
 import Button from "@material-ui/core/Button";
 import {Link, useParams} from "react-router-dom";
@@ -13,6 +13,11 @@ import PhotoCameraOutlinedIcon from '@mui/icons-material/PhotoCameraOutlined';
 import StarRatings from 'react-star-ratings';
 import GetAllReviews from "../../requests_and_responses/review-request";
 import GetAvgRating from "../../avg_rating/get-avg-rating";
+import ListItemButton from "@mui/material/ListItemButton"
+import { ListItemIcon, ListItemText } from "@material-ui/core"
+import { Logout} from "@mui/icons-material";
+import { width } from "@mui/system";
+import { createTheme} from '@mui/material/styles';
 
 const useStyles = theme => ({
     txtField: {
@@ -79,6 +84,7 @@ const useStyles = theme => ({
     },
     button: {
         width: 200,
+        boxShadow: "0px 2px 1px -1px rgb(0 0 0 / 20%), 0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%)",
         margin: theme.spacing(1),
         backgroundColor: '#f50057',
         color: '#fff',
@@ -86,6 +92,11 @@ const useStyles = theme => ({
             backgroundColor: '#ff5983',
             color: '#fff',
         }
+    },
+    exitButton: {
+        width: 200,
+        boxShadow: "0px 2px 1px -1px rgb(0 0 0 / 20%), 0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%)",
+        margin: theme.spacing(1)
     },
     write: {
         width: 300,
@@ -149,13 +160,14 @@ function Profile(props) {
     const [checked, setChecked] = useState(false)
     const [reviews, setReviews] = useState([])
     const [reviewsCounter, setReviewsCounter] = useState(0)
+    const theme = createTheme()
 
     function selectFile() {
         if (user && user.username === AuthService.getCurrentUser().username) {
             fileInput.current.click()
         }
     }
-
+    
     function getUser(username1) {
         ProfileService.getProfile(username1).then(
             async response => {
@@ -346,6 +358,16 @@ function Profile(props) {
                                                 Загрузить файл
                                             </Button>
                                         </Link>
+                                        <ListItemButton
+                                            component={Link} to={'/login'}
+                                            title={'Выход'}
+                                            className={classes.exitButton}
+                                            sx={{backgroundColor: "#fff", margin: theme.spacing(1)}}
+
+                                        >
+                                            <ListItemIcon>{<Logout style={{color: '#f50057'}} />}</ListItemIcon>
+                                            <ListItemText primary={'Выход'}/>
+                                        </ListItemButton>
                                     </Grid>
                                 </Card>
                             </Grid>

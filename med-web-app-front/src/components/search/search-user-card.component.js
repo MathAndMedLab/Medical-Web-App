@@ -43,7 +43,8 @@ class UserCard extends Component {
     getInfoAboutDoctor() {
         if (this.user.role === "Врач") {
             return (<span>
-                <div style={{textAlign: "left"}}>{"\nСпециализация: " + this.user.specialization}</div>
+                <div style={{textAlign: "left"}}>{this.user.specialization}</div>
+                <div style={{textAlign: "left"}}>{"\n Специализация на диагнозах: " + this.user.specializedDiagnoses}</div>
                 <div style={{textAlign: "left"}}>{"\nМесто работы: " + this.user.workplace}</div>
                 <div style={{textAlign: "left"}}>{"\nОбразование: " + this.user.education}</div>
                 <div style={{textAlign: "left"}}>{"\nСтаж: " + this.user.experience + " лет"}</div>

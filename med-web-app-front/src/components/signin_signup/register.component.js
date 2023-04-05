@@ -12,8 +12,9 @@ import Visibility from "@material-ui/icons/Visibility";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
 import {Alert} from "@material-ui/lab";
 import CreatableSelect from "react-select/creatable";
-import specialtiesList from "../../specialties-of-doctors/specialties-of-doctors";
+import specialtiesList from "../../specialties-of-doctors-and-diagnoses/specialties-of-doctors";
 import Paper from "@material-ui/core/Paper";
+import diagnosesList from "../../specialties-of-doctors-and-diagnoses/diagnoses";
 
 // const required = value => {
 //     if (!value) {
@@ -76,12 +77,21 @@ const useStyles = theme => ({
         margin: theme.spacing(2, 0, 1),
         color: "black"
     },
-    specializationGrid: {
+    creatableSelectGrid: {
         zIndex: 999999,
-        height: '100px'
+    },
+    creatableSelectGridNext: {
+        zIndex: 999998,
     }
-
 })
+
+const creatableSelectStyle = {
+    control: base => ({
+        ...base,
+        height: 55,
+        minHeight: 55
+    })
+};
 
 function Register(props) {
     const defaultUser = "Пользователь";
@@ -107,6 +117,7 @@ function Register(props) {
 
     // Only for doctors.
     const [specialization, setSpecialization] = useState([])
+    const [specializedDiagnoses, setSpecializedDiagnoses] = useState([])
     const [experience, setExperience] = useState(null)
     const [experienceCorrectness, setExperienceCorrectness] = useState(true)
     const [workplace, setWorkplace] = useState(null)
@@ -191,6 +202,7 @@ function Register(props) {
             setPriceCorrectness(true)
         }
         setSpecialization([])
+        setSpecializedDiagnoses([])
         setExperience(null)
         setWorkplace(null)
         setEducation(null)
@@ -199,9 +211,12 @@ function Register(props) {
     }
 
     function onChangeSpecialization(e) {
-        setSpecialization(e)
+        setSpecialization(e);
     }
 
+    function onChangeSpecializedDiagnoses(e) {
+        setSpecializedDiagnoses(e);
+    }
 
     function onChangeExperience(e) {
         if (!isNaN(Number(e.target.value)) && e.target.value > 0 && e.target.value <= 100) {
@@ -249,6 +264,10 @@ function Register(props) {
         specialization.forEach(item => specializationStr += (item.value + ', '));
         specializationStr = specializationStr.substring(0, specializationStr.length - 2);
 
+        let specializedDiagnosesStr = "";
+        specializedDiagnoses.forEach(item => specializedDiagnosesStr += (item.value + ', '))
+        specializedDiagnosesStr = specializedDiagnosesStr.substring(0, specializedDiagnosesStr.length - 2);
+
         if (!usernameError && !passwordError && passwordMatch && experienceCorrectness && priceCorrectness) {
             AuthService.register(
                 username,
@@ -261,6 +280,7 @@ function Register(props) {
                 chosenRole,
                 // Only for doctors.
                 specializationStr,
+                specializedDiagnosesStr,
                 experience,
                 workplace,
                 education,
@@ -310,34 +330,36 @@ function Register(props) {
         return (
             <span>
                 <Grid container spacing={2}>
-                    <Grid item xs={12} className={classes.specializationGrid}>
+                    <Grid item xs={12} className={classes.creatableSelectGrid}>
                             <CreatableSelect
                                 maxMenuHeight={190}
                                 placeholder="Выберите специальность..."
-                                formatCreateLabel={(unknownSpeciality) => `Выбрать ${unknownSpeciality}`}
+                                formatCreateLabel={(x) => `Выбрать ${x}`}
                                 noOptionsMessage={() => "Выбраны все специальности."}
                                 options={specialtiesList}
                                 value={specialization}
                                 onChange={onChangeSpecialization}
                                 isSearchable={true}
                                 isMulti
+                                styles={creatableSelectStyle}
                             />
 
                     </Grid>
-                {/*<Grid item xs={12}>*/}
-                {/*<TextField*/}
-                {/*    required*/}
-                {/*    className={classes.root}*/}
-                {/*    variant="outlined"*/}
-                {/*    fullWidth*/}
-                {/*    id="specialization"*/}
-                {/*    label="Специализация"*/}
-                {/*    name="specialization"*/}
-                {/*    autoComplete="on"*/}
-                {/*    value={specialization}*/}
-                {/*    onChange={onChangeSpecialization}*/}
-                {/*/>*/}
-                {/*</Grid>*/}
+                    <Grid item xs={12} className={classes.creatableSelectGridNext}>
+                            <CreatableSelect
+                                maxMenuHeight={190}
+                                placeholder="Выберите диагнозы, на которых вы специализируетесь..."
+                                formatCreateLabel={(x) => `Выбрать ${x}`}
+                                noOptionsMessage={() => "Выбраны все диагнозы."}
+                                options={diagnosesList}
+                                value={specializedDiagnoses}
+                                onChange={onChangeSpecializedDiagnoses}
+                                isSearchable={true}
+                                isMulti
+                                styles={creatableSelectStyle}
+                            />
+
+                    </Grid>
                     <Grid item xs={12}>
                         <TextField
                             required

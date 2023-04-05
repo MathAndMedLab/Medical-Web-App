@@ -15,9 +15,10 @@ import {
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import SearchIcon from '@material-ui/icons/Search';
 import CreatableSelect from "react-select/creatable";
-import specialtiesList from "./../../specialties-of-doctors/specialties-of-doctors"
+import specialtiesList from "../../specialties-of-doctors-and-diagnoses/specialties-of-doctors"
 import GetAllReviews from "../../requests_and_responses/review-request";
 import GetAvgRating from "../../avg_rating/get-avg-rating";
+import diagnosesList from "../../specialties-of-doctors-and-diagnoses/diagnoses";
 
 const StyledTableRow = withStyles((theme) => ({
     root: {
@@ -89,6 +90,7 @@ class Search extends Component {
         this.sortUsers = this.sortUsers.bind(this);
         this.removeDoctorsByCriteria = this.removeDoctorsByCriteria.bind(this);
         this.getReviewsAndCallSort = this.getReviewsAndCallSort.bind(this);
+        this.onChangeSpecializedDiagnoses = this.onChangeSpecializedDiagnoses.bind(this);
         this.state = {
             searchParamsType: "login",
             searchParamsRole: "Все",
@@ -99,6 +101,7 @@ class Search extends Component {
             maxPrice: 100000,
             minExperience: 0, // Минимальный стаж врача.
             selectedSpecialties: [],
+            specializedDiagnoses: [],
             usersReviewsIndexes: [],
             usersReviews: [],
             isSorted: false
@@ -117,6 +120,12 @@ class Search extends Component {
     onChangeSelectedSpecialties(e) {
         this.setState({
             selectedSpecialties: e
+        });
+    }
+
+    onChangeSpecializedDiagnoses(e) {
+        this.setState({
+            specializedDiagnoses: e
         });
     }
 
@@ -236,22 +245,41 @@ class Search extends Component {
         for (let i = 0; i < users.length; i++) {
 
             let doctorsSpecializations = users[i].specialization.split(', ');
-            let searcherSpecializations = [];
-            this.state.selectedSpecialties.forEach(item => searcherSpecializations.push(item.value))
+            let doctorsDiagnoses = users[i].specializedDiagnoses.split(', ');
 
+            let isDoctorWithSelectedSpecialties = true;
             if (this.state.selectedSpecialties.length !== 0) {
-
-                let savedI = i;
-                searcherSpecializations.forEach(item => doctorsSpecializations.includes(item) ? i++ : users.splice(i, 1));
-                if (savedI === i) {
-                    i--;
-                    continue;
-                }
-                i--;
+                isDoctorWithSelectedSpecialties = false;
+                this.state.selectedSpecialties.forEach((item) => {
+                    doctorsSpecializations.forEach((i) => {
+                        if (i === item.value)
+                        {
+                            isDoctorWithSelectedSpecialties = true;
+                        }
+                    });
+                })
             }
 
+            let isDoctorWithSelectedDiagnoses = true;
+            if (this.state.specializedDiagnoses.length !== 0) {
+                isDoctorWithSelectedDiagnoses = false;
+                this.state.specializedDiagnoses.forEach((item) => {
+                    doctorsDiagnoses.forEach((i) => {
+                        if (i === item.value)
+                        {
+                            isDoctorWithSelectedDiagnoses = true;
+                        }
+                    });
+                })
+
+            }
+
+            if (!isDoctorWithSelectedSpecialties || !isDoctorWithSelectedDiagnoses) {
+                users.splice(i, 1);
+                i--;
+            }
             // Удаление врачей с ценой выше максимума и ниже минимума.
-            if (users[i].price > this.state.maxPrice || users[i].price < this.state.minPrice) {
+            else if (users[i].price > this.state.maxPrice || users[i].price < this.state.minPrice) {
                 users.splice(i, 1);
                 i--;
             }
@@ -376,6 +404,20 @@ class Search extends Component {
                                 isSearchable={true}
                                 isMulti
                             />
+                        <FormLabel className={labelClass}>
+                        Ваш диагноз:
+                        </FormLabel>
+                        <CreatableSelect
+                            maxMenuHeight={190}
+                            placeholder="Выберите диагноз..."
+                            formatCreateLabel={(x) => `Выбрать ${x}`}
+                            noOptionsMessage={() => "Выбраны все диагнозы."}
+                            options={diagnosesList}
+                            value={this.state.specializedDiagnoses}
+                            onChange={this.onChangeSpecializedDiagnoses}
+                            isSearchable={true}
+                            isMulti
+                        />
                         <br/>
                     </Paper>
                     <Paper className={nextPaperClass}>
@@ -572,7 +614,7 @@ class Search extends Component {
                                 <FormControlLabel className={classes.formControlLab}
                                                   control={<Radio/>}
                                                   value="reviewsCounter"
-                                                  label="по числу отзывов"
+                                                  label="по количеству отзывов"
                                                   labelPlacement='end'
                                 />
                             </RadioGroup>

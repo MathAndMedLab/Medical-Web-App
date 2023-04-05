@@ -95,6 +95,7 @@ public class AuthController {
 
         //Only for doctors.
         user.setSpecialization(signUpRequest.getSpecialization());
+        user.setSpecializedDiagnoses(signUpRequest.getSpecializedDiagnoses());
         user.setExperience(signUpRequest.getExperience());
         user.setWorkplace(signUpRequest.getWorkplace());
         user.setEducation(signUpRequest.getEducation());
@@ -142,6 +143,7 @@ public class AuthController {
             user2.setPatronymic(editProfileRequest.getPatronymic());
             user2.setEducation(editProfileRequest.getEducation());
             user2.setSpecialization(editProfileRequest.getSpecialization());
+            user2.setSpecializedDiagnoses(editProfileRequest.getSpecializedDiagnoses());
             user2.setWorkplace(editProfileRequest.getWorkplace());
             user2.setExperience(editProfileRequest.getExperience());
             user2.setPrice(editProfileRequest.getPrice());

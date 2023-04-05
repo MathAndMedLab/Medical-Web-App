@@ -210,7 +210,16 @@ function Profile(props) {
                     multiline
                     className={classes.txtDoctorFields}
                     id="standard-read-only-input"
-                    defaultValue={"Специальность: " + user.specialization}
+                    defaultValue={user.specialization}
+                    InputProps={{
+                        readOnly: true,
+                    }}
+                />
+                <TextField
+                    multiline
+                    className={classes.txtDoctorFields}
+                    id="standard-read-only-input"
+                    defaultValue={"Специализация на диагнозах: " + user.specializedDiagnoses}
                     InputProps={{
                         readOnly: true,
                     }}
@@ -298,6 +307,7 @@ function Profile(props) {
                                     </Grid>
                                     <Grid className={classes.gridData}>
                                         <TextField
+                                            variant="outlined"
                                             multiline
                                             className={classes.txtField}
                                             id="standard-read-only-input"

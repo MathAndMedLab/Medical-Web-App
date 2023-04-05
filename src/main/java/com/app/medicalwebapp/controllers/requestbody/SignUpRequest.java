@@ -32,6 +32,8 @@ public class SignUpRequest {
     // Only for doctors.
     private String specialization;
 
+    private String specializedDiagnoses;
+
     private int experience;
 
     private String workplace;

@@ -4,6 +4,9 @@ import AuthService from "../../services/auth.service";
 import Grid from "@material-ui/core/Grid";
 import React, {useEffect, useState} from "react";
 import GetUser from "../../requests_and_responses/getUser-request"
+import CreatableSelect from "react-select/creatable";
+import specialtiesList from "../../specialties-of-doctors-and-diagnoses/specialties-of-doctors";
+import diagnosesList from "../../specialties-of-doctors-and-diagnoses/diagnoses";
 
 const useStyles = theme => ({
     paper: {
@@ -19,7 +22,21 @@ const useStyles = theme => ({
             color: '#fff',
         }
     },
+    gridCreatableSelectStyle: {
+        zIndex: 999999,
+    },
+    nextGridCreatableSelectStyle: {
+        zIndex: 999998,
+    }
 });
+
+const creatableSelectStyle = {
+    control: base => ({
+        ...base,
+        height: 55,
+        minHeight: 55
+    })
+};
 
 function EditProfile(props) {
     const {classes} = props
@@ -29,7 +46,8 @@ function EditProfile(props) {
     const [patronymic, setPatronymic] = useState("");
 
     // Only for doctors.
-    const [specialization, setSpecialization] = useState(null);
+    const [specialization, setSpecialization] = useState([]);
+    const [specializedDiagnoses, setSpecializedDiagnoses] = useState([])
     const [workplace, setWorkplace] = useState(null);
     const [education, setEducation] = useState(null);
     const [experience, setExperience] = useState(null);
@@ -42,16 +60,27 @@ function EditProfile(props) {
 
 
     function editProfilePost() {
-        let initials
+        let initials;
         if (patronymic !== "") {
-            initials = lastname + " " + firstname + " " + patronymic
-        } else {
-            initials = lastname + " " + firstname
+            initials = lastname + " " + firstname + " " + patronymic;
+        }
+        else {
+            initials = lastname + " " + firstname;
         }
         if (!isFieldsCorrect()) {
             return;
         }
-        AuthService.editProfile(user.username, firstname, lastname, patronymic, initials, specialization, experience, workplace, education, price).then(
+
+        let specializationStr = "";
+        specialization.forEach(item => specializationStr += (item.value + ', '));
+        specializationStr = specializationStr.substring(0, specializationStr.length - 2);
+
+        let specializedDiagnosesStr = "";
+        specializedDiagnoses.forEach(item => specializedDiagnosesStr += (item.value + ', '));
+        specializedDiagnosesStr = specializedDiagnosesStr.substring(0, specializedDiagnosesStr.length - 2);
+
+
+        AuthService.editProfile(user.username, firstname, lastname, patronymic, initials, specializationStr, specializedDiagnosesStr, experience, workplace, education, price).then(
             async response => {
                 console.log(response.data.message)
             })
@@ -63,6 +92,24 @@ function EditProfile(props) {
     function getCurrentUser(username) {
         GetUser(username).then((result) => {
             setUser(result);
+            setFirstname(result.firstname);
+            setLastname(result.lastname);
+            setPatronymic(result.patronymic);
+
+            if (result.role === "Врач") {
+                setExperience(result.experience);
+                setWorkplace(result.workplace);
+                setEducation(result.education);
+                setPrice(result.price);
+
+                let specializationArray = [];
+                result.specialization.split(", ").forEach(item => specializationArray.push({ value: item, label: item}));
+                setSpecialization(specializationArray);
+
+                let specializedDiagnosesArray = [];
+                result.specializedDiagnoses.split(", ").forEach(item => specializedDiagnosesArray.push({ value: item, label: item}));
+                setSpecializedDiagnoses(specializedDiagnosesArray);
+            }
         })
     }
 
@@ -71,18 +118,35 @@ function EditProfile(props) {
             return;
         }
         return (<Grid item container spacing={3}>
-                <Grid item xs={12}>
-                    <TextField
-                        required
-                        variant="outlined"
-                        fullWidth
-                        id="specialization"
-                        label="Специализация"
-                        name="specialization"
-                        autoComplete="on"
+                <Grid item xs={12} className={classes.gridCreatableSelectStyle}>
+                    <CreatableSelect
+                        maxMenuHeight={190}
+                        placeholder="Выберите специальность..."
+                        formatCreateLabel={(x) => `Выбрать ${x}`}
+                        noOptionsMessage={() => "Выбраны все специальности."}
+                        options={specialtiesList}
                         value={specialization}
-                        onChange={(e) => setSpecialization(e.target.value)}
+                        onChange={(e) => setSpecialization(e)}
+                        isSearchable={true}
+                        isMulti
+                        styles={creatableSelectStyle}
                     />
+                </Grid>
+                <Grid item xs={12} className={classes.nextGridCreatableSelectStyle}>
+                    <CreatableSelect
+                        maxMenuHeight={190}
+                        placeholder="Выберите диагнозы, на которых вы специализируетесь..."
+                        label="xyz"
+                        formatCreateLabel={(x) => `Выбрать ${x}`}
+                        noOptionsMessage={() => "Выбраны все диагнозы."}
+                        options={diagnosesList}
+                        value={specializedDiagnoses}
+                        onChange={(e) => setSpecializedDiagnoses(e)}
+                        isSearchable={true}
+                        isMulti
+                        styles={creatableSelectStyle}
+                    />
+
                 </Grid>
                 <Grid item xs={12}>
                     <TextField
@@ -94,7 +158,12 @@ function EditProfile(props) {
                         name="experience"
                         autoComplete="on"
                         value={experience}
-                        onChange={(e) => setExperience(e.target.value)}
+                        onChange={(e) => {
+                            if (isNaN(Number(e.target.value))) {
+                                return;
+                            }
+                            setExperience(e.target.value)
+                        }}
                     />
                 </Grid>
                 <Grid item xs={12}>
@@ -133,7 +202,12 @@ function EditProfile(props) {
                         name="price"
                         autoComplete="on"
                         value={price}
-                        onChange={(e) => setPrice(e.target.value)}
+                        onChange={(e) => {
+                            if (isNaN(Number(e.target.value))) {
+                                return;
+                            }
+                            setPrice(e.target.value)
+                        }}
                     />
                 </Grid>
             </Grid>
@@ -142,28 +216,32 @@ function EditProfile(props) {
 
     function isFieldsCorrect() {
         if (firstname === "" || lastname === "") {
+            console.log("bad names");
             return false;
         }
         if (user.role === "Пользователь") {
+            console.log("good for user.");
             return true;
         }
-        if (isNaN(Number(experience))) {
-            return false;
-        }
-        if (experience <= 0 || experience > 100) {
+
+        if (experience <= 0 ||  experience > 100) {
+            console.log("bad experience");
             return false;
         }
 
-        if (isNaN(Number(price))) {
+        if (price > 100000) {
+            console.log("bad price");
             return false;
         }
-        if (price < 0 || price > 100000) {
+
+        if (specialization.length === 0 || specializedDiagnoses.length === 0 || workplace === "" || education === ""
+            || workplace === null || education === null) {
+            console.log("bad specialization || specializedDiagnoses || workplace || education");
             return false;
         }
-        if (specialization === "" || workplace === "" || education === ""
-            || specialization === null || workplace === null || education === null) {
-            return false;
-        }
+        console.log(specialization);
+        console.log(specializedDiagnoses);
+        console.log("good");
         return true;
     }
 
@@ -189,12 +267,12 @@ function EditProfile(props) {
                         required
                         variant="outlined"
                         fullWidth
-                        id="firstname"
-                        label="Имя"
-                        name="firstname"
+                        id="lastname"
+                        label="Фамилия"
+                        name="lastname"
                         autoComplete="on"
-                        value={firstname}
-                        onChange={(e) => setFirstname(e.target.value)}
+                        value={lastname}
+                        onChange={(e) => setLastname(e.target.value)}
                     />
                 </Grid>
                 <Grid xs={12} item>
@@ -202,12 +280,12 @@ function EditProfile(props) {
                         required
                         variant="outlined"
                         fullWidth
-                        id="lastname"
-                        label="Фамилия"
-                        name="lastname"
+                        id="firstname"
+                        label="Имя"
+                        name="firstname"
                         autoComplete="on"
-                        value={lastname}
-                        onChange={(e) => setLastname(e.target.value)}
+                        value={firstname}
+                        onChange={(e) => setFirstname(e.target.value)}
                     />
                 </Grid>
                 <Grid xs={12} item>

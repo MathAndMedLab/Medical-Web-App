@@ -1,4 +1,4 @@
-package com.app.medicalwebapp.services;
+package com.app.medicalwebapp.services.service_utils;
 
 import org.apache.commons.io.IOUtils;
 

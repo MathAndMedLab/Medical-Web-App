@@ -6,8 +6,10 @@ import com.app.medicalwebapp.model.FileObject;
 import com.app.medicalwebapp.model.FileObjectFormat;
 import com.app.medicalwebapp.model.messenger_models.ChatMessage;
 import com.app.medicalwebapp.model.messenger_models.StatusMessage;
+import com.app.medicalwebapp.repositories.FileObjectRepository;
 import com.app.medicalwebapp.repositories.messenger_repositories.ChatMessageRepository;
 import com.app.medicalwebapp.services.FileService;
+import com.app.medicalwebapp.services.service_utils.MemoUpload;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,11 +24,13 @@ import java.util.stream.Collectors;
 @Service
 public class ChatMessageService {
     private final ChatMessageRepository chatMessageRepository;
+    private final FileObjectRepository fileObjectRepository;
     private final FileService fileService;
 
     @Autowired
-    public ChatMessageService(ChatMessageRepository chatMessageRepository, FileService fileService){
+    public ChatMessageService(ChatMessageRepository chatMessageRepository, FileObjectRepository fileObjectRepository, FileService fileService){
         this.chatMessageRepository = chatMessageRepository;
+        this.fileObjectRepository = fileObjectRepository;
         this.fileService = fileService;
     }
 
@@ -36,13 +40,20 @@ public class ChatMessageService {
     public ChatMessage save(ChatMessageRequest msg) throws Exception {
         List<FileObject> files = new ArrayList<>();
 
+        MemoUpload memoize = new MemoUpload(fileObjectRepository, fileService);
+
         // Если к сообщению прикреплены файлы, необходимо строку base64 декодировать в byte[] и отправить файл на сохранение.
         if (msg.getFiles() != null) {
             for (ChatFileRequest file : msg.getFiles()) {
                 Base64.Decoder decoder = Base64.getDecoder();
                 String fileBase64 = file.getFileContent().split(",")[1];
                 byte[] decodedFileByte = decoder.decode(fileBase64);
-                files.add(fileService.saveFile(file.getFileName(), decodedFileByte, msg.getSenderId(), msg.getUid()));
+                var checkUploadFile = memoize.checkMemo(msg.getSenderId(), decodedFileByte);
+                if (checkUploadFile != null) {
+                    files.add(checkUploadFile);
+                } else {
+                    files.add(fileService.saveFile(file.getFileName(), decodedFileByte, msg.getSenderId(), msg.getUid()));
+                }
             }
         }
         String chatId;

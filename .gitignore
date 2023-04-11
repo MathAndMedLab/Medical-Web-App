@@ -35,19 +35,6 @@ build/
 
 /med-web-app-front/package-lock.json
 src/main/resources/application.properties
-hs_err_pid17646.log
-hs_err_pid19691.log
-hs_err_pid19751.log
-hs_err_pid20024.log
-hs_err_pid20113.log
-hs_err_pid20089.log
-hs_err_pid20158.log
-hs_err_pid19810.log
-hs_err_pid19719.log
-hs_err_pid6986.log
-hs_err_pid22730.log
-hs_err_pid7014.log
 med-web-app-front/hs_err_pid19651.log
 src/main/java/com/app/.DS_Store
 src/main/java/com/app/medicalwebapp/.DS_Store
-hs_err_pid37276.log

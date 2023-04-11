@@ -5,7 +5,16 @@ import DicomAnonymizerService from "../../services/dicom-anonymizer.service"
 import Button from "@material-ui/core/Button";
 import {Card, withStyles} from "@material-ui/core";
 import Grid from "@material-ui/core/Grid";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import {Link} from "react-router-dom";
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
 
 const useStyles = theme => ({
     paper: {
@@ -13,7 +22,6 @@ const useStyles = theme => ({
         marginLeft: theme.spacing(1),
         padding: theme.spacing(1),
         color: "black",
-        // display: 'flex',
     },
     paper2: {
         margin: theme.spacing(3),
@@ -36,6 +44,7 @@ const useStyles = theme => ({
         margin: theme.spacing(1),
         backgroundColor: '#f50057',
         color: '#fff',
+        boxShadow: "0px 2px 1px -1px rgb(0 0 0 / 20%), 0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%)",
         '&:hover': {
             backgroundColor: '#ff5983',
             color: '#fff',
@@ -44,7 +53,7 @@ const useStyles = theme => ({
     buttonUpload: {
         width: 100,
         backgroundColor: '#f50057',
-        marginLeft: theme.spacing(3),
+        margin: theme.spacing(2, 3, 3, 5),
         color: '#fff',
         '&:hover': {
             backgroundColor: '#ff5983',
@@ -53,6 +62,9 @@ const useStyles = theme => ({
         '&:disabled': {
             backgroundColor: '#819ca9',
         },
+    },
+    infoTab: {
+        margin: theme.spacing(0, 5, 0, 5),
     },
     grid: {
         margin: theme.spacing(1),
@@ -75,15 +87,38 @@ const useStyles = theme => ({
     },
     paperGrey: {
         margin: theme.spacing(3, 5, 3, 5),
+        padding: theme.spacing(2),
+        height: "40vh",
         borderRadius: 20,
-        backgroundColor: "#eeeeee"
+        backgroundColor: "#eeeeee",
     },
     gridContent: {
-        margin: theme.spacing(2),
-        display: 'flex'
+        height: "100%",
+        display: 'flex',
+        fontSize: '18px',
+        flexDirection: 'column',
+        borderRadius: 20,
+        border: "dashed gray 3px",
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     gridInput: {
-        marginRight: theme.spacing(25),
+        padding: theme.spacing(2, 5, 2, 5),
+        borderRadius: 15,
+        cursor: 'pointer',
+        backgroundColor: '#f50057',
+        color: '#fff',
+        display: 'flex',
+        alignItems: 'center',
+        boxShadow: "0px 2px 1px -1px rgb(0 0 0 / 20%), 0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%)",
+        '&:hover': {
+            backgroundColor: '#ff5983',
+            color: '#fff',
+        },
+    },
+    dropZone: {
+        height: '100%',
+        width: '100%',
     },
 })
 
@@ -92,8 +127,14 @@ class UploadAttachmentsComponent extends Component {
         super(props);
 
         this.selectFiles = this.selectFiles.bind(this);
+        this.handleFiles = this.handleFiles.bind(this);
         this.uploadFiles = this.uploadFiles.bind(this);
         this.upload = this.upload.bind(this);
+        this.dragEnterHandler = this.dragEnterHandler.bind(this);
+        this.dragLeaveHandler = this.dragLeaveHandler.bind(this);
+        this.dropHandler = this.dropHandler.bind(this);
+        this.deleteElement = this.deleteElement.bind(this);
+        this.fileInput = React.createRef();
 
         const user = AuthService.getCurrentUser();
 
@@ -102,16 +143,80 @@ class UploadAttachmentsComponent extends Component {
             selectedFiles: undefined,
             progressInfos: [],
             message: [],
-
             fileInfos: [],
+            dragEnter: false,
         };
     }
 
-    selectFiles(event) {
+    deleteElement(index) {
+        let files = [...this.state.selectedFiles];
+        files.splice(index, 1);
+        if (files.length === 0) files = undefined
+        this.setState({
+            selectedFiles: files,
+        });
+    }
+
+    selectFiles() {
+        this.fileInput.current.click();
+    }
+
+    handleFiles(e) {
+        let selectedFiles = []
+        let files = [...e.target.files]
+        let errorMessage = []
+        if (this.state.selectedFiles !== undefined) selectedFiles = [...this.state.selectedFiles]
+        files.map(file => {
+            selectedFiles.push(file)
+        })
+        if (selectedFiles.length === 0) {
+            selectedFiles = undefined;
+            errorMessage = ["Произошла ошибка, попробуйте выбрать файлы снова"]
+        } 
         this.setState({
             progressInfos: [],
-            selectedFiles: event.target.files,
+            selectedFiles: selectedFiles,
+            message: errorMessage,
         });
+    }
+
+    dropHandler(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        let selectedFiles = []
+        let files = [...e.dataTransfer.files]
+        let errorMessage = []
+        if (this.state.selectedFiles !== undefined) selectedFiles = [...this.state.selectedFiles]
+        files.map(file => {
+            selectedFiles.push(file)
+        })
+        if (selectedFiles.length === 0) {
+            selectedFiles = undefined
+            errorMessage = ["Произошла ошибка, попробуйте перетащить файлы снова"]
+        } 
+        this.setState({
+            progressInfos: [],
+            selectedFiles: selectedFiles,
+            message: errorMessage,
+            dragEnter: false,
+        });
+    }
+
+    dragEnterHandler(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.setState({
+            dragEnter: true,
+        });
+    }
+
+    dragLeaveHandler(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.setState({
+            dragEnter: false,
+        });
+
     }
 
     uploadFiles() {
@@ -182,7 +287,7 @@ class UploadAttachmentsComponent extends Component {
             .catch(() => {
                 _progressInfos[idx].percentage = 0;
                 this.setState((prev) => {
-                    let message: String;
+                    let message
                     if (file.size > 0) message = "Не удалось загрузить файл: " + file.name + ". Превышен максимальный размер 5 МБ"
                     else message = "Не удалось загрузить файл: " + file.name;
                     let nextMessage = [...prev.message, message];
@@ -195,7 +300,7 @@ class UploadAttachmentsComponent extends Component {
     }
 
     render() {
-        const {selectedFiles, progressInfos, message} = this.state;
+        const {selectedFiles, progressInfos, message, dragEnter} = this.state;
         const {classes} = this.props;
         return (
 
@@ -227,27 +332,79 @@ class UploadAttachmentsComponent extends Component {
                                     </div>
                                 ))}
                                 <Card className={classes.paperGrey}>
-                                    <Grid className={classes.gridContent}>
-                                        <Grid className={classes.gridInput}>
-                                            <label>
-                                                <input type="file" multiple onChange={this.selectFiles}/>
-                                            </label>
+                                    <div className={classes.dropZone} 
+                                        onDragEnter={this.dragEnterHandler} 
+                                        onDragLeave={this.dragLeaveHandler} 
+                                        onDragOver={this.dragEnterHandler} 
+                                        onDrop={(e) => this.dropHandler(e)}>
+                                       <Grid className={classes.gridContent}>
+                                            { !dragEnter ? (
+                                                <Grid>
+                                                    <p><strong>Перетащите сюда</strong> файлы или нажмите на кнопку ниже</p>
+                                                </Grid>
+                                            ) : (
+                                                <Grid>
+                                                    <p><strong>Отпустите файлы</strong></p>
+                                                </Grid>
+                                            )}
+
+                                            <Grid className={classes.gridInput} as="button" variant="contained" onClick={this.selectFiles}>
+                                                <AttachFileIcon />
+                                                <input type="file" 
+                                                    style={{ display: "none" }} 
+                                                    ref={this.fileInput} 
+                                                    multiple onChange={(e) => this.handleFiles(e)}/>
+                                            </Grid>
                                         </Grid>
-
-                                        <Grid>
-                                            <Button
-                                                className={classes.buttonUpload}
-                                                variant="contained"
-                                                disabled={!selectedFiles}
-                                                onClick={this.uploadFiles}
-                                            >
-                                                Загрузить
-                                            </Button>
-                                        </Grid>
-                                    </Grid>
-
-
+                                    </div>
                                 </Card>
+                                <Grid>
+                                    <Grid className={classes.infoTab}>
+                                        <h3>Загружаемые файлы: </h3>
+                                        {selectedFiles ? (
+                                            <TableContainer component={Paper}>
+                                                <Table sx={{ width: '100%' }} aria-label="spanning table">
+                                                <TableHead>
+                                                    <TableRow>
+                                                    <TableCell>№</TableCell>
+                                                    <TableCell align="left">Наименование файла</TableCell>
+                                                    <TableCell align="center">Отмена</TableCell>
+                                                    </TableRow>
+                                                </TableHead>
+                                                <TableBody>
+                                                    {[...selectedFiles].map((file, i) =>
+                                                    <TableRow key={i}>
+                                                        <TableCell>{i+1}</TableCell>
+                                                        <TableCell align="left">{file.name}</TableCell>
+                                                        <TableCell align="center">
+                                                            <span as="button" 
+                                                                key={file.id} 
+                                                                style={{cursor: "pointer", '&:hover': {color: "#fff",},}} 
+                                                                onClick={() => this.deleteElement(i)}>
+                                                                    <HighlightOffIcon/>
+                                                                </span>
+                                                            </TableCell>
+                                                    </TableRow>
+                                                    )}
+                                                </TableBody>
+                                                </Table>
+                                            </TableContainer>
+                                        ) : (
+                                            <span>Нет выбранных файлов</span>
+                                        )}
+                                    </Grid>
+                                    <Grid>
+                                        <Button
+                                            className={classes.buttonUpload}
+                                            variant="contained"
+                                            disabled={!selectedFiles}
+                                            onClick={this.uploadFiles}
+                                        >
+                                            Загрузить
+                                        </Button>
+                                    </Grid>
+                                </Grid>
+
                                 {message.length > 0 && (
                                     <div className="alert alert-success" role="alert">
                                         <ul>

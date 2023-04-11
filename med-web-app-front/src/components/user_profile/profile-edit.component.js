@@ -136,7 +136,6 @@ function EditProfile(props) {
                     <CreatableSelect
                         maxMenuHeight={190}
                         placeholder="Выберите диагнозы, на которых вы специализируетесь..."
-                        label="xyz"
                         formatCreateLabel={(x) => `Выбрать ${x}`}
                         noOptionsMessage={() => "Выбраны все диагнозы."}
                         options={diagnosesList}
@@ -216,32 +215,24 @@ function EditProfile(props) {
 
     function isFieldsCorrect() {
         if (firstname === "" || lastname === "") {
-            console.log("bad names");
             return false;
         }
         if (user.role === "Пользователь") {
-            console.log("good for user.");
             return true;
         }
 
         if (experience <= 0 ||  experience > 100) {
-            console.log("bad experience");
             return false;
         }
 
         if (price > 100000) {
-            console.log("bad price");
             return false;
         }
 
         if (specialization.length === 0 || specializedDiagnoses.length === 0 || workplace === "" || education === ""
             || workplace === null || education === null) {
-            console.log("bad specialization || specializedDiagnoses || workplace || education");
             return false;
         }
-        console.log(specialization);
-        console.log(specializedDiagnoses);
-        console.log("good");
         return true;
     }
 

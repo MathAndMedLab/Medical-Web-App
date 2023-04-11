@@ -35,6 +35,4 @@ build/
 
 /med-web-app-front/package-lock.json
 src/main/resources/application.properties
-med-web-app-front/hs_err_pid19651.log
-src/main/java/com/app/.DS_Store
-src/main/java/com/app/medicalwebapp/.DS_Store
+.DS_Store

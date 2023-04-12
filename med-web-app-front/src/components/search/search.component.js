@@ -288,7 +288,6 @@ class Search extends Component {
                 users.splice(i, 1);
                 i--;
             }
-            // else if (users[i].specialization.split(', ').includes)
         }
         return users;
     }

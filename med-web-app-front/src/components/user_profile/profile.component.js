@@ -219,7 +219,7 @@ function Profile(props) {
                     multiline
                     className={classes.txtDoctorFields}
                     id="standard-read-only-input"
-                    defaultValue={"Специализация на диагнозах: " + user.specializedDiagnoses}
+                    defaultValue={"Специализация на болезнях: " + user.specializedDiagnoses}
                     InputProps={{
                         readOnly: true,
                     }}

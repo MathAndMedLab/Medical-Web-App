@@ -135,7 +135,7 @@ function EditProfile(props) {
                 <Grid item xs={12} className={classes.nextGridCreatableSelectStyle}>
                     <CreatableSelect
                         maxMenuHeight={190}
-                        placeholder="Выберите диагнозы, на которых вы специализируетесь..."
+                        placeholder="Выберите болезни, на которых вы специализируетесь..."
                         formatCreateLabel={(x) => `Выбрать ${x}`}
                         noOptionsMessage={() => "Выбраны все диагнозы."}
                         options={diagnosesList}

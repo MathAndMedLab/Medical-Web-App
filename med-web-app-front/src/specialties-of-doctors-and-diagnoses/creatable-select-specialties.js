@@ -4,7 +4,6 @@ import React from "react";
 const creatableSelectStyle = {
     control: base => ({
         ...base,
-        height: 55,
         minHeight: 55
     })
 };

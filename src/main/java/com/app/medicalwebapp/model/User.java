@@ -63,7 +63,7 @@ public class User {
     private String specialization;
 
     @Column(name = "specializedDiagnoses", nullable = true)
-        private String specializedDiagnoses;
+    private String specializedDiagnoses;
 
     @Column(name = "experience", nullable = true)
     private int experience;

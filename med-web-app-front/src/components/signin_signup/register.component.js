@@ -221,7 +221,7 @@ function Register(props) {
     }
 
     function onChangeExperience(e) {
-        if (!isNaN(Number(e.target.value)) && e.target.value > 0 && e.target.value <= 100) {
+        if (!isNaN(Number(e.target.value)) && e.target.value >= 0 && e.target.value <= 100) {
             setExperienceCorrectness(true)
         }
         else {
@@ -350,7 +350,7 @@ function Register(props) {
                             autoComplete="on"
                             value={experience}
                             error={!experienceCorrectness}
-                            helperText={"Стаж должен быть в пределах от 1 до 100"}
+                            helperText={"Стаж должен быть в пределах от 1 до 100 (если ваш стаж меньше года, то укажите 0)"}
                             onChange={onChangeExperience}
                         />
                     </Grid>

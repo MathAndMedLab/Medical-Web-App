@@ -13,6 +13,7 @@ import PhotoCameraOutlinedIcon from '@mui/icons-material/PhotoCameraOutlined';
 import StarRatings from 'react-star-ratings';
 import GetAllReviews from "../../requests_and_responses/review-request";
 import GetAvgRating from "../../avg_rating/get-avg-rating";
+import getCorrectExperienceValue from "./get-correct-experience-value";
 
 const useStyles = theme => ({
     txtField: {
@@ -228,7 +229,7 @@ function Profile(props) {
                     multiline
                     className={classes.txtDoctorFields}
                     id="standard-read-only-input"
-                    defaultValue={"Стаж: " + user.experience + " лет"}
+                    defaultValue={getCorrectExperienceValue(user.experience)}
                     InputProps={{
                         readOnly: true,
                     }}

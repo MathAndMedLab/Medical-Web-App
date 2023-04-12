@@ -199,7 +199,7 @@ function EditProfile(props) {
             return true;
         }
 
-        if (experience <= 0 ||  experience > 100) {
+        if (experience < 0 ||  experience > 100) {
             return false;
         }
 

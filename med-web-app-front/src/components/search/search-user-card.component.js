@@ -8,6 +8,7 @@ import Profile from "../user_profile/profile.component"
 import GetAllReviews from "../../requests_and_responses/review-request";
 import GetAvgRating from "../../avg_rating/get-avg-rating";
 import StarRatings from "react-star-ratings";
+import getCorrectExperienceValue from "../user_profile/get-correct-experience-value";
 
 const useStyles = theme => ({
     root: {
@@ -47,7 +48,7 @@ class UserCard extends Component {
                 <div style={{textAlign: "left"}}>{"\n Специализация на болезнях: " + this.user.specializedDiagnoses}</div>
                 <div style={{textAlign: "left"}}>{"\nМесто работы: " + this.user.workplace}</div>
                 <div style={{textAlign: "left"}}>{"\nОбразование: " + this.user.education}</div>
-                <div style={{textAlign: "left"}}>{"\nСтаж: " + this.user.experience + " лет"}</div>
+                <div style={{textAlign: "left"}}>{getCorrectExperienceValue(this.user.experience)}</div>
                 <div style={{textAlign: "left"}}>{"\nОт " + this.user.price + " рублей"}</div>
             </span>)
         }

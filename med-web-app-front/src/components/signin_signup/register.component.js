@@ -15,6 +15,8 @@ import CreatableSelect from "react-select/creatable";
 import specialtiesList from "../../specialties-of-doctors-and-diagnoses/specialties-of-doctors";
 import Paper from "@material-ui/core/Paper";
 import diagnosesList from "../../specialties-of-doctors-and-diagnoses/diagnoses";
+import CreatableSelectDiagnoses from "../../specialties-of-doctors-and-diagnoses/creatable-select-diagnoses";
+import CreatableSelectSpecialties from "../../specialties-of-doctors-and-diagnoses/creatable-select-specialties";
 
 // const required = value => {
 //     if (!value) {
@@ -331,34 +333,10 @@ function Register(props) {
             <span>
                 <Grid container spacing={2}>
                     <Grid item xs={12} className={classes.creatableSelectGrid}>
-                            <CreatableSelect
-                                maxMenuHeight={190}
-                                placeholder="Выберите специальность..."
-                                formatCreateLabel={(x) => `Выбрать ${x}`}
-                                noOptionsMessage={() => "Выбраны все специальности."}
-                                options={specialtiesList}
-                                value={specialization}
-                                onChange={onChangeSpecialization}
-                                isSearchable={true}
-                                isMulti
-                                styles={creatableSelectStyle}
-                            />
-
+                            {CreatableSelectSpecialties(specialization, onChangeSpecialization)}
                     </Grid>
                     <Grid item xs={12} className={classes.creatableSelectGridNext}>
-                            <CreatableSelect
-                                maxMenuHeight={190}
-                                placeholder="Выберите болезни, на которых вы специализируетесь..."
-                                formatCreateLabel={(x) => `Выбрать ${x}`}
-                                noOptionsMessage={() => "Выбраны все диагнозы."}
-                                options={diagnosesList}
-                                value={specializedDiagnoses}
-                                onChange={onChangeSpecializedDiagnoses}
-                                isSearchable={true}
-                                isMulti
-                                styles={creatableSelectStyle}
-                            />
-
+                           {CreatableSelectDiagnoses(specializedDiagnoses, onChangeSpecializedDiagnoses)}
                     </Grid>
                     <Grid item xs={12}>
                         <TextField

@@ -19,6 +19,8 @@ import specialtiesList from "../../specialties-of-doctors-and-diagnoses/specialt
 import GetAllReviews from "../../requests_and_responses/review-request";
 import GetAvgRating from "../../avg_rating/get-avg-rating";
 import diagnosesList from "../../specialties-of-doctors-and-diagnoses/diagnoses";
+import CreatableSelectSpecialties from "../../specialties-of-doctors-and-diagnoses/creatable-select-specialties";
+import CreatableSelectDiagnoses from "../../specialties-of-doctors-and-diagnoses/creatable-select-diagnoses";
 
 const StyledTableRow = withStyles((theme) => ({
     root: {
@@ -393,30 +395,11 @@ class Search extends Component {
                         <FormLabel className={labelClass}>
                         Специальность:
                         </FormLabel>
-                            <CreatableSelect
-                                placeholder="Выберите врача..."
-                                formatCreateLabel={(unknownSpeciality) => `Искать ${unknownSpeciality}`}
-                                noOptionsMessage={() => "Выбраны все специальности."}
-                                options={specialtiesList}
-                                value={this.state.selectedSpecialties}
-                                onChange={this.onChangeSelectedSpecialties}
-                                isSearchable={true}
-                                isMulti
-                            />
+                            {CreatableSelectSpecialties(this.state.selectedSpecialties, this.onChangeSelectedSpecialties)}
                         <FormLabel className={labelClass}>
                         Ваш диагноз:
                         </FormLabel>
-                        <CreatableSelect
-                            maxMenuHeight={190}
-                            placeholder="Выберите диагноз..."
-                            formatCreateLabel={(x) => `Выбрать ${x}`}
-                            noOptionsMessage={() => "Выбраны все диагнозы."}
-                            options={diagnosesList}
-                            value={this.state.specializedDiagnoses}
-                            onChange={this.onChangeSpecializedDiagnoses}
-                            isSearchable={true}
-                            isMulti
-                        />
+                            {CreatableSelectDiagnoses(this.state.specializedDiagnoses, this.onChangeSpecializedDiagnoses)}
                         <br/>
                     </Paper>
                     <Paper className={nextPaperClass}>

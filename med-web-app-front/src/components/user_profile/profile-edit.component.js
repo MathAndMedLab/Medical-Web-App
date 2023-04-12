@@ -7,7 +7,8 @@ import GetUser from "../../requests_and_responses/getUser-request"
 import CreatableSelect from "react-select/creatable";
 import specialtiesList from "../../specialties-of-doctors-and-diagnoses/specialties-of-doctors";
 import diagnosesList from "../../specialties-of-doctors-and-diagnoses/diagnoses";
-
+import CreatableSelectSpecialties from "../../specialties-of-doctors-and-diagnoses/creatable-select-specialties";
+import CreatableSelectDiagnoses from "../../specialties-of-doctors-and-diagnoses/creatable-select-diagnoses";
 const useStyles = theme => ({
     paper: {
         margin: theme.spacing(3, 5, 3, 5),
@@ -60,7 +61,7 @@ function EditProfile(props) {
 
 
     function editProfilePost() {
-        let initials;
+        let initials
         if (patronymic !== "") {
             initials = lastname + " " + firstname + " " + patronymic;
         }
@@ -119,33 +120,10 @@ function EditProfile(props) {
         }
         return (<Grid item container spacing={3}>
                 <Grid item xs={12} className={classes.gridCreatableSelectStyle}>
-                    <CreatableSelect
-                        maxMenuHeight={190}
-                        placeholder="Выберите специальность..."
-                        formatCreateLabel={(x) => `Выбрать ${x}`}
-                        noOptionsMessage={() => "Выбраны все специальности."}
-                        options={specialtiesList}
-                        value={specialization}
-                        onChange={(e) => setSpecialization(e)}
-                        isSearchable={true}
-                        isMulti
-                        styles={creatableSelectStyle}
-                    />
+                    {CreatableSelectSpecialties(specialization, setSpecialization)}
                 </Grid>
                 <Grid item xs={12} className={classes.nextGridCreatableSelectStyle}>
-                    <CreatableSelect
-                        maxMenuHeight={190}
-                        placeholder="Выберите болезни, на которых вы специализируетесь..."
-                        formatCreateLabel={(x) => `Выбрать ${x}`}
-                        noOptionsMessage={() => "Выбраны все диагнозы."}
-                        options={diagnosesList}
-                        value={specializedDiagnoses}
-                        onChange={(e) => setSpecializedDiagnoses(e)}
-                        isSearchable={true}
-                        isMulti
-                        styles={creatableSelectStyle}
-                    />
-
+                    {CreatableSelectDiagnoses(specializedDiagnoses, setSpecializedDiagnoses)}
                 </Grid>
                 <Grid item xs={12}>
                     <TextField

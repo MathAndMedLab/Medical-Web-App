@@ -35,3 +35,4 @@ build/
 
 /med-web-app-front/package-lock.json
 src/main/resources/application.properties
+.DS_Store

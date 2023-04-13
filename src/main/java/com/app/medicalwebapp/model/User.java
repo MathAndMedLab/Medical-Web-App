@@ -62,6 +62,9 @@ public class User {
     @Column(name = "specialization", nullable = true)
     private String specialization;
 
+    @Column(name = "specializedDiagnoses", nullable = true)
+    private String specializedDiagnoses;
+
     @Column(name = "experience", nullable = true)
     private int experience;
 
@@ -70,5 +73,8 @@ public class User {
 
     @Column(name = "education", nullable = true)
     private String education;
+
+    @Column(name = "price", nullable = true)
+    private int price;
 }
 

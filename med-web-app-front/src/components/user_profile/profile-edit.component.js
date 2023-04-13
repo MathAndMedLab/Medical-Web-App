@@ -4,7 +4,11 @@ import AuthService from "../../services/auth.service";
 import Grid from "@material-ui/core/Grid";
 import React, {useEffect, useState} from "react";
 import GetUser from "../../requests_and_responses/getUser-request"
-
+import CreatableSelect from "react-select/creatable";
+import specialtiesList from "../../specialties-of-doctors-and-diagnoses/specialties-of-doctors";
+import diagnosesList from "../../specialties-of-doctors-and-diagnoses/diagnoses";
+import CreatableSelectSpecialties from "../../specialties-of-doctors-and-diagnoses/creatable-select-specialties";
+import CreatableSelectDiagnoses from "../../specialties-of-doctors-and-diagnoses/creatable-select-diagnoses";
 const useStyles = theme => ({
     paper: {
         margin: theme.spacing(3, 5, 3, 5),
@@ -19,7 +23,21 @@ const useStyles = theme => ({
             color: '#fff',
         }
     },
+    gridCreatableSelectStyle: {
+        zIndex: 999999,
+    },
+    nextGridCreatableSelectStyle: {
+        zIndex: 999998,
+    }
 });
+
+const creatableSelectStyle = {
+    control: base => ({
+        ...base,
+        height: 55,
+        minHeight: 55
+    })
+};
 
 function EditProfile(props) {
     const {classes} = props
@@ -29,10 +47,12 @@ function EditProfile(props) {
     const [patronymic, setPatronymic] = useState("");
 
     // Only for doctors.
-    const [specialization, setSpecialization] = useState(null);
+    const [specialization, setSpecialization] = useState([]);
+    const [specializedDiagnoses, setSpecializedDiagnoses] = useState([])
     const [workplace, setWorkplace] = useState(null);
     const [education, setEducation] = useState(null);
     const [experience, setExperience] = useState(null);
+    const [price, setPrice] = useState(null);
 
     useEffect(() => {
         let username1 = AuthService.getCurrentUser().username;
@@ -43,14 +63,25 @@ function EditProfile(props) {
     function editProfilePost() {
         let initials
         if (patronymic !== "") {
-            initials = lastname + " " + firstname + " " + patronymic
-        } else {
-            initials = lastname + " " + firstname
+            initials = lastname + " " + firstname + " " + patronymic;
+        }
+        else {
+            initials = lastname + " " + firstname;
         }
         if (!isFieldsCorrect()) {
             return;
         }
-        AuthService.editProfile(user.username, firstname, lastname, patronymic, initials, specialization, experience, workplace, education).then(
+
+        let specializationStr = "";
+        specialization.forEach(item => specializationStr += (item.value + ', '));
+        specializationStr = specializationStr.substring(0, specializationStr.length - 2);
+
+        let specializedDiagnosesStr = "";
+        specializedDiagnoses.forEach(item => specializedDiagnosesStr += (item.value + ', '));
+        specializedDiagnosesStr = specializedDiagnosesStr.substring(0, specializedDiagnosesStr.length - 2);
+
+
+        AuthService.editProfile(user.username, firstname, lastname, patronymic, initials, specializationStr, specializedDiagnosesStr, experience, workplace, education, price).then(
             async response => {
                 console.log(response.data.message)
             })
@@ -62,6 +93,24 @@ function EditProfile(props) {
     function getCurrentUser(username) {
         GetUser(username).then((result) => {
             setUser(result);
+            setFirstname(result.firstname);
+            setLastname(result.lastname);
+            setPatronymic(result.patronymic);
+
+            if (result.role === "Врач") {
+                setExperience(result.experience);
+                setWorkplace(result.workplace);
+                setEducation(result.education);
+                setPrice(result.price);
+
+                let specializationArray = [];
+                result.specialization.split(", ").forEach(item => specializationArray.push({ value: item, label: item}));
+                setSpecialization(specializationArray);
+
+                let specializedDiagnosesArray = [];
+                result.specializedDiagnoses.split(", ").forEach(item => specializedDiagnosesArray.push({ value: item, label: item}));
+                setSpecializedDiagnoses(specializedDiagnosesArray);
+            }
         })
     }
 
@@ -70,18 +119,11 @@ function EditProfile(props) {
             return;
         }
         return (<Grid item container spacing={3}>
-                <Grid item xs={12}>
-                    <TextField
-                        required
-                        variant="outlined"
-                        fullWidth
-                        id="specialization"
-                        label="Специализация"
-                        name="specialization"
-                        autoComplete="on"
-                        value={specialization}
-                        onChange={(e) => setSpecialization(e.target.value)}
-                    />
+                <Grid item xs={12} className={classes.gridCreatableSelectStyle}>
+                    {CreatableSelectSpecialties(specialization, setSpecialization)}
+                </Grid>
+                <Grid item xs={12} className={classes.nextGridCreatableSelectStyle}>
+                    {CreatableSelectDiagnoses(specializedDiagnoses, setSpecializedDiagnoses)}
                 </Grid>
                 <Grid item xs={12}>
                     <TextField
@@ -93,7 +135,12 @@ function EditProfile(props) {
                         name="experience"
                         autoComplete="on"
                         value={experience}
-                        onChange={(e) => setExperience(e.target.value)}
+                        onChange={(e) => {
+                            if (isNaN(Number(e.target.value))) {
+                                return;
+                            }
+                            setExperience(e.target.value)
+                        }}
                     />
                 </Grid>
                 <Grid item xs={12}>
@@ -122,6 +169,24 @@ function EditProfile(props) {
                         onChange={(e) => setEducation(e.target.value)}
                     />
                 </Grid>
+                <Grid item xs={12}>
+                    <TextField
+                        required
+                        variant="outlined"
+                        fullWidth
+                        id="price"
+                        label="Цена (RUB)"
+                        name="price"
+                        autoComplete="on"
+                        value={price}
+                        onChange={(e) => {
+                            if (isNaN(Number(e.target.value))) {
+                                return;
+                            }
+                            setPrice(e.target.value)
+                        }}
+                    />
+                </Grid>
             </Grid>
         )
     }
@@ -133,14 +198,17 @@ function EditProfile(props) {
         if (user.role === "Пользователь") {
             return true;
         }
-        if (isNaN(Number(experience))) {
+
+        if (experience < 0 ||  experience > 100) {
             return false;
         }
-        if (experience <= 0 || experience > 100) {
+
+        if (price > 100000) {
             return false;
         }
-        if (specialization === "" || workplace === "" || education === ""
-            || specialization === null || workplace === null || education === null) {
+
+        if (specialization.length === 0 || specializedDiagnoses.length === 0 || workplace === "" || education === ""
+            || workplace === null || education === null) {
             return false;
         }
         return true;
@@ -148,7 +216,7 @@ function EditProfile(props) {
 
     function getInfoAboutFieldsCorrectness() {
         if (!isFieldsCorrect() && user.role === "Врач") {
-            return (<div>Заполните все обязательные поля и укажите корректный стаж.</div>)
+            return (<div>Заполните все обязательные поля и укажите корректный стаж с минимальной ценой, за которую вы готовы принять пациента.</div>)
         }
         if (!isFieldsCorrect() && user.role === "Пользователь") {
             return (<div>Заполните все обязательные поля.</div>)
@@ -168,12 +236,12 @@ function EditProfile(props) {
                         required
                         variant="outlined"
                         fullWidth
-                        id="firstname"
-                        label="Имя"
-                        name="firstname"
+                        id="lastname"
+                        label="Фамилия"
+                        name="lastname"
                         autoComplete="on"
-                        value={firstname}
-                        onChange={(e) => setFirstname(e.target.value)}
+                        value={lastname}
+                        onChange={(e) => setLastname(e.target.value)}
                     />
                 </Grid>
                 <Grid xs={12} item>
@@ -181,12 +249,12 @@ function EditProfile(props) {
                         required
                         variant="outlined"
                         fullWidth
-                        id="lastname"
-                        label="Фамилия"
-                        name="lastname"
+                        id="firstname"
+                        label="Имя"
+                        name="firstname"
                         autoComplete="on"
-                        value={lastname}
-                        onChange={(e) => setLastname(e.target.value)}
+                        value={firstname}
+                        onChange={(e) => setFirstname(e.target.value)}
                     />
                 </Grid>
                 <Grid xs={12} item>

@@ -771,7 +771,6 @@ function App(props) {
                         paper: clsx(classes.drawerPaper, !open && classes.drawerPaperClose),
                     }}
                     open={open}
-                    onClick={handleDrawerChange}
                 >
                     {open && (<div className={classes.toolbarIcon}>
                         <IconButton onClick={handleDrawerClose}>

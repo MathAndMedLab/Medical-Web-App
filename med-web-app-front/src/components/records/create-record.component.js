@@ -3,7 +3,7 @@ import RecordService from "../../services/record.service"
 import AttachmentService from "../../services/attachment.service"
 import AuthService from "../../services/auth.service"
 import TopicService from "../../services/topic.service"
-import {Card, withStyles} from "@material-ui/core"
+import {Card, FormLabel, Radio, RadioGroup, withStyles} from "@material-ui/core"
 import Grid from "@material-ui/core/Grid"
 import Typography from '@material-ui/core/Typography'
 import TextField from '@material-ui/core/TextField'
@@ -22,6 +22,9 @@ import HighlightOffIcon from '@mui/icons-material/HighlightOff'
 import AttachFileIcon from "@mui/icons-material/AttachFile"
 import Modal from 'react-bootstrap/Modal'
 import Upload from "../messenger/upload-files.component"
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import CreatableSelectSpecialties from "../../specialties-of-doctors-and-diagnoses/creatable-select-specialties";
+import CreatableSelectDiagnoses from "../../specialties-of-doctors-and-diagnoses/creatable-select-diagnoses";
 
 /**
  * Стили для компонентов mui и react.
@@ -154,6 +157,9 @@ const useStyles = theme => ({
         borderRadius: "15px",
         boxShadow: "0px 2px 1px -1px rgb(0 0 0 / 20%), 0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%)",
     },
+    formControlLab: {
+        marginBottom: theme.spacing(0), marginTop: theme.spacing(0)
+    }
 })
 
 const ITEM_HEIGHT = 48;
@@ -195,7 +201,8 @@ class CreateRecordComponent extends Component {
         this.fileInput = React.createRef();
         this.handleCloseModalDevice = this.handleCloseModalDevice.bind(this);
         this.handleCloseModalProfile = this.handleCloseModalProfile.bind(this);
-
+        this.onChangePostType = this.onChangePostType.bind(this);
+        this.drawDoctorSearchParams = this.drawDoctorSearchParams.bind(this);
         this.state = {
             content: "",
             title: "",
@@ -214,6 +221,7 @@ class CreateRecordComponent extends Component {
             modalShowUploadProfile: false,
             uploadMenuState: true,
             dragEnter: false,
+            postType: "discussion"
         };
     }
 
@@ -377,6 +385,12 @@ class CreateRecordComponent extends Component {
         }
     }
 
+    onChangePostType(e) {
+        this.setState({
+            postType: e.target.value
+        })
+    }
+
     /**
      * Метод принимает выбранные теги из списка тегов
      * @param event
@@ -511,6 +525,32 @@ class CreateRecordComponent extends Component {
             );
     }
 
+    drawDoctorSearchParams() {
+        if (this.state.postType !== "doctorSearch") {
+            return;
+        }
+        return (
+            <span>
+                <FormLabel>
+                    Специальность:
+                </FormLabel>
+                {/* TODO */}
+                {CreatableSelectSpecialties(this.state.selectedSpecialties, this.onChangeSelectedSpecialties)}
+                <FormLabel>
+                    Ваш диагноз:
+                </FormLabel>
+                {/* TODO */}
+                {CreatableSelectDiagnoses(this.state.specializedDiagnoses, this.onChangeSpecializedDiagnoses)}
+                <br/>
+                {/* TODO */}
+                <FormLabel>
+                    Готов(-а) заплатить: до <input required minLength="3" maxLength="8" size="8" value={this.state.minPrice}
+                                    onChange={this.onChangeMinPrice}/> ₽
+                </FormLabel>
+            </span>
+        )
+    }
+
     render() {
         const {classes} = this.props;
 
@@ -522,7 +562,22 @@ class CreateRecordComponent extends Component {
                         <Typography variant="h6" gutterBottom>
                             Создание поста
                         </Typography>
-
+                        <FormControl>
+                            <RadioGroup value={this.state.postType}
+                                        onChange={this.onChangePostType}>
+                                <FormControlLabel className={classes.formControlLab}
+                                                  control={<Radio/>}
+                                                  value="discussion"
+                                                  label="Обсуждение"
+                                />
+                                <FormControlLabel className={classes.formControlLab}
+                                                  control={<Radio/>}
+                                                  value="doctorSearch"
+                                                  label="Поиск специалиста"
+                                                  labelPlacement='end'
+                                />
+                            </RadioGroup>
+                        </FormControl>
                         <form className={classes.form}
                               onSubmit={this.handleSubmitRecord}
                         >
@@ -556,7 +611,7 @@ class CreateRecordComponent extends Component {
                                 value={this.state.content}
                                 onChange={this.onChangeContent}
                             />
-
+                            {this.drawDoctorSearchParams()}
                             <FormControl className={classes.formControl}>
                                 <InputLabel id="selected-topics">Выбрать ключевые слова</InputLabel>
                                 <Select

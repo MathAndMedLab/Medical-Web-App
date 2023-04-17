@@ -181,7 +181,7 @@ const DrawRightSide = (props) => {
             window.removeEventListener("resize", handleResizeWindow);
         };
     }, []);
-    if (width > 980) {
+    if (width >= 992) {
         return (<Grid xs={4} item={true}>
             <Card className={classes.paper2}>
                 <Grid className={classes.grid}>

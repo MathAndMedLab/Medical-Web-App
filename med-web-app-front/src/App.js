@@ -44,6 +44,7 @@ import ForumIcon from '@material-ui/icons/Forum'
 import SearchIcon from '@material-ui/icons/Search'
 import MessageIcon from '@material-ui/icons/Message'
 import AccountCircleRoundedIcon from '@material-ui/icons/AccountCircleRounded'
+import MedicationRoundedIcon from '@mui/icons-material/MedicationRounded';
 import Chat from "./components/messenger/chat.component"
 import SockJS from "sockjs-client"
 import {over} from "stompjs"
@@ -58,12 +59,15 @@ import {SwipeableDrawer} from "@mui/material";
 import NewHomeComponent from "./components/main/newHome.component";
 import ProfileEditComponent from "./components/user_profile/profile-edit.component";
 import { useLocation } from "react-router-dom";
+import Hidden from '@material-ui/core/Hidden';
+
 
 const drawerWidth = 240
 
 const useStyles = theme => ({
     root: {
         display: 'flex',
+        overflowX: 'hidden'
     },
     drawerPaper: {
         whiteSpace: 'nowrap',
@@ -130,8 +134,12 @@ const useStyles = theme => ({
             width: 250,
 
         },
+        "@media (min-width : 960px)": {
+            width: 200,
+
+        },
         "@media (min-width: 1280px)": {
-            width: 700,
+            width: 178,
             //marginRight: "70%",
         },
 
@@ -139,7 +147,7 @@ const useStyles = theme => ({
     appBar: {
         top: 0,
         left: 0,
-        minWidth: 600,
+        minWidth: 30,
         minHeight: 64,
         maxHeight: 64,
         zIndex: theme.zIndex.drawer+2,
@@ -162,10 +170,13 @@ const useStyles = theme => ({
     },
     menuButton: {
         [theme.breakpoints.down("xs")]: {
-            marginRight: 5
-        },
-        [theme.breakpoints.between("sm","md")]:{
             marginRight: 10
+        },
+        [theme.breakpoints.only("sm")]:{
+            marginRight: 20
+        },
+        [theme.breakpoints.only("md")]:{
+            marginRight: 27
         },
         "@media (min-width: 1280px)" :{
             marginRight: 34
@@ -216,6 +227,10 @@ const useStyles = theme => ({
             margin: 0,
             padding: theme.spacing(0),
         },
+    },
+    homeButton: {
+        flexGrow: 1,
+        margin:'auto',
     },
 })
 let stompClient = null;
@@ -663,7 +678,7 @@ function App(props) {
         }
         else {
             return(
-                <Grid container alignItems={"center"} justifyContent={"flex-start"}
+                <Grid container alignItems={"flex-end"} justifyContent={"flex-end"}
                       direction={"row"} >
                     <Grid item width={'25px'}>
                         <Link to={'/search'}>
@@ -681,15 +696,13 @@ function App(props) {
                             </Badge>
                         </IconButton>
                     </Grid>
-                    <Grid container xs={5} direction={"column"} justifyContent={"center"} alignItems={"flex-start"}>
-                        <Grid item width={'100px'}>
-                            <ListItemButton
-                                component={Link} to={getPathForProfile()}
-                            >
-                                <AccountCircleRoundedIcon сolor = "inherit"/>
-                                <ListItemText primary={username}/>
-                            </ListItemButton>
-                        </Grid>
+                    <Grid item width={'100px'}>
+                        <ListItemButton
+                            component={Link} to={getPathForProfile()}
+                        >
+                            <AccountCircleRoundedIcon сolor = "inherit"/>
+                            <ListItemText primary={username}/>
+                        </ListItemButton>
                     </Grid>
                 </Grid>
             );
@@ -745,7 +758,58 @@ function App(props) {
                 window.removeEventListener("resize", handleResizeWindow);
             };
         }, []);
-        return(
+        
+        if(width < 600){
+            return (
+                <Drawer
+                    height="100%"
+                    variant={"persistent"}
+                    classes={{
+                        paper: clsx(classes.drawerPaper, !open && classes.drawerPaperClose),
+                    }}
+                    open={open}
+                    onClick={handleDrawerChange}
+                >
+                    {open && (<div className={classes.toolbarIcon}>
+                        <IconButton onClick={handleDrawerClose}>
+                            <Typography component="h2" variant={"h5"} noWrap style={{color: "white"}}>Med-Web-App</Typography>
+                            <ChevronLeftIcon style={{color: "#ffffff"}}/>
+                        </IconButton>
+                    </div>)}
+                    {!open && (<div className={classes.toolbarIcon}>
+                        <IconButton onClick={handleDrawerOpen}>
+                            <Typography component="h2" variant={"h5"} noWrap style={{color: "white"}}>Med-Web-App</Typography>
+                            <ChevronLeftIcon style={{color: "#ffffff"}}/>
+                        </IconButton>
+                    </div>)}
+                    <Divider/>
+
+                    <List>
+                        {currentUser && (
+                            menuItemsForRegisteredUsers.map((item) => (
+                            LeftButtonComponentRender(item)
+                            )))
+                        }
+                        {!currentUser && (
+                            menuItemsForUnregisteredUsers.map((item) => (
+                                <ListItemButton
+                                    key={item.text}
+                                    component={Link} to={item.path}
+                                    title = {item.text}
+                                >
+                                    <ListItemIcon>{item.icon}</ListItemIcon>
+                                    <ListItemText primary={item.text}/>
+
+                                </ListItemButton>
+                            )))
+                        }
+                    </List>
+                </Drawer>
+
+            );
+        }
+        else{
+           return(
                <Drawer
                 height="100%"
                 anchor="left"
@@ -787,58 +851,7 @@ function App(props) {
                     }
                 </List>
             </Drawer>);
-        /*if(width <=425){
-        return (
-            <Drawer
-                height="100%"
-                variant={"persistent"}
-                classes={{
-                    paper: clsx(classes.drawerPaper, !open && classes.drawerPaperClose),
-                }}
-                open={open}
-                onClick={handleDrawerChange}
-            >
-                {open && (<div className={classes.toolbarIcon}>
-                    <IconButton onClick={handleDrawerClose}>
-                        <Typography component="h2" variant={"h5"} noWrap style={{color: "white"}}>Med-Web-App</Typography>
-                        <ChevronLeftIcon style={{color: "#ffffff"}}/>
-                    </IconButton>
-                </div>)}
-                {!open && (<div className={classes.toolbarIcon}>
-                    <IconButton onClick={handleDrawerOpen}>
-                        <Typography component="h2" variant={"h5"} noWrap style={{color: "white"}}>Med-Web-App</Typography>
-                        <ChevronLeftIcon style={{color: "#ffffff"}}/>
-                    </IconButton>
-                </div>)}
-                <Divider/>
-
-                <List>
-                    {currentUser && (
-                        menuItemsForRegisteredUsers.map((item) => (
-                           LeftButtonComponentRender(item)
-                        )))
-                    }
-                    {!currentUser && (
-                        menuItemsForUnregisteredUsers.map((item) => (
-                            <ListItemButton
-                                key={item.text}
-                                component={Link} to={item.path}
-                                title = {item.text}
-                            >
-                                <ListItemIcon>{item.icon}</ListItemIcon>
-                                <ListItemText primary={item.text}/>
-
-                            </ListItemButton>
-                        )))
-                    }
-                </List>
-            </Drawer>
-
-        );
-    }
-    else{
-           
-    }*/
+        }
     }
 
     function ExitOrNot(text){
@@ -868,13 +881,27 @@ function App(props) {
                     >
                         <MenuIcon/>
                     </IconButton>
-                    <ListItemButton  component={Link} to={"/newHome"} variant={"text"} className={classes.button} color={"inherit"}
-                    disableGutters title={"На главную страницу"}>
-                        <Typography component="h1" variant="h6" color="inherit" noWrap
-                                className={classes.title}>
-                        Medical web app
-                    </Typography>
-                    </ListItemButton>
+                    <Hidden only="xs">
+                        <ListItemButton  component={Link} to={"/newHome"} variant={"text"} className={classes.button} color={"inherit"}
+                disableGutters title={"На главную страницу"}>
+                            <Typography component="h1" variant="h6" color="inherit" noWrap
+                                    className={classes.title}>
+                                    Medical web app
+                            </Typography>
+                        </ListItemButton>
+                    </Hidden>
+                    <Hidden smUp>
+                        <Link to={'/newHome'} >
+                            <IconButton 
+                                title={"На главную страницу"}
+                                size="large"
+                                className={classes.homeButton}
+                                >
+                                    <MedicationRoundedIcon style={{color: "#fff" }}/>
+                            </IconButton>
+                        </Link>
+                    </Hidden>
+                    
                     {currentUser && (
                         <IconsForRegistredUsers username = {currentUser.username}/>
                     )}
@@ -893,11 +920,7 @@ function App(props) {
                 <Grid item xs>
                     <div className={classes.appBarSpacer}/>
                     <div className={classes.appBarSpacer2}/>
-                    <div className={ContainerBorder()} style={(open && {
-                        justifyContent : "center",
-                    }) || (!open && {
-                        justifyContent:"center"
-                    })
+                    <div className={ContainerBorder()} style={{justifyContent : "center"}
                     }>
                         <Switch>
                             <Route exact path={["/","/newHome"]} component={NewHomeComponent}/>

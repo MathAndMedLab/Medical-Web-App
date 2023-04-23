@@ -4,7 +4,10 @@ import com.app.medicalwebapp.model.FileObject;
 import com.app.medicalwebapp.repositories.FileObjectRepository;
 import com.app.medicalwebapp.services.FileService;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MemoUpload {
     private final Map<Base64String, FileObject> memoizeCache = new HashMap<>();

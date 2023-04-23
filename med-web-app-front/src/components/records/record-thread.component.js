@@ -7,7 +7,7 @@ import ReviewCard from "../review-card.component";
 import {Link} from "react-router-dom";
 import Button from "@material-ui/core/Button";
 import DropUpOnRecordThread from "./DropUpOnRecordThread";
-import {ListItemButton} from "@mui/material";
+import {IconButton, ListItemButton} from "@mui/material";
 import {ArrowBack} from "@material-ui/icons";
 
 const useStyles = theme => ({
@@ -168,12 +168,15 @@ class RecordThreadComponent extends Component {
                     {/*<DropUpOnRecordThread/>*/}
                 </div>
                 <div className={classes.divBackButtonStyle}>
-                    <ListItemButton component={Link} to={"/records/view"} style={{
-                        padding: 0,
-                        margin: 0
-                    }} title={"Назад к постам"}>
-                        <ArrowBack color={"secondary"} fontSize={"large"}/>
-                    </ListItemButton>
+                    <Link to={"/records/view"}>
+                        <IconButton  style={{
+                            padding: 0,
+                            margin: 0
+                        }} title={"Назад к постам"}>
+                            <ArrowBack color={"secondary"} fontSize={"large"}/>
+                        </IconButton>
+                    </Link>
+
                 </div>
                 <Grid item xs={8} style={{justifyContent: "center", alignItems: "center"}}>
                     <Grid className={classes.mainGrid}>

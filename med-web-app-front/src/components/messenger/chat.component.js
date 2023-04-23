@@ -1,4 +1,15 @@
-import {Card, Divider, List, Paper, TextField, Typography, withStyles} from "@material-ui/core"
+import {
+    Card,
+    Divider,
+    IconButton,
+    InputBase,
+    List,
+    ListItem,
+    Paper,
+    TextField,
+    Typography,
+    withStyles
+} from "@material-ui/core"
 import {Link, useParams} from "react-router-dom"
 import React, {useEffect, useRef, useState} from "react"
 import UserService from "../../services/user.service"
@@ -16,6 +27,8 @@ import AttachFileIcon from "@mui/icons-material/AttachFile"
 import HighlightOffIcon from '@mui/icons-material/HighlightOff'
 import SendIcon from "@mui/icons-material/Send"
 import PhotoCameraOutlinedIcon from "@mui/icons-material/PhotoCameraOutlined"
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline'
+import SearchIcon from '@mui/icons-material/Search'
 import Dropdown from "react-bootstrap/Dropdown"
 import ButtonGroup from "react-bootstrap/ButtonGroup"
 import DropdownButton from "react-bootstrap/DropdownButton"
@@ -28,6 +41,8 @@ import Container from "@material-ui/core/Container"
 import InputLabel from "@material-ui/core/InputLabel"
 import Modal from "react-bootstrap/Modal"
 import Upload from "./upload-files.component"
+import Checkbox from "@mui/material/Checkbox"
+import ClearIcon from '@mui/icons-material/Clear'
 
 /**
  * Стили для компонентов mui и react.
@@ -43,7 +58,7 @@ const useStyles = theme => ({
         }
     },
     inputSearchContacts: {
-        width: 305,
+        width: 200,
         margin: 6,
         marginRight: 6,
         marginTop: 8,
@@ -61,13 +76,18 @@ const useStyles = theme => ({
             color: "black"
         }
     },
+    groupChat: {
+        margin: 3,
+        right: 0
+    },
     paper: {
         marginTop: theme.spacing(3),
-        marginRight: theme.spacing(2),
+        marginRight: theme.spacing(1),
         marginLeft: theme.spacing(-7),
         color: "black",
         overflowY: "auto",
         height: 623,
+        width: 310,
     },
     paper2: {
         marginTop: theme.spacing(3),
@@ -181,6 +201,10 @@ const useStyles = theme => ({
         width: "100%",
         height: 56,
     },
+    searchIcon: {
+        // margin: 5,
+        // marginLeft: 10,
+    },
     rootSelect: {
         "& .MuiFormLabel-root": {
             margin: 0,
@@ -216,12 +240,12 @@ function Chat(props) {
     const [contentCorrect, setContentCorrect] = useState("")
 
     const [searchContent, setSearchContent] = useState("")
-    const [searchContentPresence, setSearchContentPresence] = useState(false)
-    const [searchContentCorrect, setSearchContentCorrect] = useState("")
-
     const [searchContacts, setSearchContacts] = useState("")
-    const [searchContactsPresence, setSearchContactsPresence] = useState(false)
-    const [searchContactsCorrect, setSearchContactsCorrect] = useState("")
+
+    const [groupContacts, setGroupContacts] = useState([])
+    const [modalGroupChat, setModalGroupChat] = useState(false)
+    const [searchContactsGroup, setSearchContactsGroup] = useState("")
+    const [nameGroupChat, setNameGroupChat] = useState("")
 
     const [selectedUser, setSelectedUser] = useState(null)
     const [allFiles, setAllFiles] = useState(null)
@@ -230,19 +254,27 @@ function Chat(props) {
     const [selectedFiles, setSelectedFiles] = useState(null)
     const messagesEndRef = useRef(null)
     const fileInput = useRef(null)
-    const [modalShow, setModalShow] = useState(false)
+    const [modalUpload, setModalUpload] = useState(false)
     useEffect(() => {
         getFiles();
         getContacts();
-        window.addEventListener("keydown", handler, true);
-        return () => window.removeEventListener("keydown", handler, true);
+        escapeChat();
     }, [])
 
-    const handler = (e) => {
-        if (e.keyCode === 27) {
+    function escapeChat () {
+        window.addEventListener("keydown", handler, true);
+        return () => window.removeEventListener("keydown", handler, true);
+    }
+
+    function handler (event) {
+        if (event.keyCode === 27) {
             setSelectedUser(null)
+            let href = document.location.href.toString()
+            if (href.slice(-4) !== "/msg") {
+                document.location.href = href.substring(0, href.lastIndexOf('/'))
+            }
         }
-    };
+    }
 
     /**
      * Функция добавляет выбранного пользователя в контакты.
@@ -341,48 +373,27 @@ function Chat(props) {
             })
     }
 
-    function onChangeMessageContent(e) {
+    function onChangeSearchContactsContent(e, type) {
         let str = e.target.value
         str = str.replace(/ {2,}/g, ' ').trim()
         str = str.replace(/[\n\r ]{3,}/g, '\n\r\n\r')
-        if (str.charCodeAt(0) > 32) {
-            setContent(e.target.value)
-            setContentCorrect(str)
-            setContentPresence(true)
-        } else {
-            setContent(e.target.value)
-            setContentCorrect(str)
-            setContentPresence(false)
-        }
-    }
-
-    function onChangeSearchContent(e) {
-        let str = e.target.value
-        str = str.replace(/ {2,}/g, ' ').trim()
-        str = str.replace(/[\n\r ]{3,}/g, '\n\r\n\r')
-        if (str.charCodeAt(0) > 32) {
-            setSearchContent(e.target.value)
-            setSearchContentCorrect(str)
-            setSearchContentPresence(true)
-        } else {
-            setSearchContent(e.target.value)
-            setSearchContentCorrect(str)
-            setSearchContentPresence(false)
-        }
-    }
-
-    function onChangeSearchContacts(e) {
-        let str = e.target.value
-        str = str.replace(/ {2,}/g, ' ').trim()
-        str = str.replace(/[\n\r ]{3,}/g, '\n\r\n\r')
-        if (str.charCodeAt(0) > 32) {
-            setSearchContacts(e.target.value)
-            setSearchContactsCorrect(str)
-            setSearchContactsPresence(true)
-        } else {
-            setSearchContacts(e.target.value)
-            setSearchContactsCorrect(str)
-            setSearchContactsPresence(false)
+        switch (type) {
+            case 'message':
+                setContent(e.target.value)
+                setContentCorrect(str)
+                setContentPresence(str.charCodeAt(0) > 32)
+                break
+            case 'contacts':
+                setSearchContacts(e.target.value)
+                break
+            case 'content':
+                setSearchContent(e.target.value)
+                break
+            case 'group':
+                setSearchContactsGroup(e.target.value)
+                break
+            default:
+                break
         }
     }
 
@@ -425,7 +436,7 @@ function Chat(props) {
                             }).catch(error => {
                                 console.log(error)
                             })
-                            const fileBase64 = await Upload.uploadFiles(response, true)
+                            const fileBase64 = await Upload.uploadFiles(response, false)
                             uid = selectFiles[i].uid
                             selectedFiles[i] = {name: fileBase64.name, image: fileBase64.image, uid: selectedFiles[i].uid}
                             pairFileNameBase64 = {fileName: selectedFiles[i].name, fileContent: selectedFiles[i].image};
@@ -608,7 +619,7 @@ function Chat(props) {
             return 0
         })
         return (sortedContacts
-            .filter((userAndLastMsg, index) => {
+            .filter((userAndLastMsg) => {
                 const nameAndSurname = userAndLastMsg.first.initials.split(" ")
                 return (nameAndSurname[0] + " " + nameAndSurname[1]).includes(searchContacts)
             })
@@ -667,6 +678,73 @@ function Chat(props) {
                     </Link>
                 </Grid>
             )))
+    }
+
+    const handleToggle = (contacts, value) => {
+        value.checked = !value.checked
+        setGroupContacts(contacts)
+        setRefresh({})
+        console.log(groupContacts)
+    };
+
+    function contactsGroupChat() {
+        let sortedContacts = groupContacts
+        console.log(sortedContacts)
+        if (modalGroupChat) {
+            if (sortedContacts[0].checked === undefined && sortedContacts.length !== 0) {
+                for (let i = 0; i < sortedContacts.length; i++) {
+                    sortedContacts[i] = {...sortedContacts[i], checked: false}
+                }
+            }
+            return (sortedContacts.length !== 0 ? (sortedContacts
+                .filter((user) => {
+                    const nameAndSurname = user.first.initials.split(" ")
+                    return (nameAndSurname[0] + " " + nameAndSurname[1]).includes(searchContactsGroup)
+                })
+                .map((user, index) => (
+                    <Grid key={index}>
+                        <ListItemButton
+                            value={user.first}
+                            onClick={() => handleToggle(sortedContacts, user)}
+                            title={user.first.lastname + " " + user.first.firstname}
+                        >
+                            <Grid className={classes.flex} xs={12} item>
+                                <Grid xs={2} item>
+                                    <Avatar className={classes.avatar} src={user.first.avatar}>
+                                        <PhotoCameraOutlinedIcon/>
+                                    </Avatar>
+                                </Grid>
+                                <Grid xs={10} item>
+                                    <Grid className={classes.gridFullWidth}>
+                                        <Grid className={classes.flex} xs={12} item>
+                                            <Grid xs={10} item style={{ display: "flex", alignItems: "center" }}>
+                                                <UserCardMessage user={user.first}/>
+                                            </Grid>
+                                            <Grid xs={2} item>
+                                                <Grid>
+                                                    <Checkbox
+                                                        checked={user.checked}
+                                                        tabIndex={-1}
+                                                        disableRipple
+                                                        inputProps={{ 'aria-label': `checkbox-list-secondary-label-${user}` }}
+                                                    />
+                                                </Grid>
+                                            </Grid>
+                                        </Grid>
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+                        </ListItemButton>
+                        <Divider/>
+                    </Grid>
+                ))) : (
+                <Grid item xs={12}>
+                     <ListItem>
+                         Нет добавленных контактов
+                     </ListItem>
+                </Grid>))
+        }
+
     }
 
     /**
@@ -780,7 +858,7 @@ function Chat(props) {
      * Функция закрывает модальное окно
      */
     function acceptButton() {
-        setModalShow(false);
+        setModalUpload(false);
     }
 
     const ITEM_HEIGHT = 48
@@ -795,19 +873,35 @@ function Chat(props) {
     }
 
     /**
+     * Функция открывает модальное окно выбора файлов для загрузки
+     */
+    function handleOpenUpload() {
+        setModalUpload(true)
+    }
+
+    /**
+     * Функция закрывает модальное окно и обнуляет выбранные файлы для загрузки
+     */
+    function handleCloseUpload() {
+        setSelectFiles([])
+        setSelectedFiles(null)
+        setModalUpload(false)
+    }
+
+    /**
      * Функция открывает модальное окно
      */
-    function handleOpen() {
-        setModalShow(true)
+    function handleOpenGroupChat() {
+        setGroupContacts([...usersWithLastMsg.values()])
+        setModalGroupChat(true)
     }
 
     /**
      * Функция закрывает модальное окно и обнуляет выбранные файлы
      */
-    function handleClose() {
-        setSelectFiles([])
-        setSelectedFiles(null)
-        setModalShow(false)
+    function handleCloseGroupChat() {
+        setGroupContacts([])
+        setModalGroupChat(false)
     }
 
     /**
@@ -825,34 +919,108 @@ function Chat(props) {
         }
     }
 
+    function handleDeleteChip(data) {
+        data.checked = false
+        setRefresh({})
+    }
+
     return (
         <Grid xs={12} item className={classes.mainGrid}>
             <Grid xs={3} item>
                 <Card className={classes.paper}>
-                    <TextField
-                        fullWidth
-                        className={classes.inputSearchContacts}
-                        minRows={1}
-                        maxRows={6}
-                        variant="outlined"
-                        size="small"
-                        id="searchContacts"
-                        label="Поиск по контактам..."
-                        name="searchContacts"
-                        autoComplete="off"
-                        value={searchContacts}
-                        onChange={(searchContacts) => onChangeSearchContacts(searchContacts)}
-                    />
+                    <Paper
+                        component="form"
+                        style={{ padding: '2px 3px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                            <SearchIcon
+                                sx={{ m: "5px 10px" }}
+                                className={classes.searchIcon}/>
+                            <InputBase
+                                sx={{ ml: 5, flex: 1, width: 'auto', hiddenLabel:'true'}}
+                                placeholder="Поиск по контактам..."
+                                inputProps={{ 'aria-label': 'Поиск по контактам...' }}
+                                autoComplete="off"
+                                name="searchContacts"
+                                minRows={1}
+                                maxRows={6}
+                                value={searchContacts}
+                                onChange={(searchContacts) =>
+                                    onChangeSearchContactsContent(searchContacts, 'contacts')}/>
+                            <IconButton
+                                className={classes.groupChat}
+                                // sx={{ p: 5, }}
+                                color="inherit"
+                                title={"Групповой чат"}
+                                onClick={() => handleOpenGroupChat()}>
+                                <AddCircleOutlineIcon variant="contained"/>
+                            </IconButton>
+                    </Paper>
+
+                    <Grid container>
+                        <Modal
+                            show={modalGroupChat}
+                            centered="true"
+                            aria-labelledby="contained-modal-title-vcenter"
+                            onHide={handleCloseGroupChat}>
+                            <Modal.Header>
+                                <Modal.Title id="contained-modal-title-vcenter">
+                                    Создать групповой чат
+                                </Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body>
+                                <Card style={{ overflowY: "auto", height: '40vh' }}>
+                                    <Paper style={{ padding: 5, margin: 1 }}>
+                                        <InputBase
+                                            style={{ margin: 5 }}
+                                            placeholder="Введите название чата"
+                                            inputProps={{ 'aria-label': 'Поиск по контактам...' }}
+                                            autoComplete="off"
+                                            name="group-chat-name"
+                                            value={nameGroupChat}
+                                            onChange={(nameGroupChat) => setNameGroupChat(nameGroupChat.target.value)}
+                                            fullWidth={true}/>
+                                    </Paper>
+                                    <Paper
+                                        style={{ padding: 5, margin: 1 }}
+                                        component="form">
+                                            {[...groupContacts]
+                                                .filter((data) => {
+                                                    return data.checked
+                                                })
+                                                .map((data, index) => {
+                                                    return (
+                                                        <Chip
+                                                            key={index}
+                                                            icon={data.first.avatar}
+                                                            label={data.first.username}
+                                                            style={{ margin: 4 }}
+                                                            onDelete={() => handleDeleteChip(data)}/>)
+                                                })}
+                                        <InputBase
+                                            style={{ margin: 5 }}
+                                            placeholder="Поиск по контактам..."
+                                            inputProps={{ 'aria-label': 'Поиск по контактам...' }}
+                                            autoComplete="off"
+                                            name="searchContactsGroup"
+                                            minRows={1}
+                                            maxRows={6}
+                                            value={searchContactsGroup}
+                                            onChange={(searchContactsGroup) =>
+                                                onChangeSearchContactsContent(searchContactsGroup, 'group')}/>
+                                    </Paper>
+                                    <List className={classes.itemButton}>
+                                        {groupContacts && modalGroupChat && contactsGroupChat()}
+                                    </List>
+                                </Card>
+                            </Modal.Body>
+                        </Modal>
+                    </Grid>
                     <List className={classes.itemButton}>
                         {usersWithLastMsg && sortContacts()}
                     </List>
                 </Card>
             </Grid>
 
-            <Grid xs={9} item
-                  // onKeyDown={(key) => deactivateChat(key)}
-                  // tabIndex={0}
-            >
+            <Grid xs={9} item>
                 <Card className={classes.paper2}>
                     {selectedUser &&
                     <Grid>
@@ -867,14 +1035,12 @@ function Chat(props) {
                                            name="searchContent"
                                            autoComplete="off"
                                            value={searchContent}
-                                           onChange={(searchContent) => onChangeSearchContent(searchContent)}
+                                           onChange={(searchContent) =>
+                                               onChangeSearchContactsContent(searchContent, 'content')}
                                 />
                             </Grid>
                         </Grid>
-                        <Paper
-
-                            className={classes.messageGrid}>
-
+                        <Paper className={classes.messageGrid}>
                             <Grid>
                                 {selectedUser &&
                                     (allMessages.get(selectedUser.username)) &&
@@ -936,14 +1102,14 @@ function Chat(props) {
                                         <span
                                             is="button"
                                             variant="contained"
-                                            onClick={handleOpen}>
+                                            onClick={handleOpenUpload}>
                                             Из профиля
                                         </span>
                                         <Modal
-                                            show={modalShow}
+                                            show={modalUpload}
                                             centered="true"
                                             aria-labelledby="contained-modal-title-vcenter"
-                                            onHide={handleClose}
+                                            onHide={handleCloseUpload}
                                         >
                                             <Modal.Body>
                                             <Modal.Header>
@@ -955,34 +1121,34 @@ function Chat(props) {
                                                 <main className={classes.layout}>
                                                 <Paper className={classes.paper3}>
                                                     <FormControl className={classes.formControl}>
-                                                    <InputLabel id="selected-files">Прикрепить файлы</InputLabel>
-                                                    <Select
-                                                        className={classes.rootSelect}
-                                                        multiple
-                                                        labelId="selected-files"
-                                                        value={selectFiles}
-                                                        title={"Прикрепить файлы"}
-                                                        onChange={handleFiles}
-                                                        input={<Input id="select-multiple-chip-for-files"/>}
-                                                        renderValue={(selected) => (
-                                                        <div className={classes.chips}>
-                                                            {selected.map((value) => (
-                                                            <Chip
-                                                                key={value}
-                                                                label={value.name}
-                                                                className={classes.chip}
-                                                            />
+                                                        <InputLabel id="selected-files">Прикрепить файлы</InputLabel>
+                                                        <Select
+                                                            className={classes.rootSelect}
+                                                            multiple
+                                                            labelId="selected-files"
+                                                            value={selectFiles}
+                                                            title={"Прикрепить файлы"}
+                                                            onChange={handleFiles}
+                                                            input={<Input id="select-multiple-chip-for-files"/>}
+                                                            renderValue={(selected) => (
+                                                            <div className={classes.chips}>
+                                                                {selected.map((value) => (
+                                                                <Chip
+                                                                    key={value.id}
+                                                                    label={value.name}
+                                                                    className={classes.chip}
+                                                                />
+                                                                ))}
+                                                            </div>
+                                                            )}
+                                                            MenuProps={MenuProps}
+                                                        >
+                                                            {allFiles.map((x) => (
+                                                                <MenuItem key={x.id} value={x} id={x.id}>
+                                                                    {x.name}
+                                                                </MenuItem>
                                                             ))}
-                                                        </div>
-                                                        )}
-                                                        MenuProps={MenuProps}
-                                                    >
-                                                        {allFiles.map((x) => (
-                                                        <MenuItem key={x.id} value={x} id={x.id}>
-                                                            {x.name}
-                                                        </MenuItem>
-                                                        ))}
-                                                    </Select>
+                                                        </Select>
                                                     </FormControl>
 
                                                 </Paper>
@@ -991,7 +1157,7 @@ function Chat(props) {
                                             </Modal.Body>
                                             <Modal.Footer>
                                                 <Button onClick={() => acceptButton()}>Принять</Button>
-                                                <Button onClick={() => handleClose()}>Отменить</Button>
+                                                <Button onClick={() => handleCloseUpload()}>Отменить</Button>
                                             </Modal.Footer>
                                         </Modal>
                                     </Dropdown.Item>
@@ -1009,7 +1175,7 @@ function Chat(props) {
                                     name="content"
                                     autoComplete="off"
                                     value={content}
-                                    onChange={(content) => onChangeMessageContent(content)}
+                                    onChange={(content) => onChangeSearchContactsContent(content, 'message')}
                                     onKeyPress={(key) => checkKey(key)}
                                 />
                             </Grid>
@@ -1026,11 +1192,10 @@ function Chat(props) {
                                 </Button>
                             </Grid>
                             <Grid>
-                                {selectedFiles && createFilesArray().map((file, i) => 
-                                    <div>
+                                {selectedFiles && createFilesArray().map((file, i) =>
+                                    <div key={i}>
                                         <span>{file.name} {"\n"}</span>
-                                        <span as="button"
-                                              key={i}
+                                        <span is="button"
                                               style={{cursor: "pointer", '&:hover': {color: "#fff",},}}
                                               onClick={() => delSelectedFiles(i)}><HighlightOffIcon/></span>
                                     </div>
@@ -1040,9 +1205,7 @@ function Chat(props) {
                     </Grid>}
                 </Card>
             </Grid>
-
         </Grid>
-
     )
 }
 

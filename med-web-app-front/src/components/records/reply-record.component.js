@@ -150,7 +150,7 @@ class ReplyRecordForm extends Component {
     handleSubmitReply(e) {
         e.preventDefault();
 
-        RecordService.saveRecord(null, this.state.contentCorrect, null, this.state.selectedFilesId, this.props.parentId).then(
+        RecordService.saveRecord(null, this.state.contentCorrect, null, this.state.selectedFilesId, null, this.props.parentId).then(
             () => {
                 this.setState({
                     submittedSuccessfully: true,

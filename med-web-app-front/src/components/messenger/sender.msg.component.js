@@ -217,7 +217,6 @@ function SenderMsg(props) {
 
     return (
         <Grid>
-
             <Paper className={classes.msgMy} onMouseOver={() => setChecked(true)}
                    onMouseLeave={() => setChecked(false)}>
                 <Grid>

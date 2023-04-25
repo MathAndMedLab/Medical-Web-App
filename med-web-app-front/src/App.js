@@ -240,19 +240,6 @@ let stompClient = null;
 
 function App(props) {
     const location = useLocation();
-    const LeftMenuOpen = (width) =>{
-        React.useEffect(() => {
-            const handleResizeWindow = () => setWidth(window.innerWidth);
-            // subscribe to window resize event "onComponentDidMount"
-            window.addEventListener("resize", handleResizeWindow);
-            return () => {
-                // unsubscribe "onComponentDestroy"
-                window.removeEventListener("resize", handleResizeWindow);
-            };
-        }, []);
-        return width >= 425;
-    }
-
     const {classes} = props
     // const [showModeratorBoard, setShowModeratorBoard] = useState(false)
     // const [showAdminBoard, setShowAdminBoard] = useState(false)
@@ -304,6 +291,8 @@ function App(props) {
             setCurrentUser(null)
         }
     }, [location.pathname])
+
+  
 
     /**
      * Получение всех непрочитанных сообщений, адресованных пользователю.
@@ -438,6 +427,10 @@ function App(props) {
     document.addEventListener('click', function() {
         handleDrawerClose();
     });
+
+    window.addEventListener('resize', (e) => {
+        setWidth(window.innerWidth);
+    });
     
     /*displayPageContent(path) {
         console.log(path)
@@ -561,17 +554,7 @@ function App(props) {
 
 
     const IconsForNotRegisteredUsers = () =>{
-        const [width, setWidth] = React.useState(window.innerWidth);
         const breakpoint_1 = 580;
-        React.useEffect(() => {
-            const handleResizeWindow = () => setWidth(window.innerWidth);
-            // subscribe to window resize event "onComponentDidMount"
-            window.addEventListener("resize", handleResizeWindow);
-            return () => {
-                // unsubscribe "onComponentDestroy"
-                window.removeEventListener("resize", handleResizeWindow);
-            };
-        }, []);
         if(width > breakpoint_1){
             return (
                 <Grid container >
@@ -634,17 +617,7 @@ function App(props) {
 
     const IconsForRegistredUsers = (props) =>{
         const username = props.username;
-        const [width, setWidth] = React.useState(window.innerWidth);
         const breakpoint_1 = 588;
-        React.useEffect(() => {
-            const handleResizeWindow = () => setWidth(window.innerWidth);
-            // subscribe to window resize event "onComponentDidMount"
-            window.addEventListener("resize", handleResizeWindow);
-            return () => {
-                // unsubscribe "onComponentDestroy"
-                window.removeEventListener("resize", handleResizeWindow);
-            };
-        }, []);
         if (width > breakpoint_1){
             return (<Grid container>
                 <Grid item xs/>
@@ -712,16 +685,6 @@ function App(props) {
 
 
     function ContainerBorder(){
-        const [width, setWidth] = React.useState(window.innerWidth);
-        React.useEffect(() => {
-            const handleResizeWindow = () => setWidth(window.innerWidth);
-            // subscribe to window resize event "onComponentDidMount"
-            window.addEventListener("resize", handleResizeWindow);
-            return () => {
-                // unsubscribe "onComponentDestroy"
-                window.removeEventListener("resize", handleResizeWindow);
-            };
-        }, []);
         if(width <= 320){
             return "container mt-3 ml-0 pl-0";
         }
@@ -749,15 +712,6 @@ function App(props) {
     function MyDrawer(props){
         const classes = props.classes;
         const open = props.open;
-        React.useEffect(() => {
-            const handleResizeWindow = () => setWidth(window.innerWidth);
-            // subscribe to window resize event "onComponentDidMount"
-            window.addEventListener("resize", handleResizeWindow);
-            return () => {
-                // unsubscribe "onComponentDestroy"
-                window.removeEventListener("resize", handleResizeWindow);
-            };
-        }, []);
         
         if(width < 600){
             return (

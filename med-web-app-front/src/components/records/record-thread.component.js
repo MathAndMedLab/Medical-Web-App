@@ -69,7 +69,8 @@ const useStyles = theme => ({
         },
         "@media (min-width : 1000px)": {
             width: 1100,
-            justifyContent: "center"
+            justifyContent: "center",
+            marginLeft: theme.spacing(-5)
 
         },
         display: "flex",
@@ -164,17 +165,11 @@ class RecordThreadComponent extends Component {
         const {answers} = this.state;
         return (
             <Grid item xs={12} className={classes.Grid}>
-                <div className={classes.divAddButtonStyle}>
-                    {/*<DropUpOnRecordThread/>*/}
-                </div>
-                <div className={classes.divBackButtonStyle}>
-                    <ListItemButton component={Link} to={"/records/view"} style={{
-                        padding: 0,
-                        margin: 0
-                    }} title={"Назад к постам"}>
+                <Grid item>
+                    <ListItemButton component={Link} to={"/records/view"} title={"Назад к постам"}>
                         <ArrowBack color={"secondary"} fontSize={"large"}/>
                     </ListItemButton>
-                </div>
+                </Grid>
                 <Grid item xs={8} style={{justifyContent: "center", alignItems: "center"}}>
                     <Grid className={classes.mainGrid}>
 

@@ -5,7 +5,7 @@ import SelectReact from 'react-select';
 import RecordCard from "./record-card.component";
 // import Topic from "./topic.component"
 import TopicService from "../../services/topic.service";
-import {Card, Divider, Grid, IconButton, InputBase, Paper, Select, withStyles} from "@material-ui/core";
+import {Card, Divider, Grid, Hidden, IconButton, InputBase, Paper, Select, withStyles} from "@material-ui/core";
 import Button from "@material-ui/core/Button";
 import SearchIcon from "@material-ui/icons/Search";
 import Input from "@material-ui/core/Input";
@@ -18,8 +18,11 @@ import ListItemButton from "@mui/material/ListItemButton";
 import Dropup from "./DropupOnRecordCard";
 import BasicSelect from "./DropupOnRecordCard";
 import TemporaryDrawer from "./DropupOnRecordCard";
+import Typography from '@mui/material/Typography';
+
 
 const useStyles = theme => ({
+
     button: {
         width: 200,
         margin: theme.spacing(1),
@@ -30,9 +33,9 @@ const useStyles = theme => ({
             color: '#ffffff',
         }
     },
+
     paper: {
         justifyContent: "center",
-        marginLeft: theme.spacing(1),
         [theme.breakpoints.down("xs")]: {
             width: 270,
             height: 42,
@@ -40,12 +43,22 @@ const useStyles = theme => ({
             alignItems: 'center',
 
         },
-        [theme.breakpoints.between("sm", "md")]: {
-            width: 600,
+        "@media (min-width : 451px)": {
+            width: 325,
+            height: 42,
+            padding: '2px 4px',
+            alignItems: 'center',
+        },
+        "@media (min-width : 600px)": {
+            width: 375,
             height: 42,
             padding: '2px 4px',
             alignItems: 'flex-end',
-
+        },
+        "@media (min-width : 960px)": {
+            width: 650,
+            height: 42,
+            alignItems: 'flex-end',
         },
         "@media (min-width : 1280px)": {
             width: 800,
@@ -55,65 +68,170 @@ const useStyles = theme => ({
             alignItems: 'center'
         },
     },
-    input: {
-        marginLeft: theme.spacing(1),
-        //flex: 1,
-        flexGrow: 1,
-        width: "85%",
-        /*[theme.breakpoints.between("sm", "md")]:{
-          width: 600
-        },*/
-    },
-    iconButton: {
-        [theme.breakpoints.down("xs")]: {
-            padding: 0,
-        },
-        [theme.breakpoints.between("sm", "md")]: {
-            padding: 0,
+
+
+    GridInput: {
+
+        [theme.breakpoints.up("md")]: {
+            marginLeft: theme.spacing(2),
 
         },
+        
+        
     },
+
+    input: {
+        [theme.breakpoints.only("xs")]: {
+            marginLeft: theme.spacing(0),
+            flexGrow: 1,
+        },
+        [theme.breakpoints.only("sm")]: {
+            marginLeft: theme.spacing(0),
+            flexGrow: 1,
+
+        },
+
+        [theme.breakpoints.only("md")]: {
+            flexGrow: 1,
+            maxWidth: 585,
+
+        },
+
+        [theme.breakpoints.up("lg")]: {
+            flexGrow: 1,
+            width: "85%",
+
+        },
+        
+        
+    },
+
+    iconButton: {
+        [theme.breakpoints.down("xs")]: {
+            marginTop: theme.spacing(-0.5),
+        },
+        [theme.breakpoints.between("sm", "md")]: {
+            marginTop: theme.spacing(-0.5),
+        },
+    },
+
     selectForm: {
         "& .MuiFormLabel-root": {
             margin: 0
         },
         [theme.breakpoints.down("xs")]: {
-            marginLeft: theme.spacing(1),
             width: 270,
         },
-        [theme.breakpoints.between("sm", "md")]: {
-            width: 650
+      
+        "@media (min-width : 451px)": {
+            width: 325,
+        },
+        "@media (min-width : 600px)": {
+            marginTop: theme.spacing(1),
+            width: 375,
+            minHeight: 45
+        },
+        "@media (min-width : 960px)": {
+            marginTop: theme.spacing(1),
+            width: 650,
+            minHeight: 45
         },
         "@media (min-width : 1280px)": {
+            marginTop: theme.spacing(1),
             width: 800,
+            minHeight: 45
         },
     },
+
     topicPaper: {
         width: 200,
         margin: theme.spacing(1),
         padding: theme.spacing(3),
     },
+
     topicTitle: {
         whiteSpace: 'pre-wrap',
         wordWrap: 'break-word',
     },
+
     reset: {
         fontSize: 15,
         textAlign: "right",
         color: '#f50057',
     },
+
     mainGrid: {
         display: 'flex',
         [theme.breakpoints.down("xs")]: {
             minWidth: 200,
         },
-        [theme.breakpoints.between("sm", "md")]: {
-            mindWidth: 500,
+
+        "@media (min-width : 300px)": {
+            width: 400,
+            marginLeft: theme.spacing(1),
+        },
+        "@media (min-width : 430px)": {
+            width: 400,
+            marginLeft: theme.spacing(3),
+        },
+
+        "@media (min-width : 451px)": {
+            width: 450,
+            marginLeft: theme.spacing(5),
+        },
+
+        "@media (min-width : 530px)": {
+            width: 450,
+            marginLeft: theme.spacing(10),
+        },
+        
+        "@media (min-width : 600px)": {
+            width: 530,
+            marginLeft: theme.spacing(10),
+        },
+        "@media (min-width : 690px)": {
+            width: 530,
+            marginLeft: theme.spacing(1),
+        },
+        "@media (min-width : 768px)": {
+            width: 550,
+            marginLeft: theme.spacing(20),
+        },
+        "@media (min-width : 769px)": {
+            width: 550,
+            marginLeft: theme.spacing(25),
+        },
+        "@media (min-width : 839px)": {
+            width: 550,
+            marginLeft: theme.spacing(10),
+        },
+        "@media (min-width : 900px)": {
+            width: 550,
+            marginLeft: theme.spacing(15),
+        },
+        "@media (min-width : 960px)": {
+            width: 800,
+            marginLeft: theme.spacing(2),
+        },
+       
+        "@media (min-width : 1025px)": {
+            width: 850,
+            marginLeft: theme.spacing(15),
+        },
+         "@media (min-width : 1110px)": {
+            width: 850,
+            marginLeft: theme.spacing(10),
+        },
+        "@media (min-width : 1200px)": {
+            width: 950,
+            marginLeft: theme.spacing(25),
         },
         "@media (min-width : 1280px)": {
-            minWidth: 1000.
+            width: 1650,
+            marginLeft: theme.spacing(0),
         },
     },
+
     paper2: {
         margin: theme.spacing(3),
         padding: theme.spacing(3),
@@ -123,11 +241,13 @@ const useStyles = theme => ({
             left: "70%"
         }
     },
+
     firstGrid: {
         marginTop: theme.spacing(3),
         alignItems: "center",
         justifyContent: "flex-end"
     },
+
     grid: {
         margin: theme.spacing(1),
         alignItems: 'center',
@@ -135,26 +255,38 @@ const useStyles = theme => ({
         display: 'flex',
         justifyContent: "flex-end"
     },
+
     record: {
         minWidth: 1000
     },
+
     Drawer: {
-        position: "fixed",
-        top: "92%",
-        left: "85%"
-    },
-    pageCounter: {},
-    RecordsContainer: {
-        display: "flex",
-        "@media (max-width: 376px)": {
-            alignItems: "flex-start",
-            marginLeft: theme.spacing(1)
+        [theme.breakpoints.only( "xs")]: {
+            marginLeft: theme.spacing(-1),
         },
-        alignItems: "center",
-        "@media (min-width: 768px)": {
-            marginLeft: theme.spacing(0),
-        }
-    }
+        "@media (min-width : 360px)": {
+            marginLeft: theme.spacing(2),
+        },
+        "@media (min-width : 451px)": {
+            marginLeft: theme.spacing(5),
+        },
+        "@media (min-width : 600px)": {
+            marginLeft: theme.spacing(18),
+        },
+        "@media (min-width : 960px)": {
+            marginLeft: theme.spacing(37),
+        },
+        marginTop: theme.spacing(3),
+    },
+
+    postGrid: {
+        
+        marginTop: theme.spacing(3),
+        marginBottom: theme.spacing(3),
+    },
+
+    pageCounter: {},
+
 
 })
 
@@ -169,43 +301,7 @@ const MenuProps = {
     },
 };
 
-const DrawRightSide = (props) => {
-    const [width, setWidth] = React.useState(window.innerWidth);
-    const classes = props.classes;
-    React.useEffect(() => {
-        const handleResizeWindow = () => setWidth(window.innerWidth);
-        // subscribe to window resize event "onComponentDidMount"
-        window.addEventListener("resize", handleResizeWindow);
-        return () => {
-            // unsubscribe "onComponentDestroy"
-            window.removeEventListener("resize", handleResizeWindow);
-        };
-    }, []);
-    if (width >= 992) {
-        return (<Grid xs={4} item={true}>
-            <Card className={classes.paper2}>
-                <Grid className={classes.grid}>
-                    <Link to={"/records/create"} style={{textDecoration: 'none'}}>
-                        <Button className={classes.button} title={"Создать пост"}>
-                            Создать пост
-                        </Button>
-                    </Link>
-                    <Link to={"/topics/create"} style={{textDecoration: 'none'}}>
-                        <Button className={classes.button} title={"Страница тэгов"}>
-                            Страница тэгов
-                        </Button>
-                    </Link>
-                </Grid>
-            </Card>
-        </Grid>);
-    } else {
-        return (
-            <div className={classes.Drawer}>
-                <TemporaryDrawer/>
-            </div>);
-    }
 
-}
 
 
 class ViewRecordsList extends Component {
@@ -353,45 +449,30 @@ class ViewRecordsList extends Component {
         } = this.state;
         const {classes} = this.props;
         return (
-            <Grid item className={classes.mainGrid}>
-                <Grid item xs={12} className={classes.firstGrid}>
-                    <Grid item xs={8}>
-                        {/*<input
-                            type="text"
-                            className="form-control"
-                            placeholder="Введите часть заголовка"
-                            value={searchTitle}
-                            onChange={this.onChangeSearchTitle}
-                        />
-                        <div className="input-group-append">
-                            <button
-                                className="btn btn-outline-secondary"
-                                type="button"
-                                onClick={this.getRecords}
-                            >
-                                Найти
-                            </button>
-                        </div>*/}
+            <Grid container className={classes.mainGrid}>
+                <Grid container item xs={8} sm={6} direction="column" className={classes.firstGrid} alignItems="center">
+                    <Grid container item direction="column" >
                         <Paper component="form" className={classes.paper}>
-                            <InputBase
+                            <Grid container className={classes.GridInput}>
+                                <InputBase
                                 value={searchTitle}
                                 onChange={this.onChangeSearchTitle}
                                 className={classes.input}
                                 placeholder="Поиск"
-                                // inputProps={{ 'aria-label': 'search google maps' }}
-                            />
-                            <IconButton type="button" onClick={this.getRecords} className={classes.iconButton}
-                                        aria-label="search"
-                                        title={"Поиск"}>
-                                <SearchIcon/>
-                            </IconButton>
+                                />
+                                <IconButton className={classes.iconButton}>
+                                    <SearchIcon type="button" onClick={this.getRecords} 
+                                            aria-label="search"
+                                            title={"Поиск"}/>
+                                </IconButton>
+                            </Grid>
+                            
                         </Paper>
 
                         <FormControl className={classes.selectForm} fullWidth>
                             <Select
                                 className={classes.root}
                                 labelId="selected-topics"
-                                // variant="outlined"
                                 title={"Выбрать тэги"}
                                 value={this.state.selectedTopicValue}
                                 onChange={this.handleTopics}
@@ -417,20 +498,26 @@ class ViewRecordsList extends Component {
                         </FormControl>
                     </Grid>
 
-                    <div className="mt-3">
-                        <div className="row">
-                            <div style={{marginLeft: 23, marginTop: "5px", width: 180}}
-
-                            >{"Количество постов на странице: "}</div>
+                    <Grid container item className={classes.postGrid}>
+                            <Typography variant="body2" gutterBottom>
+                                Количество постов на странице: 
+                            </Typography>
                             <SelectReact className="col-2"
-                                         onChange={this.handlePageSizeChange}
-                                         options={this.pageSizes}
-                                         autoFocus={true}
-                                         defaultValue={this.pageSizes[2]}
-                                         styles={stylesForSmallSelectBox}
-                            />
-                        </div>
+                                            onChange={this.handlePageSizeChange}
+                                            options={this.pageSizes}
+                                            autoFocus={true}
+                                            defaultValue={this.pageSizes[2]}
+                                            styles={stylesForSmallSelectBox}
+                                />
 
+                      
+                        
+                    </Grid>
+
+                    
+
+                    <Grid container item direction="column">
+                        
                         <Pagination
                             className="my-3"
                             count={count}
@@ -442,82 +529,49 @@ class ViewRecordsList extends Component {
                             onChange={this.handlePageChange}
                             style={{display: "flex", justifyContent: "center"}}
                         />
-                    </div>
-
-
-                    <Grid container direction={"column"} className={classes.RecordsContainer}>
                         {this.state.records &&
                         this.state.records.map((record, index) => (
                             <Grid item
-                                  style={{listStyleType: "none", padding: 0, width: "70%", marginBottom: "10px"}}
+                                  style={{listStyleType: "none", padding: 0, marginBottom: "10px"}}
                                   key={index}
-                                // onClick={() => this.displayRecordThread(record)}
                             >
+                                 
                                 <RecordCard record={record} isPreview={true} isReply={false}
                                             getRecords={this.getRecords}/>
-                                <Divider/>
                             </Grid>
 
                         ))}
-
                     </Grid>
+                    
                 </Grid>
-                <DrawRightSide classes={classes}/>
 
-                {/*<div className="col-sm-2">
-                    <Button variant="contained" href="/records/create" className={classes.button}>
-                        Создать пост
-                    </Button>
-                    <Button variant="contained" href="/topics/create" className={classes.button}>
-                        Страница тэгов
-                    </Button>
+                <Hidden lgUp>
+                    <div className={classes.Drawer}>
+                        <TemporaryDrawer/>
+                    </div>
+                    
+                </Hidden>
 
-                    <Paper className={classes.topicPaper}>
-                        <Grid container spacing={1} direction={"column"}>
-                            <Grid item
-                                  onClick={() => (
-                                      this.setState({
-                                              selectedTopic: null,
-                                          },
-                                          this.getRecords
-                                      ))}>
-                                <Typography variant="body1" className={classes.topicTitle}>
-                                    Список тэгов:
-                                </Typography>
+
+                <Hidden mdDown>
+                    <Grid xs={2} item>
+                        <Card className={classes.paper2}>
+                            <Grid className={classes.grid}>
+                                <Link to={"/records/create"} style={{textDecoration: 'none'}}>
+                                    <Button className={classes.button} title={"Создать пост"}>
+                                        Создать пост
+                                    </Button>
+                                </Link>
+                                <Link to={"/topics/create"} style={{textDecoration: 'none'}}>
+                                    <Button className={classes.button} title={"Страница тэгов"}>
+                                        Страница тэгов
+                                    </Button>
+                                </Link>
                             </Grid>
-                            {this.state.availableTopics && this.state.availableTopics.map((topic, index) => (
-                                <Grid item
-                                      style={{listStyleType: "none"}}
-                                      key={index}
-                                      onClick={() => (
-                                          this.setState({
-                                                  selectedTopic: topic.value,
-                                              },
-                                              this.getRecords
-                                          ))}
-                                >
-                                    <ButtonBase>
-                                        {topic.label}
-                                    </ButtonBase>
-                                </Grid>
-                            ))}
-                            <Grid item
-                                  onClick={() => (
-                                      this.setState({
-                                              selectedTopic: null,
-                                          },
-                                          this.getRecords
-                                      ))}>
-                                <Typography className={classes.reset}>
-                                    <ButtonBase>
-                                        сбросить
-                                    </ButtonBase>
-                                </Typography>
-                            </Grid>
-                        </Grid>
-                    </Paper>
-                </div>*/}
-
+                        </Card>
+                    </Grid>
+                </Hidden>
+                    
             </Grid>
         );
     }

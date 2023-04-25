@@ -67,8 +67,15 @@ const useStyles = theme => ({
         [theme.breakpoints.down("xs")]: {
             width: 270,
         },
-        [theme.breakpoints.between("sm", "md")]: {
-            width: 650
+        
+        "@media (min-width : 451px)": {
+            width: 325,
+        },
+        "@media (min-width : 600px)": {
+            width: 375,
+        },
+        "@media (min-width : 960px)": {
+            width: 650,
         },
         "@media (min-width : 1280px)": {
             width: 800,
@@ -86,13 +93,21 @@ const useStyles = theme => ({
         [theme.breakpoints.down("xs")]: {
             width: 240,
         },
-        [theme.breakpoints.between("sm", "md")]: {
-            width: 620
+        "@media (min-width : 451px)": {
+            width: 295,
+        },
+        "@media (min-width : 600px)": {
+            width: 345,
+        },
+        "@media (min-width : 960px)": {
+            width: 620,
         },
         "@media (min-width : 1280px)": {
             width: 770,
         },
     },
+
+
     titleStyle: {
         size: 15,
     },
@@ -264,13 +279,13 @@ function RecordCardNew(props) {
                 </Grid>
                 <Grid className={classes.grid}>
                     {isPreview ? (
-                        <Typography variant="h6" title={record.title}>{/*gutterBottom*/}
-                            <Link style={{color: "black"}} to={"/records/thread/" + record.id}>
+                        <Typography variant="h6" title={record.title} className={classes.content}>{/*gutterBottom*/}
+                            <Link style={{color: "black"}}   to={"/records/thread/" + record.id}>
                                 {record.title}
                             </Link>
                         </Typography>
                     ) : (
-                        <Typography variant="h6">
+                        <Typography variant="h6" className={classes.content}>
                             {record.title}
                         </Typography>)
                     }

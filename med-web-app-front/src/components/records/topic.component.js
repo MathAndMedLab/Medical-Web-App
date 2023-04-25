@@ -20,10 +20,7 @@ const useStyles = theme => ({
         height: 73,
         backgroundColor: '#f50057',
     },
-    /*form: {
-        width: '100%',
-        marginTop: theme.spacing(1),
-    },*/
+  
     mainGrid: {
         minWidth: 400,
         justifyContent: "center",
@@ -35,18 +32,44 @@ const useStyles = theme => ({
         minWidth: 240,
     },
     paper: {
-        marginTop: theme.spacing(3),
-        "@media (min-width: 425px)":{
-            marginLeft: "20%"
-        },
-        "@media (min-width : 768px)":{
-            marginLeft: "40%"
-        },
-        marginRight: "auto",
+        marginTop: theme.spacing(5),
         padding: theme.spacing(1),
         color: "black",
         minWidth: 280,
-        // display: 'flex',
+
+        "@media (min-width : 451px)":{
+            marginLeft: theme.spacing(5)
+        },
+        "@media (min-width : 600px)":{
+            marginLeft: theme.spacing(12)
+        },
+        "@media (min-width : 690px)":{
+            marginLeft: theme.spacing(2)
+        },
+        "@media (min-width : 768px)":{
+            marginLeft: theme.spacing(20)
+        },
+        "@media (min-width : 769px)":{
+            marginLeft: theme.spacing(30)
+        },
+        "@media (min-width : 874px)":{
+            marginLeft: theme.spacing(10)
+        },
+        "@media (min-width : 960px)":{
+            marginLeft: theme.spacing(25)
+        },
+        "@media (min-width : 992px)":{
+            marginLeft: theme.spacing(35)
+        },
+        "@media (min-width : 1025px)":{
+            marginLeft: theme.spacing(25)
+        },
+        "@media (min-width : 1039px)":{
+            marginLeft: theme.spacing(15)
+        },
+        "@media (min-width : 1280px)":{
+            marginLeft: theme.spacing(20)
+        },
     },
 })
 
@@ -122,75 +145,7 @@ class TopicComponent extends Component {
     render() {
         const {classes} = this.props;
         return (
-            /*<div className="row align-left color-light-blue">
-                    <Form
-                        onSubmit={this.handleSubmitTopic}
-                        ref={c => {
-                            this.inputForm = c;
-                        }}
-                    >
-                        <div className="mt-3">
-                            <div className="form-group">
-                                <div style={{marginRight: "17px"}}>{"Создать тэг: "}</div>
-                                <textarea className="form-control"
-                                          id="exampleFormControlTextarea1"
-                                          rows="1"
-                                          onChange={this.onChangeName}
-                                          value={this.state.name}
-                                          autoComplete="off"
-                                >
-                    </textarea>
-                            </div>
-                        </div>
-
-                        <div className="form-group top-buffer-10">
-                            <button
-                                className="btn btn-primary btn-block color-dark-blue"
-                                disabled={!this.state.name}
-                            >
-                                <span>Сохранить</span>
-                            </button>
-                        </div>
-
-                        {this.state.message && (
-                            <div className="form-group">
-                                <div
-                                    className={
-                                        this.state.submittedSuccessfully
-                                            ? "alert alert-success"
-                                            : "alert alert-danger"
-                                    }
-                                    role="alert"
-                                >
-                                    {this.state.message}
-                                </div>
-                            </div>
-                        )}
-
-                        <CheckButton
-                            style={{display: "none"}}
-                            ref={c => {
-                                this.checkBtn = c;
-                            }}
-                        />
-
-                    </Form>
-                </div>
-
-                <ul className="list-group">
-                    {this.state.topics &&
-                    this.state.topics.map((topic, index) => (
-                        <li
-                            style={{listStyleType: "none"}}
-                            key={index}
-                        >
-                            <TopicCard topic={topic}/>
-                        </li>
-                    ))}
-                </ul>
-
-            </div>*/
-            <Grid item xs={8}>
+            <Grid item xs={11} sm={10} md={9} lg={8}>
                 <Grid classes={classes.mainGrid}>
                     <Card className={classes.paper}>
                         <div>

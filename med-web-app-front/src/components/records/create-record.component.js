@@ -3,7 +3,7 @@ import RecordService from "../../services/record.service";
 import AttachmentService from "../../services/attachment.service";
 import AuthService from "../../services/auth.service";
 import TopicService from "../../services/topic.service";
-import {withStyles} from "@material-ui/core";
+import {Grid, withStyles} from "@material-ui/core";
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import Paper from '@material-ui/core/Paper';
@@ -15,27 +15,44 @@ import Container from '@material-ui/core/Container';
 import Chip from '@material-ui/core/Chip';
 import FormControl from "@material-ui/core/FormControl";
 import InputLabel from '@material-ui/core/InputLabel';
-
+import {Link} from "react-router-dom";
+import {ListItemButton} from "@mui/material";
+import {ArrowBack} from "@material-ui/icons";
 
 const useStyles = theme => ({
     paper: {
-        marginTop: theme.spacing(3),
-        marginBottom: theme.spacing(3),
-        padding: theme.spacing(2),
-        [theme.breakpoints.up(600 + theme.spacing(3) * 2)]: {
-            marginTop: theme.spacing(6),
+        "@media (min-width: 312px)": {
+            marginTop: theme.spacing(5),
             marginBottom: theme.spacing(6),
             padding: theme.spacing(3),
         },
+        "@media (min-width: 600px)": {
+            marginTop: theme.spacing(10),
+        },
+        "@media (min-width: 960px)": {
+            marginTop: theme.spacing(1),
+        },
+        "@media (min-width: 1280px)": {
+            marginTop: theme.spacing(6),
+        },
     },
     layout: {
-        width: 'auto',
-        marginLeft: theme.spacing(2),
-        marginRight: theme.spacing(2),
-        [theme.breakpoints.up(600 + theme.spacing(2) * 2)]: {
-            width: 600,
-            marginLeft: 'auto',
-            marginRight: 'auto',
+        width: "auto",
+        "@media (min-width: 312px)": {
+            marginLeft: theme.spacing(-10),
+            marginRight: theme.spacing(5),
+        },
+        "@media (min-width: 900px)": {
+            marginLeft: theme.spacing(1),
+        },
+        "@media (min-width: 960px)": {
+            marginLeft: theme.spacing(-1),
+        },
+        "@media (min-width: 992px)": {
+            marginLeft: theme.spacing(-10),
+        },
+        "@media (min-width: 1280px)": {
+            marginLeft: theme.spacing(-55),
         },
     },
     buttons: {
@@ -46,6 +63,11 @@ const useStyles = theme => ({
         marginTop: theme.spacing(3),
         marginLeft: 0,
         backgroundColor: '#3f51b5',
+    },
+    backButton: {
+        "@media (min-width: 1280px)": {
+            marginRight: theme.spacing(30),
+        },
     },
     root: {
         "& .MuiFormLabel-root": {
@@ -228,16 +250,20 @@ class CreateRecordComponent extends Component {
         const {classes} = this.props;
 
         return (
-            <Container component="main">
-                <main className={classes.layout}>
+            <Grid container  alignItems="baseline" justifyContent="center" className={classes.layout}>
+                <Grid item className={classes.backButton}>
+                    <ListItemButton component={Link} to={"/records/view"} title={"Назад к постам"}>
+                        <ArrowBack color={"secondary"} fontSize={"large"}/>
+                    </ListItemButton>
+                </Grid>
+                <Grid item >
                     <Paper className={classes.paper}>
-
                         <Typography variant="h6" gutterBottom>
                             Создание поста
                         </Typography>
 
                         <form className={classes.form}
-                              onSubmit={this.handleSubmitRecord}
+                                onSubmit={this.handleSubmitRecord}
                         >
                             <TextField
                                 className={classes.root}
@@ -361,8 +387,9 @@ class CreateRecordComponent extends Component {
                             )}
                         </form>
                     </Paper>
-                </main>
-            </Container>
+                </Grid>
+                
+            </Grid>
         )
     }
 }

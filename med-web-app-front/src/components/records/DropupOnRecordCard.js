@@ -58,8 +58,8 @@ export default function TemporaryDrawer(){
     );
     return (
         <div>
-            {(['bottom']).map((anchor) => (
-                <React.Fragment key={anchor}>
+            {(['right']).map((anchor) => (
+                <React.Fragment key={anchor} >
                 <Button onClick={toggleDrawer(anchor, true)}>
                     <AddCircleOutlineSharp color = "secondary" fontSize={"large"}/>
                 </Button>
@@ -67,6 +67,7 @@ export default function TemporaryDrawer(){
                 anchor={anchor}
                 open={state[anchor]}
                 onClose={toggleDrawer(anchor, false)}
+                sx={{zIndex: 1250}}
                 >
             {list(anchor)}
                 </Drawer>

@@ -28,7 +28,7 @@ class AuthService {
         localStorage.removeItem("user");
     }
 
-    register(username, initials, firstname, lastname, patronymic, password, chosenRole, specialization, experience, workplace, education) {
+    register(username, initials, firstname, lastname, patronymic, password, chosenRole, specialization, specializedDiagnoses, experience, workplace, education, price) {
         return axios.post(API_URL + "signup", {
             username,
             initials,
@@ -39,9 +39,11 @@ class AuthService {
             chosenRole,
             //Only for doctors
             specialization,
+            specializedDiagnoses,
             experience,
             workplace,
-            education
+            education,
+            price
             //
         });
     }
@@ -54,7 +56,7 @@ class AuthService {
         return JSON.parse(localStorage.getItem('user'));
     }
 
-    editProfile(username, firstname, lastname, patronymic, initials, specialization, experience, workplace, education) {
+    editProfile(username, firstname, lastname, patronymic, initials, specialization, specializedDiagnoses, experience, workplace, education, price) {
         return axios.post(API_URL + "edit", {
             username,
             firstname,
@@ -63,9 +65,11 @@ class AuthService {
             initials,
             // Only for doctors.
             specialization,
+            specializedDiagnoses,
             experience,
             workplace,
-            education
+            education,
+            price
         });
     }
 }

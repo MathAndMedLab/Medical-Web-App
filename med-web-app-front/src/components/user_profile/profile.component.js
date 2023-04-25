@@ -18,6 +18,7 @@ import { ListItemIcon, ListItemText } from "@material-ui/core"
 import { Logout} from "@mui/icons-material";
 import { width } from "@mui/system";
 import { createTheme} from '@mui/material/styles';
+import getCorrectExperienceValue from "./get-correct-experience-value";
 
 const useStyles = theme => ({
     txtField: {
@@ -222,7 +223,7 @@ function Profile(props) {
                     multiline
                     className={classes.txtDoctorFields}
                     id="standard-read-only-input"
-                    defaultValue={"Специальность: " + user.specialization}
+                    defaultValue={user.specialization}
                     InputProps={{
                         readOnly: true,
                     }}
@@ -231,7 +232,16 @@ function Profile(props) {
                     multiline
                     className={classes.txtDoctorFields}
                     id="standard-read-only-input"
-                    defaultValue={"Стаж: " + user.experience + " лет"}
+                    defaultValue={"Специализация на болезнях: " + user.specializedDiagnoses}
+                    InputProps={{
+                        readOnly: true,
+                    }}
+                />
+                <TextField
+                    multiline
+                    className={classes.txtDoctorFields}
+                    id="standard-read-only-input"
+                    defaultValue={getCorrectExperienceValue(user.experience)}
                     InputProps={{
                         readOnly: true,
                     }}
@@ -253,7 +263,17 @@ function Profile(props) {
                     InputProps={{
                         readOnly: true,
                     }}
-                /> </Grid>);
+                />
+                <TextField
+                    multiline
+                    className={classes.txtDoctorFields}
+                    id="standard-read-only-input"
+                    defaultValue={"От " + user.price + " рублей"}
+                    InputProps={{
+                        readOnly: true,
+                    }}
+                />
+            </Grid>);
 
     }
 
@@ -300,6 +320,7 @@ function Profile(props) {
                                     </Grid>
                                     <Grid className={classes.gridData}>
                                         <TextField
+                                            variant="outlined"
                                             multiline
                                             className={classes.txtField}
                                             id="standard-read-only-input"

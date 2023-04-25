@@ -11,6 +11,12 @@ import {TextField, InputAdornment, IconButton} from "@material-ui/core";
 import Visibility from "@material-ui/icons/Visibility";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
 import {Alert} from "@material-ui/lab";
+import CreatableSelect from "react-select/creatable";
+import specialtiesList from "../../specialties-of-doctors-and-diagnoses/specialties-of-doctors";
+import Paper from "@material-ui/core/Paper";
+import diagnosesList from "../../specialties-of-doctors-and-diagnoses/diagnoses";
+import CreatableSelectDiagnoses from "../../specialties-of-doctors-and-diagnoses/creatable-select-diagnoses";
+import CreatableSelectSpecialties from "../../specialties-of-doctors-and-diagnoses/creatable-select-specialties";
 
 // const required = value => {
 //     if (!value) {
@@ -73,8 +79,21 @@ const useStyles = theme => ({
         margin: theme.spacing(2, 0, 1),
         color: "black"
     },
-
+    creatableSelectGrid: {
+        zIndex: 999999,
+    },
+    creatableSelectGridNext: {
+        zIndex: 999998,
+    }
 })
+
+const creatableSelectStyle = {
+    control: base => ({
+        ...base,
+        height: 55,
+        minHeight: 55
+    })
+};
 
 function Register(props) {
     const defaultUser = "Пользователь";
@@ -99,11 +118,14 @@ function Register(props) {
     const [passwordMatch, setPasswordMatch] = useState(false)
 
     // Only for doctors.
-    const [specialization, setSpecialization] = useState(null)
+    const [specialization, setSpecialization] = useState([])
+    const [specializedDiagnoses, setSpecializedDiagnoses] = useState([])
     const [experience, setExperience] = useState(null)
     const [experienceCorrectness, setExperienceCorrectness] = useState(true)
     const [workplace, setWorkplace] = useState(null)
     const [education, setEducation] = useState(null)
+    const [price, setPrice] = useState(null)
+    const [priceCorrectness, setPriceCorrectness] = useState(true)
 
     const handleClickShowPassword = () => setShowPassword(!showPassword);
     const handleMouseDownPassword = () => setShowPassword(!showPassword);
@@ -179,20 +201,27 @@ function Register(props) {
     function onChangeRole(e) {
         if (e.target.value === defaultUser) {
             setExperienceCorrectness(true)
+            setPriceCorrectness(true)
         }
-        setSpecialization(null)
+        setSpecialization([])
+        setSpecializedDiagnoses([])
         setExperience(null)
         setWorkplace(null)
         setEducation(null)
+        setPrice(null)
         setChosenRole(e.target.value)
     }
 
     function onChangeSpecialization(e) {
-        setSpecialization(e.target.value)
+        setSpecialization(e);
+    }
+
+    function onChangeSpecializedDiagnoses(e) {
+        setSpecializedDiagnoses(e);
     }
 
     function onChangeExperience(e) {
-        if (!isNaN(Number(e.target.value)) && e.target.value > 0 && e.target.value <= 100) {
+        if (!isNaN(Number(e.target.value)) && e.target.value >= 0 && e.target.value <= 100) {
             setExperienceCorrectness(true)
         }
         else {
@@ -209,6 +238,16 @@ function Register(props) {
         setEducation(e.target.value)
     }
 
+    function onChangePrice(e) {
+        if (!isNaN(Number(e.target.value)) && e.target.value >= 0 && e.target.value <= 100000) {
+            setPriceCorrectness(true)
+        }
+        else {
+            setPriceCorrectness(false)
+        }
+        setPrice(e.target.value)
+    }
+
     function handleRegister(e) {
         e.preventDefault()
         setMessage("")
@@ -222,7 +261,16 @@ function Register(props) {
         } else {
             initials = lastname + " " + firstname
         }
-        if (!usernameError && !passwordError && passwordMatch && experienceCorrectness) {
+
+        let specializationStr = "";
+        specialization.forEach(item => specializationStr += (item.value + ', '));
+        specializationStr = specializationStr.substring(0, specializationStr.length - 2);
+
+        let specializedDiagnosesStr = "";
+        specializedDiagnoses.forEach(item => specializedDiagnosesStr += (item.value + ', '))
+        specializedDiagnosesStr = specializedDiagnosesStr.substring(0, specializedDiagnosesStr.length - 2);
+
+        if (!usernameError && !passwordError && passwordMatch && experienceCorrectness && priceCorrectness) {
             AuthService.register(
                 username,
                 initials,
@@ -233,10 +281,12 @@ function Register(props) {
                 password,
                 chosenRole,
                 // Only for doctors.
-                specialization,
+                specializationStr,
+                specializedDiagnosesStr,
                 experience,
                 workplace,
-                education
+                education,
+                price
             ).then(
                 response => {
                     setMessage(response.data.message)
@@ -282,66 +332,72 @@ function Register(props) {
         return (
             <span>
                 <Grid container spacing={2}>
-                <Grid item xs={12}>
-                <TextField
-                    required
-                    className={classes.root}
-                    variant="outlined"
-                    fullWidth
-                    id="specialization"
-                    label="Специализация"
-                    name="specialization"
-                    autoComplete="on"
-                    value={specialization}
-                    onChange={onChangeSpecialization}
-                />
-            </Grid>
-                <Grid item xs={12}>
-                    <TextField
-                        required
-                        className={classes.root}
-                        variant="outlined"
-                        fullWidth
-                        id="experience"
-                        label="Стаж (лет)"
-                        name="experience"
-                        autoComplete="on"
-                        value={experience}
-                        error={!experienceCorrectness}
-                        helperText={"Стаж должен быть в пределах от 1 до 100"}
-                        onChange={onChangeExperience}
-                    />
-                </Grid>
-                <Grid item xs={12}>
-                    <TextField
-                        required
-                        className={classes.root}
-                        variant="outlined"
-                        fullWidth
-                        id="workplace"
-                        label="Место работы"
-                        name="workplace"
-                        autoComplete="on"
-                        value={workplace}
-                        onChange={onChangeWorkplace}
-                    />
+                    <Grid item xs={12} className={classes.creatableSelectGrid}>
+                            {CreatableSelectSpecialties(specialization, onChangeSpecialization)}
                     </Grid>
-                <Grid item xs={12}>
-                    <TextField
-                        required
-                        className={classes.root}
-                        variant="outlined"
-                        fullWidth
-                        id="education"
-                        label="Образование"
-                        name="education"
-                        autoComplete="on"
-                        value={education}
-                        onChange={onChangeEducation}
-                    />
-
-                </Grid>
-
+                    <Grid item xs={12} className={classes.creatableSelectGridNext}>
+                           {CreatableSelectDiagnoses(specializedDiagnoses, onChangeSpecializedDiagnoses)}
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField
+                            required
+                            className={classes.root}
+                            variant="outlined"
+                            fullWidth
+                            id="experience"
+                            label="Стаж (лет)"
+                            name="experience"
+                            autoComplete="on"
+                            value={experience}
+                            error={!experienceCorrectness}
+                            helperText={"Стаж должен быть в пределах от 1 до 100 (если ваш стаж меньше года, то укажите 0)"}
+                            onChange={onChangeExperience}
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField
+                            required
+                            className={classes.root}
+                            variant="outlined"
+                            fullWidth
+                            id="workplace"
+                            label="Место работы"
+                            name="workplace"
+                            autoComplete="on"
+                            value={workplace}
+                            onChange={onChangeWorkplace}
+                        />
+                        </Grid>
+                    <Grid item xs={12}>
+                        <TextField
+                            required
+                            className={classes.root}
+                            variant="outlined"
+                            fullWidth
+                            id="education"
+                            label="Образование"
+                            name="education"
+                            autoComplete="on"
+                            value={education}
+                            onChange={onChangeEducation}
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField
+                            required
+                            className={classes.root}
+                            variant="outlined"
+                            fullWidth
+                            id="price"
+                            label="Цена (RUB)"
+                            name="price"
+                            autoComplete="on"
+                            value={price}
+                            error={!priceCorrectness}
+                            helperText={"Минимальная стоимость обращения пациента (в пределах от 0 до 100000 ₽)"}
+                            onChange={onChangePrice}
+                        />
+                    </Grid>
                 </Grid>
             </span>)
     }

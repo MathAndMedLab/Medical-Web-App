@@ -21,4 +21,6 @@ public class RecordCreationRequest {
 
     List<Long> files;
 
+    List<RecordFileRequest> newFiles;
+    
 }

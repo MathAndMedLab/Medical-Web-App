@@ -38,8 +38,10 @@ public class AuthServiceTest {
         user.setPatronymic(editProfileRequest.getPatronymic());
         user.setEducation(editProfileRequest.getEducation());
         user.setSpecialization(editProfileRequest.getSpecialization());
+        user.setSpecializedDiagnoses(editProfileRequest.getSpecializedDiagnoses());
         user.setWorkplace(editProfileRequest.getWorkplace());
         user.setExperience(editProfileRequest.getExperience());
+        user.setPrice(editProfileRequest.getPrice());
         //
         assertEquals(user.getFirstname(), "test_firstname");
         assertEquals(user.getLastname(), "test_lastname");

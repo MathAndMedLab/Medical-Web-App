@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from "react"
-import {Switch, Route, Link, Redirect, NavLink} from "react-router-dom"
+import React, { useEffect, useState } from "react"
+import { Switch, Route, Link, Redirect, NavLink } from "react-router-dom"
 import "bootstrap/dist/css/bootstrap.min.css"
 import "./App.css"
 
@@ -90,10 +90,9 @@ const useStyles = theme => ({
                 leavingScreen: 195,
             },
             backgroundColor: "#808080"
-
         },
         height: "100%",
-        zIndex: theme.zIndex.drawer-100,
+        zIndex: theme.zIndex.drawer - 100,
     },
     drawerPaperClose: {
         overflowX: 'hidden',
@@ -101,11 +100,7 @@ const useStyles = theme => ({
             easing: theme.transitions.easing.easeIn,
             duration: theme.transitions.duration.leavingScreen,
         }),
-        // maxWidth: 60,
         width: theme.spacing(7),
-        // [theme.breakpoints.up('sm')]: {
-        //     width: theme.spacing(9),
-        // },
         height: "100%",
     },
     leftIndent: {
@@ -125,14 +120,13 @@ const useStyles = theme => ({
     },
     title: {
         flexGrow: 1,
-        margin:'auto',
+        margin: 'auto',
         color: '#FFFFFF',
         [theme.breakpoints.down("xs")]: {
             width: 100,
         },
         "@media (min-width : 400px)": {
             width: 250,
-
         },
         "@media (min-width : 960px)": {
             width: 200,
@@ -142,7 +136,6 @@ const useStyles = theme => ({
             width: 178,
             //marginRight: "70%",
         },
-
     },
     appBar: {
         top: 0,
@@ -150,7 +143,7 @@ const useStyles = theme => ({
         minWidth: 30,
         minHeight: 64,
         maxHeight: 64,
-        zIndex: theme.zIndex.drawer+2,
+        zIndex: theme.zIndex.drawer + 2,
         transition: theme.transitions.create(['width', 'margin'], {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,
@@ -195,11 +188,10 @@ const useStyles = theme => ({
         padding: '0 8px',
         background: "#3f51b5",
         ...theme.mixins.toolbar,
-
     },
     content: {
-         //width: `calc(100% - ${drawerWidth}px)`,
-         //marginLeft: drawerWidth,
+        //width: `calc(100% - ${drawerWidth}px)`,
+        //marginLeft: drawerWidth,
     },
     contentClose: {
         width: '100%',
@@ -222,8 +214,8 @@ const useStyles = theme => ({
     },
     button: {
         flexGrow: 1,
-        margin:'auto',
-        [theme.breakpoints.down("xs")]:{
+        margin: 'auto',
+        [theme.breakpoints.down("xs")]: {
             margin: 0,
             padding: theme.spacing(0),
         },
@@ -308,12 +300,12 @@ function App(props) {
                             let list = allMessages.get(response.data[index].senderName).messages
                             list.push(response.data[index])
                             const unRead = allMessages.get(response.data[index].senderName).unRead
-                            const valueMap = {unRead: unRead + 1, messages: list}
+                            const valueMap = { unRead: unRead + 1, messages: list }
                             setAllMessages(prev => (prev.set(response.data[index].senderName, valueMap)))
                         } else {
                             let list = []
                             list.push(response.data[index])
-                            const valueMap = {unRead: 1, messages: list}
+                            const valueMap = { unRead: 1, messages: list }
                             setAllMessages(prev => (prev.set(response.data[index].senderName, valueMap)))
                         }
                     }
@@ -331,7 +323,7 @@ function App(props) {
     function connectToChat() {
         let Sock = new SockJS('/api/ws')
         stompClient = over(Sock)
-        stompClient.debug= null
+        stompClient.debug = null
         stompClient.connect({}, onConnected, onError)
     }
 
@@ -371,7 +363,7 @@ function App(props) {
                         const blob = await base64Response.blob()
                         user.avatar = URL.createObjectURL(blob)
                     }
-                    let userWithLastMsg = {first: user, second: data}
+                    let userWithLastMsg = { first: user, second: data }
                     setUsersWithLastMsgReceived(prev => (prev.set(user.username, userWithLastMsg)))
                     setRefresh({})
                 })
@@ -385,13 +377,13 @@ function App(props) {
             let list = allMessages.get(data.senderName).messages
             const unRead = allMessages.get(data.senderName).unRead
             list.push(data)
-            const valueMap = {unRead: unRead + 1, messages: list}
+            const valueMap = { unRead: unRead + 1, messages: list }
             setAllMessages(prev => (prev.set(data.senderName, valueMap)))
             setNumberOfUnRead(prev => (prev + 1))
         } else {
             let list = []
             list.push(data)
-            const valueMap = {unRead: 1, messages: list}
+            const valueMap = { unRead: 1, messages: list }
             setAllMessages(prev => (prev.set(data.senderName, valueMap)))
             setNumberOfUnRead(prev => (prev + 1))
             setRefresh({})
@@ -421,7 +413,6 @@ function App(props) {
     function logOut() {
         AuthService.logout(AuthService.getCurrentUser().username)
         setCurrentUser(null)
-        // this.setState({currentUser: null})
     }
     
     document.addEventListener('click', function() {
@@ -453,7 +444,7 @@ function App(props) {
         if (currentUser) {
             return component
         } else {
-            return <Redirect to="/login"/>
+            return <Redirect to="/login" />
         }
     }
 
@@ -480,27 +471,27 @@ function App(props) {
         setNumberOfUnRead(prev => (prev - num))
     }
 
-    function LeftButtonComponentRender(item){
-        if(item.text === 'DICOM Viewer'){
-            return  (<ListItemButton
+    function LeftButtonComponentRender(item) {
+        if (item.text === 'DICOM Viewer') {
+            return (<ListItemButton
                 key={item.text}
                 component="a" href={item.href} target={"_blank"}
-                title ={item.text}
+                title={item.text}
             >
                 <ListItemIcon>{item.icon}</ListItemIcon>
-                <ListItemText primary={item.text}/>
-                <ListItemText primary={item.numberMsg}/>
+                <ListItemText primary={item.text} />
+                <ListItemText primary={item.numberMsg} />
             </ListItemButton>);
         }
         else {
             return (<ListItemButton
                 key={item.text}
                 component={Link} to={item.path}
-                title ={item.text}
+                title={item.text}
             >
                 <ListItemIcon>{item.icon}</ListItemIcon>
-                <ListItemText primary={item.text}/>
-                <ListItemText primary={item.numberMsg}/>
+                <ListItemText primary={item.text} />
+                <ListItemText primary={item.numberMsg} />
             </ListItemButton>);
         }
     }
@@ -513,29 +504,29 @@ function App(props) {
         },
         {
             text: 'Посты',
-            icon: <ForumIcon color="secondary"/>,
+            icon: <ForumIcon color="secondary" />,
             path: '/records/view'
         },
     ]
     const menuItemsForRegisteredUsers = [
         {
             text: 'Главная',
-            icon: <HomeIcon color="secondary"/>,
+            icon: <HomeIcon color="secondary" />,
             path: '/newHome'
         },
         {
             text: 'Анализ снимков',
-            icon: <BallotIcon color="secondary"/>,
+            icon: <BallotIcon color="secondary" />,
             path: '/pipelines/create'
         },
         {
             text: 'Форум',
-            icon: <ForumIcon color="secondary"/>,
+            icon: <ForumIcon color="secondary" />,
             path: '/records/view'
         },
         {
             text: 'Сообщения',
-            icon: <MessageIcon color="secondary"/>,
+            icon: <MessageIcon color="secondary" />,
             path: '/msg',
             numberOfUnRead: numberOfUnRead,
             numberMsg: <Paper
@@ -547,7 +538,7 @@ function App(props) {
         },
         {
             text: 'DICOM Viewer',
-            icon : <RemoveRedEye style={{color: '#f50057'}}/>,
+            icon: <RemoveRedEye style={{ color: '#f50057' }} />,
             href: "http://localhost:3000/local",
         },
     ]
@@ -558,25 +549,29 @@ function App(props) {
         if(width > breakpoint_1){
             return (
                 <Grid container >
-                    <Grid item xs/>
+                    <Grid item xs />
                     <Grid item >
                         <ListItemButton
-                            sx = {{paddingTop : 0, paddingBottom : 0,'&:hover':{
-                                color: "#ffffff",
-                            }}}
+                            sx={{
+                                paddingTop: 0, paddingBottom: 0, '&:hover': {
+                                    color: "#ffffff",
+                                }
+                            }}
                             component={Link} to={"/login"}
-                        title={"Войти"}
+                            title={"Войти"}
                         >
                             <ListItemText primary={"Войти"} />
                         </ListItemButton>
                     </Grid>
                     <Grid item>
                         <ListItemButton
-                            sx = {{paddingTop : 0, paddingBottom : 0,'&:hover':{
+                            sx={{
+                                paddingTop: 0, paddingBottom: 0, '&:hover': {
                                     color: "#ffffff",
-                                }}}
+                                }
+                            }}
                             component={Link} to={"/register"}
-                        title = {"Регистрация"}
+                            title={"Регистрация"}
                         >
                             <ListItemText primary={"Регистрация"}
                             />
@@ -585,27 +580,31 @@ function App(props) {
                 </Grid>
             );
         }
-        else{
+        else {
             return (
                 <Grid container alignItems={"flex-start"} direction={'column'}>
                     <Grid >
                         <ListItemButton
-                            sx = {{paddingTop : 0, paddingBottom : 0,'&:hover':{
+                            sx={{
+                                paddingTop: 0, paddingBottom: 0, '&:hover': {
                                     color: "#ffffff",
-                                }}}
+                                }
+                            }}
                             component={Link} to={"/login"}
                         >
-                            <ListItemText primary={"Войти"}/>
+                            <ListItemText primary={"Войти"} />
                         </ListItemButton>
                     </Grid>
                     <Grid >
                         <ListItemButton
-                            sx = {{paddingTop : 0, paddingBottom : 0,'&:hover':{
+                            sx={{
+                                paddingTop: 0, paddingBottom: 0, '&:hover': {
                                     color: "#ffffff",
-                                }}}
+                                }
+                            }}
                             component={Link} to={"/register"}>
 
-                            <ListItemText primary={"Регистрация"}/>
+                            <ListItemText primary={"Регистрация"} />
                         </ListItemButton>
                     </Grid>
                 </Grid>
@@ -615,12 +614,12 @@ function App(props) {
     }
 
 
-    const IconsForRegistredUsers = (props) =>{
+    const IconsForRegistredUsers = (props) => {
         const username = props.username;
         const breakpoint_1 = 588;
         if (width > breakpoint_1){
             return (<Grid container>
-                <Grid item xs/>
+                <Grid item xs />
                 <Grid item width={'50px'}>
                     <Link to={'/search'}>
                         <IconButton 
@@ -632,8 +631,8 @@ function App(props) {
                 </Grid>
                 <Grid item width={'50px'}>
                     <IconButton color="inherit" title={"Уведомления"}>
-                        <Badge badgeContent={4} color="secondary">
-                            <NotificationsIcon/>
+                        <Badge badgeContent={3} color="secondary">
+                            <NotificationsIcon />
                         </Badge>
                     </IconButton>
                 </Grid>
@@ -641,10 +640,10 @@ function App(props) {
                     <ListItemButton
                         component={Link} to={getPathForProfile()}
                         title={"Профиль"}
-                        sx = {{'&:hover': {color : "#ffffff"}}}
+                        sx={{ '&:hover': { color: "#ffffff" } }}
                     >
                         <AccountCircleRoundedIcon />
-                        <ListItemText primary={username}/>
+                        <ListItemText primary={username} />
                     </ListItemButton>
                 </Grid>
             </Grid>);
@@ -688,19 +687,19 @@ function App(props) {
         if(width <= 320){
             return "container mt-3 ml-0 pl-0";
         }
-        else if(width <= 375 ){
+        else if (width <= 375) {
             return "container mt-3 ml-3 pl-0";
         }
-        else if(width <= 450){
+        else if (width <= 450) {
             return "container mt-3 ml-3";
         }
-        else if (width <= 600){
+        else if (width <= 600) {
             return "container mt-3 ";
         }
-        else if(width <= 768){
+        else if (width <= 768) {
             return "container mt-3";
         }
-        else if(width <= 1024){
+        else if (width <= 1024) {
             return "container mt-3 ml-1 pl-0";
         }
         else {
@@ -726,22 +725,22 @@ function App(props) {
                 >
                     {open && (<div className={classes.toolbarIcon}>
                         <IconButton onClick={handleDrawerClose}>
-                            <Typography component="h2" variant={"h5"} noWrap style={{color: "white"}}>Med-Web-App</Typography>
-                            <ChevronLeftIcon style={{color: "#ffffff"}}/>
+                            <Typography component="h2" variant={"h5"} noWrap style={{ color: "white" }}>Med-Web-App</Typography>
+                            <ChevronLeftIcon style={{ color: "#ffffff" }} />
                         </IconButton>
                     </div>)}
                     {!open && (<div className={classes.toolbarIcon}>
                         <IconButton onClick={handleDrawerOpen}>
-                            <Typography component="h2" variant={"h5"} noWrap style={{color: "white"}}>Med-Web-App</Typography>
-                            <ChevronLeftIcon style={{color: "#ffffff"}}/>
+                            <Typography component="h2" variant={"h5"} noWrap style={{ color: "white" }}>Med-Web-App</Typography>
+                            <ChevronLeftIcon style={{ color: "#ffffff" }} />
                         </IconButton>
                     </div>)}
-                    <Divider/>
+                    <Divider />
 
                     <List>
                         {currentUser && (
                             menuItemsForRegisteredUsers.map((item) => (
-                            LeftButtonComponentRender(item)
+                                LeftButtonComponentRender(item)
                             )))
                         }
                         {!currentUser && (
@@ -749,10 +748,10 @@ function App(props) {
                                 <ListItemButton
                                     key={item.text}
                                     component={Link} to={item.path}
-                                    title = {item.text}
+                                    title={item.text}
                                 >
                                     <ListItemIcon>{item.icon}</ListItemIcon>
-                                    <ListItemText primary={item.text}/>
+                                    <ListItemText primary={item.text} />
 
                                 </ListItemButton>
                             )))
@@ -808,21 +807,22 @@ function App(props) {
         }
     }
 
-    function ExitOrNot(text){
-        if(text === 'Выход'){
+    function ExitOrNot(text) {
+        if (text === 'Выход') {
             return logOut;
         }
     }
 
-    function DicomViewerInternetPath(){
+    function DicomViewerInternetPath() {
         const url = window.location.href
         const num = url.indexOf(":7999")
         return url.slice(0, num + 1) + "3000/local/";
     }
 
     return (
-        <div className={classes.root} >
-            <CssBaseline/>
+        <div className={classes.root}>
+            <CssBaseline />
+
             <AppBar position="fixed" className={clsx(classes.appBar, false && classes.appBarShift)}>
                 <Toolbar className={classes.toolbar} >
                     <IconButton
@@ -833,7 +833,7 @@ function App(props) {
                         className={clsx(classes.menuButton, false && classes.menuButtonHidden)}
                         title={"Меню"}
                     >
-                        <MenuIcon/>
+                        <MenuIcon />
                     </IconButton>
                     <Hidden only="xs">
                         <ListItemButton  component={Link} to={"/newHome"} variant={"text"} className={classes.button} color={"inherit"}
@@ -857,11 +857,11 @@ function App(props) {
                     </Hidden>
                     
                     {currentUser && (
-                        <IconsForRegistredUsers username = {currentUser.username}/>
+                        <IconsForRegistredUsers username={currentUser.username} />
                     )}
 
                     {!currentUser && (
-                        <IconsForNotRegisteredUsers/>
+                        <IconsForNotRegisteredUsers />
                     )}
 
                 </Toolbar>
@@ -888,43 +888,38 @@ function App(props) {
                                            number={numberOfUnRead} minusUnRead={minusUnRead}
                                            usersWithLastMsg={usersWithLastMsgReceived}
                                            setUsersWithLastMsg={setUsersWithLastMsgReceived}
-                                    />) : (<Redirect to="/login"/>)}
+                                    />) : (<Redirect to="/login" />)}
                             </Route>
-                            <Route exact path="/register" component={Register}/>
+                            <Route exact path="/register" component={Register} />
                             <Route exact path="/search">
-                                {AuthService.getCurrentUser() ? <Search/> : <Redirect to="/login"/>}
+                                {AuthService.getCurrentUser() ? <Search /> : <Redirect to="/login" />}
                             </Route>
                             <Route exact path={["/profile/:usernamePath"]}>
-                                {AuthService.getCurrentUser() ? <Profile /> : <Redirect to="/login"/>}
+                                {AuthService.getCurrentUser() ? <Profile /> : <Redirect to="/login" />}
                             </Route>
                             <Route exact path="/pipelines/create" component={PipelinesComponent}>
-                                {AuthService.getCurrentUser() ? <PipelinesComponent/> : <Redirect to="/login"/>}
+                                {AuthService.getCurrentUser() ? <PipelinesComponent /> : <Redirect to="/login" />}
                             </Route>
                             <Route exact path="/pipelines/results" component={PipelineResultsComponent}>
-                                {AuthService.getCurrentUser() ? <PipelineResultsComponent/> : <Redirect to="/login"/>}
+                                {AuthService.getCurrentUser() ? <PipelineResultsComponent /> : <Redirect to="/login" />}
                             </Route>
                             <Route exact path="/pipelines/save" component={SavePipelineConfigComponent}>
-                                {AuthService.getCurrentUser() ? <SavePipelineConfigComponent/> :
-                                    <Redirect to="/login"/>}
+                                {AuthService.getCurrentUser() ? <SavePipelineConfigComponent /> :
+                                    <Redirect to="/login" />}
                             </Route>
                             <Route exact path="/files/view" component={ViewAttachmentsComponent}>
-                                {AuthService.getCurrentUser() ? <ViewAttachmentsComponent/> : <Redirect to="/login"/>}
+                                {AuthService.getCurrentUser() ? <ViewAttachmentsComponent /> : <Redirect to="/login" />}
                             </Route>
                             <Route exact path="/files/upload" component={UploadAttachmentsComponent}>
-                                {AuthService.getCurrentUser() ? <UploadAttachmentsComponent/> : <Redirect to="/login"/>}
+                                {AuthService.getCurrentUser() ? <UploadAttachmentsComponent /> : <Redirect to="/login" />}
                             </Route>
-                            <Route exact path="/records/view" component={ViewRecordsComponent}/>
-                            <Route exact path="/records/create" component={CreateRecordComponent}/>
-                            <Route path="/records/thread/:recordId" component={RecordThreadComponent}/>
+                            <Route exact path="/records/view" component={ViewRecordsComponent} />
+                            <Route exact path="/records/create" component={CreateRecordComponent} />
+                            <Route path="/records/thread/:recordId" component={RecordThreadComponent} />
                             <Route exact path="/topics/create" component={TopicComponent}>
-                                {AuthService.getCurrentUser() ? <TopicComponent/> : <Redirect to="/login"/>}
+                                {AuthService.getCurrentUser() ? <TopicComponent /> : <Redirect to="/login" />}
                             </Route>
-                            <Route exact path={["/edit"]} render={(props) => (
-                                <ProfileEditComponent/>
-                            )} />
-
-                            <Route component={NotExist}/>
-
+                            <Route component={NotExist} />
                         </Switch>
                     </div>
                 </Grid>

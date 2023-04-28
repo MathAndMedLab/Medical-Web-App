@@ -31,7 +31,8 @@ const useStyles = theme => ({
         "& .MuiTypography-root": {
             color: "black",
         },
-
+        fontWeight: '500',
+        fontSize: '16px'
     },
     grid: {
         "& .MuiTypography-root": {
@@ -43,6 +44,15 @@ const useStyles = theme => ({
         margin: theme.spacing(0, 0, 0, 1),
         display: 'flex',
 
+    },
+    spanStyleBold: {
+        margin: theme.spacing(0, 0, 0, 1),
+        fontWeight: '450',
+        fontSize: '16px'
+    },
+    spanStyle: {
+        fontWeight: '400',
+        fontSize: '16px'
     },
     gridContent: {
         margin: theme.spacing(1),
@@ -112,8 +122,12 @@ const useStyles = theme => ({
         float: "right",
         '&:hover': {
             cursor: "pointer",
-        }
-    },
+        },
+
+        position: "relative",
+        top: "-19px",
+        right: "-610px",
+    }
 })
 
 function RecordCardNew(props) {
@@ -208,6 +222,36 @@ function RecordCardNew(props) {
         setModalShow(false)
     }
 
+    function getDoctorSearchData() {
+        if (record.postType !== "Поиск специалиста") {
+            return;
+        }
+        return (
+            <span>
+                <span className={classes.spanStyleBold}>
+                    {'Интересуемые специальности: '}
+                </span>
+                <span className={classes.spanStyle}>
+                    {record.selectedSpecialties}
+                </span>
+                <br/>
+                <span className={classes.spanStyleBold}>
+                    {'Диагнозы: '}
+                </span>
+                <span className={classes.spanStyle}>
+                    {record.specializedDiagnoses}
+                </span>
+                <br/>
+                <span className={classes.spanStyleBold}>
+                    {'Готов(-а) заплатить: '}
+                </span>
+                <span className={classes.spanStyle}>
+                 {'до ' + record.maxPrice + ' ₽'}
+                </span>
+                <br/>
+            </span>)
+    }
+
     function DeleteModal() {
         return (
             <Modal show={modalShow} centered='true' aria-labelledby="contained-modal-title-vcenter">
@@ -234,14 +278,15 @@ function RecordCardNew(props) {
     return (
         <Paper className={classes.paper} variant="outlined">
             <Grid container item={true} xs={12} sm direction={"column"} className={classes.mainGrid}>
-                <Grid container item={true} className={classes.ggrid} xs direction={"row"} spacing={1}>
-                    <Grid className={classes.gridCreatorName} title={record.creator.username}>
+                <Grid className={classes.ggrid}>
+                    <Grid className={classes.gridCreatorName} title={record.creator.initials}>
                         <Link style={{color: "black"}} to={"/profile/" + record.creator.username}>
-                            {record.creator.username}
+                            {record.creator.initials}
                         </Link>
                     </Grid>
+                </Grid>
                     <Grid className={classes.ggrid}>
-                        <Typography variant={"subtitle1"}>
+                        <Typography variant={"subtitle3"}>
                             {
                                 (((new Date(creationTime).getHours() < 10 && "0" + new Date(creationTime).getHours())
                                         || (new Date(creationTime).getHours() >= 10 && new Date(creationTime).getHours())) + ":"
@@ -256,11 +301,14 @@ function RecordCardNew(props) {
                                     + "." + new Date(creationTime).getFullYear()
                                 )}
                         </Typography>
+
                         {(record.creator.username === AuthService.getCurrentUser().username || AuthService.getCurrentUser().username === "admin") &&
                         <DeleteIcon onClick={() => setModalShow(true)} className={classes.deleteIcon}
                         />}
                         <DeleteModal/>
                     </Grid>
+                <Grid className={classes.ggrid}>
+                    {record.postType}
                 </Grid>
                 <Grid className={classes.grid}>
                     {isPreview ? (
@@ -289,8 +337,8 @@ function RecordCardNew(props) {
                         </Grid>
                     ))}
                 </Grid>
-
-
+                {getDoctorSearchData()}
+                <br/>
                 {/*<div id={containerId} />*/}
                 {!isPreview && filePreviews.length > 0 &&
                 <Grid>
@@ -329,14 +377,22 @@ function RecordCardNew(props) {
                         </div>
                     </div>
                 ))}
-
-
                 {isPreview &&
-                <div className="col-sm-2 fa fa-comments"
-                     style={{"float": "right"}}> {record.numberOfReplies}</div>
+                    <span>
+                        <span className={classes.spanStyleBold}>
+                            {'Комментариев: '}
+                        </span>
+                        <span className={classes.spanStyle}>
+                            {record.numberOfReplies}
+                        </span>
+                        <br/>
+                        <span className={classes.spanStyleBold}>
+                            <Link style={{color: "black"}} to={"/records/thread/" + record.id}>
+                                {'Перейти к обсуждению:'} <span className="fa fa-comments"></span>
+                            </Link>
+                        </span>
+                    </span>
                 }
-
-
             </Grid>
         </Paper>
     );

@@ -25,6 +25,8 @@ import Upload from "../messenger/upload-files.component"
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import CreatableSelectSpecialties from "../../specialties-of-doctors-and-diagnoses/creatable-select-specialties";
 import CreatableSelectDiagnoses from "../../specialties-of-doctors-and-diagnoses/creatable-select-diagnoses";
+import CreatableSelect from "react-select/creatable";
+import diagnosesList from "../../specialties-of-doctors-and-diagnoses/diagnoses";
 
 /**
  * Стили для компонентов mui и react.
@@ -159,8 +161,21 @@ const useStyles = theme => ({
     },
     formControlLab: {
         marginBottom: theme.spacing(0), marginTop: theme.spacing(0)
-    }
+    },
+    creatableSelectGrid: {
+        zIndex: 999999,
+    },
+    creatableSelectGridNext: {
+        zIndex: 999998,
+    },
 })
+
+const creatableSelectStyle = {
+    control: base => ({
+        ...base,
+        minHeight: 55
+    })
+};
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -203,6 +218,9 @@ class CreateRecordComponent extends Component {
         this.handleCloseModalProfile = this.handleCloseModalProfile.bind(this);
         this.onChangePostType = this.onChangePostType.bind(this);
         this.drawDoctorSearchParams = this.drawDoctorSearchParams.bind(this);
+        this.onChangeMaxPrice = this.onChangeMaxPrice.bind(this);
+        this.onChangeSelectedSpecialties = this.onChangeSelectedSpecialties.bind(this);
+        this.onChangeSpecializedDiagnoses = this.onChangeSpecializedDiagnoses.bind(this);
         this.state = {
             content: "",
             title: "",
@@ -221,11 +239,15 @@ class CreateRecordComponent extends Component {
             modalShowUploadProfile: false,
             uploadMenuState: true,
             dragEnter: false,
-            postType: "discussion"
+            postType: "Обсуждение",
+            maxPrice: 100000,
+            selectedSpecialties: [],
+            specializedDiagnoses: []
         };
     }
 
     /**
+     *
      * Удаление прикрепленных файлов к посту
      * @param index 
      */
@@ -386,9 +408,37 @@ class CreateRecordComponent extends Component {
     }
 
     onChangePostType(e) {
+        if (e.target.value !== "Поиск специалиста") {
+            this.setState({
+                maxPrice: 100000,
+                selectedSpecialties: [],
+                specializedDiagnoses: []
+            })
+        }
         this.setState({
             postType: e.target.value
         })
+    }
+
+    onChangeSelectedSpecialties(e) {
+        this.setState({
+            selectedSpecialties: e
+        });
+    }
+
+    onChangeSpecializedDiagnoses(e) {
+        this.setState({
+            specializedDiagnoses: e
+        });
+    }
+
+    onChangeMaxPrice(e) {
+        if (isNaN(e.target.value)) {
+            return;
+        }
+        this.setState({
+            maxPrice: e.target.value
+        });
     }
 
     /**
@@ -398,14 +448,14 @@ class CreateRecordComponent extends Component {
     handleTopics(event) {
         let topicIds = [];
         this.state.availableTopics.map(topic => {
-            if (event.target.value.find(x => x.value === topic.value)) {
+            if (event.find(x => x.value === topic.value)) {
                 topicIds.push(topic.value)
             }
         });
 
         this.setState({
             selectedTopicsId: topicIds,
-            selectedTopicsValue: event.target.value
+            selectedTopicsValue: event
         })
 
     }
@@ -463,8 +513,36 @@ class CreateRecordComponent extends Component {
                 fileNameUidAndStringBase64.push(fileNameUidBase64)
             }
         }
+        let isDoctorSearch = this.state.postType === "Поиск специалиста";
 
-        RecordService.saveRecord(this.state.title, this.state.contentCorrect, this.state.selectedTopicsId, this.state.selectedFilesId, fileNameUidAndStringBase64).then(
+        let specializationStr = "";
+        let specializedDiagnosesStr = "";
+
+        if (isDoctorSearch) {
+            if (this.state.selectedSpecialties.length > 0) {
+                this.state.selectedSpecialties.forEach(item => specializationStr += (item.value + ', '));
+                specializationStr = specializationStr.substring(0, specializationStr.length - 2);
+            }
+            else {
+                specializationStr = "Не указано"
+            }
+
+            if (this.state.specializedDiagnoses.length > 0) {
+                this.state.specializedDiagnoses.forEach(item => specializedDiagnosesStr += (item.value + ', '))
+                specializedDiagnosesStr = specializedDiagnosesStr.substring(0, specializedDiagnosesStr.length - 2);
+            }
+            else {
+                specializationStr = "Не указано"
+            }
+        }
+
+
+
+        RecordService.saveRecord(this.state.title, this.state.contentCorrect, this.state.selectedTopicsId, this.state.selectedFilesId, fileNameUidAndStringBase64,
+            this.state.postType,
+            isDoctorSearch ? this.state.maxPrice : null,
+            isDoctorSearch ? specializationStr : null,
+            isDoctorSearch ? specializedDiagnosesStr : null).then(
             () => {
                 this.setState({
                     submittedSuccessfully: true,
@@ -525,8 +603,8 @@ class CreateRecordComponent extends Component {
             );
     }
 
-    drawDoctorSearchParams() {
-        if (this.state.postType !== "doctorSearch") {
+    drawDoctorSearchParams(creatableSelectGridClass, creatableSelectGridNextClass) {
+        if (this.state.postType !== "Поиск специалиста") {
             return;
         }
         return (
@@ -534,18 +612,19 @@ class CreateRecordComponent extends Component {
                 <FormLabel>
                     Специальность:
                 </FormLabel>
-                {/* TODO */}
-                {CreatableSelectSpecialties(this.state.selectedSpecialties, this.onChangeSelectedSpecialties)}
+                <Grid item xs={12} className={creatableSelectGridClass}>
+                    {CreatableSelectSpecialties(this.state.selectedSpecialties, this.onChangeSelectedSpecialties)}
+                </Grid>
                 <FormLabel>
                     Ваш диагноз:
                 </FormLabel>
-                {/* TODO */}
-                {CreatableSelectDiagnoses(this.state.specializedDiagnoses, this.onChangeSpecializedDiagnoses)}
+                <Grid item xs={12} className={creatableSelectGridNextClass}>
+                    {CreatableSelectDiagnoses(this.state.specializedDiagnoses, this.onChangeSpecializedDiagnoses)}
+                </Grid>
                 <br/>
-                {/* TODO */}
                 <FormLabel>
-                    Готов(-а) заплатить: до <input required minLength="3" maxLength="8" size="8" value={this.state.minPrice}
-                                    onChange={this.onChangeMinPrice}/> ₽
+                    Готов(-а) заплатить: до <input required minLength="3" maxLength="8" size="8" value={this.state.maxPrice}
+                                    onChange={this.onChangeMaxPrice}/> ₽
                 </FormLabel>
             </span>
         )
@@ -562,22 +641,6 @@ class CreateRecordComponent extends Component {
                         <Typography variant="h6" gutterBottom>
                             Создание поста
                         </Typography>
-                        <FormControl>
-                            <RadioGroup value={this.state.postType}
-                                        onChange={this.onChangePostType}>
-                                <FormControlLabel className={classes.formControlLab}
-                                                  control={<Radio/>}
-                                                  value="discussion"
-                                                  label="Обсуждение"
-                                />
-                                <FormControlLabel className={classes.formControlLab}
-                                                  control={<Radio/>}
-                                                  value="doctorSearch"
-                                                  label="Поиск специалиста"
-                                                  labelPlacement='end'
-                                />
-                            </RadioGroup>
-                        </FormControl>
                         <form className={classes.form}
                               onSubmit={this.handleSubmitRecord}
                         >
@@ -611,17 +674,35 @@ class CreateRecordComponent extends Component {
                                 value={this.state.content}
                                 onChange={this.onChangeContent}
                             />
-                            {this.drawDoctorSearchParams()}
+                            <FormControl>
+                                <RadioGroup value={this.state.postType}
+                                            onChange={this.onChangePostType}>
+                                    <FormControlLabel className={classes.formControlLab}
+                                                      control={<Radio/>}
+                                                      value="Обсуждение"
+                                                      label="Обсуждение"
+                                    />
+                                    <FormControlLabel className={classes.formControlLab}
+                                                      control={<Radio/>}
+                                                      value="Поиск специалиста"
+                                                      label="Поиск специалиста"
+                                                      labelPlacement='end'
+                                    />
+                                </RadioGroup>
+                            </FormControl>
+                            {this.drawDoctorSearchParams(classes.creatableSelectGrid, classes.creatableSelectGridNext)}
                             <FormControl className={classes.formControl}>
-                                <InputLabel id="selected-topics">Выбрать ключевые слова</InputLabel>
-                                <Select
-                                    className={classes.root}
-                                    multiple
-                                    title={"Прикрепить тэги"}
-                                    labelId="selected-topics"
+                                <br/>
+                                <CreatableSelect
+                                    maxMenuHeight={190}
+                                    placeholder="Выберите ключевые слова..."
+                                    noOptionsMessage={() => "Выбраны все ключевые слова."}
                                     value={this.state.selectedTopicsValue}
                                     onChange={this.handleTopics}
-                                    input={<Input id="select-multiple-chip-for-topics"/>}
+                                    isSearchable={false}
+                                    styles={creatableSelectStyle}
+                                    isMulti
+                                    options={this.state.availableTopics}
                                     renderValue={(selected) => (
                                         <div className={classes.chips}>
                                             {selected.map((value) => (
@@ -630,13 +711,7 @@ class CreateRecordComponent extends Component {
                                         </div>
                                     )}
                                     MenuProps={MenuProps}
-                                >
-                                    {this.state.availableTopics.map(x => (
-                                        <MenuItem key={x.value} value={x} id={x.value}>
-                                            {x.label}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
+                                />
                             </FormControl>
 
                             { this.state.uploadMenuState ? (

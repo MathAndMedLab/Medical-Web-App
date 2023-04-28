@@ -26,8 +26,8 @@ class RecordService {
         return axios.get(API_URL + 'answers/' + recordId, {headers: authHeader()});
     }
 
-    saveRecord(title, content, topics, files, newFiles, parentId = -1) {
-        return axios.post(API_URL + 'create', {title, content, topics, files, newFiles, parentId}, {headers: authHeader()});
+    saveRecord(title, content, topics, files, newFiles, postType, maxPrice, selectedSpecialties, specializedDiagnoses, parentId = -1) {
+        return axios.post(API_URL + 'create', {title, content, topics, files, newFiles, postType, maxPrice, selectedSpecialties, specializedDiagnoses, parentId}, {headers: authHeader()});
     }
 
     deleteRecord(recordId){

@@ -123,11 +123,17 @@ const useStyles = theme => ({
         '&:hover': {
             cursor: "pointer",
         },
-
-        position: "relative",
-        top: "-19px",
-        right: "-610px",
-    }
+    },
+    button: {
+        width: 200,
+        margin: theme.spacing(1),
+        backgroundColor: '#f50057',
+        color: '#ffffff',
+        '&:hover': {
+            backgroundColor: '#ff5983',
+            color: '#ffffff',
+        }
+    },
 })
 
 function RecordCardNew(props) {
@@ -392,6 +398,13 @@ function RecordCardNew(props) {
                             </Link>
                         </span>
                     </span>
+                }
+                {(currentUser.roles[0] === "Врач") && (record.creator.id !== currentUser.id) &&
+                    <Link to={"/msg/" + record.creator.username} style={{textDecoration: 'none'}}>
+                        <Button className={classes.button} title={"Страница тэгов"}>
+                            Откликнуться
+                        </Button>
+                    </Link>
                 }
             </Grid>
         </Paper>

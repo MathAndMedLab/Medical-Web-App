@@ -1,5 +1,6 @@
 import React, {Component} from 'react'
 import RecordService from "../../services/record.service"
+import NotificationService from "../../services/notification.service"
 import AttachmentService from "../../services/attachment.service"
 import AuthService from "../../services/auth.service"
 import TopicService from "../../services/topic.service"
@@ -27,6 +28,7 @@ import CreatableSelectSpecialties from "../../specialties-of-doctors-and-diagnos
 import CreatableSelectDiagnoses from "../../specialties-of-doctors-and-diagnoses/creatable-select-diagnoses";
 import CreatableSelect from "react-select/creatable";
 import diagnosesList from "../../specialties-of-doctors-and-diagnoses/diagnoses";
+import UserService from "../../services/user.service";
 
 /**
  * Стили для компонентов mui и react.
@@ -221,6 +223,8 @@ class CreateRecordComponent extends Component {
         this.onChangeMaxPrice = this.onChangeMaxPrice.bind(this);
         this.onChangeSelectedSpecialties = this.onChangeSelectedSpecialties.bind(this);
         this.onChangeSpecializedDiagnoses = this.onChangeSpecializedDiagnoses.bind(this);
+        this.getAllUsers = this.getAllUsers.bind(this);
+        this.getAllUsers();
         this.state = {
             content: "",
             title: "",
@@ -242,7 +246,8 @@ class CreateRecordComponent extends Component {
             postType: "Обсуждение",
             maxPrice: 100000,
             selectedSpecialties: [],
-            specializedDiagnoses: []
+            specializedDiagnoses: [],
+            allUsers: []
         };
     }
 
@@ -486,7 +491,18 @@ class CreateRecordComponent extends Component {
         })
     }
 
-    
+    async getAllUsers() {
+        UserService.getAllByUsername("")
+            .then(async (response) => {
+                const users = response.data;
+                this.setState({
+                    allUsers: users,
+                });
+            })
+            .catch((e) => {
+                console.log(e);
+            });
+    }
 
     /**
      * Метод отвечает за создание постов
@@ -536,8 +552,6 @@ class CreateRecordComponent extends Component {
             }
         }
 
-
-
         RecordService.saveRecord(this.state.title, this.state.contentCorrect, this.state.selectedTopicsId, this.state.selectedFilesId, fileNameUidAndStringBase64,
             this.state.postType,
             isDoctorSearch ? this.state.maxPrice : null,
@@ -550,13 +564,53 @@ class CreateRecordComponent extends Component {
                     content: "",
                     contentCorrect: "",
                     contentPresence: false,
-                    title: "",
                     selectedFilesId: [],
                     selectedFilesValue: [],
                     selectedFilesUpload: [],
                     selectedTopicsId: [],
                     selectedTopicsValue: [],
                 });
+
+                // Отправка уведомлений всем подходящим врачам.
+                if (this.state.postType !== "Поиск специалиста") {
+                    return;
+                }
+
+                RecordService.getAll(1, 1, this.state.title, "").then((response) => {
+                    let userIds = [];
+                    this.state.allUsers.map((user) => {
+                        if (!(user.role === "Врач")) {
+                            return;
+                        }
+                        let isPriceOkay = user.price <= this.state.maxPrice;
+                        let isSpecializationsOkay = false;
+                        let userSpecializations = user.specialization.split(', ');
+                        this.state.selectedSpecialties.map((s) => {
+                            let specialization = s.value;
+                            if (userSpecializations.includes(specialization)) {
+                                isSpecializationsOkay = true;
+                            }
+                        })
+
+                        let isDiagnosesOkay = false;
+                        let userDiagnoses = user.specializedDiagnoses.split(', ');
+                        this.state.specializedDiagnoses.map((s) => {
+                            let diagnoses = s.value;
+                            if (userDiagnoses.includes(diagnoses)) {
+                                isDiagnosesOkay = true;
+                            }
+                        })
+                        if (AuthService.getCurrentUser().id !== user.id && isPriceOkay && (isSpecializationsOkay || isDiagnosesOkay)) {
+                            userIds.push(user.id);
+                        }
+                    })
+                    let data = "Взгляните на новый пост на форуме с заголовком <<" + this.state.title + ">>, он может Вас заинтересовать!";
+                    NotificationService.saveNotification(data, "Пост на форуме", "/records/thread/" + response.data.records[0].id, userIds);
+                    this.setState({
+                        title: "",
+                    });
+                })
+                    .catch((e) => console.log(e));
             },
             error => {
                 const resMessage =
@@ -569,8 +623,7 @@ class CreateRecordComponent extends Component {
                     contentPresence: false,
                 });
             }
-        );
-
+        )
     }
 
     componentDidMount() {

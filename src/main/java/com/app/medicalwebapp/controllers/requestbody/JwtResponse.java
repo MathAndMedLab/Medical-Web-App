@@ -21,9 +21,10 @@ public class JwtResponse {
     //private String chosenRole;
     private List<String> roles;
     private LocalDateTime registeredDate;
+    private List<Long> notificationIds;
 
     public JwtResponse(String accessToken, Long id, String username,
-                       List<String> roles, int rate, int status, LocalDateTime registeredDate, String initials) {
+                       List<String> roles, int rate, int status, LocalDateTime registeredDate, List<Long> notificationIds, String initials) {
         this.token = accessToken;
         this.id = id;
         this.username = username;
@@ -33,5 +34,6 @@ public class JwtResponse {
         this.rate = rate;
         this.status = status;
         this.registeredDate = registeredDate;
+        this.notificationIds = notificationIds;
     }
 }

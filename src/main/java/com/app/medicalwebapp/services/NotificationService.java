@@ -79,10 +79,6 @@ public class NotificationService {
          Long[] userNotificationsIds = user.getNotificationIds();
          Long[] newUserNotificationsIds = new Long[userNotificationsIds.length - 1];
          Boolean flag = false;
-         System.out.println("CHECKING: ");
-         System.out.println(userNotificationsIds[0]);
-         System.out.println(id);
-         System.out.println(userNotificationsIds[0].equals(id));
          for (int i = 0; i < userNotificationsIds.length; i++) {
             if (userNotificationsIds[i].equals(id)) {
                 flag = true;

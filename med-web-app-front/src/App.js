@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react"
 import { Switch, Route, Link, Redirect, NavLink } from "react-router-dom"
 import "bootstrap/dist/css/bootstrap.min.css"
 import "./App.css"
-
 import Home from "./components/main/home.component"
 import HomePatient from "./components/main/home-patient.component"
 import HomeDoctor from "./components/main/home-doctor.component"
@@ -42,7 +41,7 @@ import HomeIcon from '@material-ui/icons/Home'
 import BallotIcon from '@material-ui/icons/Ballot'
 import ForumIcon from '@material-ui/icons/Forum'
 import SearchIcon from '@material-ui/icons/Search'
-import MessageIcon from '@material-ui/icons/Message'
+import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import AccountCircleRoundedIcon from '@material-ui/icons/AccountCircleRounded'
 import MedicationRoundedIcon from '@mui/icons-material/MedicationRounded';
 import Chat from "./components/messenger/chat.component"
@@ -60,16 +59,23 @@ import NewHomeComponent from "./components/main/newHome.component";
 import ProfileEditComponent from "./components/user_profile/profile-edit.component";
 import { useLocation } from "react-router-dom";
 import Hidden from '@material-ui/core/Hidden';
-
+import background from "./components/main/backgroundHome.jpg";
 
 const drawerWidth = 240
 
 const useStyles = theme => ({
     root: {
         display: 'flex',
-        overflowX: 'hidden'
+        overflowX: 'hidden',
+    },
+    rootHome: {
+        backgroundImage: `url(${background})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center center',
+        height: '100vh',
     },
     drawerPaper: {
+        position: "fixed",
         whiteSpace: 'nowrap',
         [theme.breakpoints.down("xs")]: {
             width: 210,
@@ -115,6 +121,7 @@ const useStyles = theme => ({
         },
         zIndex: theme.zIndex.drawer+1,
     },
+
     active: {
         background: '#f4f4f4'
     },
@@ -179,7 +186,10 @@ const useStyles = theme => ({
         display: 'none',
     },
     toolbar: {
-        paddingRight: "0%",
+        [theme.breakpoints.down("xs")]: {
+            marginTop: theme.spacing(0.5),
+            marginLeft: theme.spacing(1),
+        },
     },
     toolbarIcon: {
         display: 'flex',
@@ -190,8 +200,11 @@ const useStyles = theme => ({
         ...theme.mixins.toolbar,
     },
     content: {
-        //width: `calc(100% - ${drawerWidth}px)`,
-        //marginLeft: drawerWidth,
+        "@media (min-width : 600px)": {
+            marginLeft: theme.spacing(7),
+        },
+    },
+    innerContent: {
     },
     contentClose: {
         width: '100%',
@@ -224,6 +237,7 @@ const useStyles = theme => ({
         flexGrow: 1,
         margin:'auto',
     },
+    
 })
 let stompClient = null;
 
@@ -239,7 +253,6 @@ function App(props) {
     const [refresh, setRefresh] = useState({})
     const [width, setWidth] = React.useState(window.innerWidth);
     const [open, setOpen] = useState(false);
-    
     /**
      * Состояние allMessages имеет вид:
      * key - содержит логин пользователя с кем ведется переписка, value - содержит массив сообщений и переменную,
@@ -499,34 +512,34 @@ function App(props) {
     const menuItemsForUnregisteredUsers = [
         {
             text: 'Главная',
-            icon: <HomeIcon color="secondary"/>,
+            icon: <HomeIcon style={{ color: '#f50057' }}/>,
             path: '/newHome'
         },
         {
             text: 'Посты',
-            icon: <ForumIcon color="secondary" />,
+            icon: <ForumIcon style={{ color: '#f50057' }} />,
             path: '/records/view'
         },
     ]
     const menuItemsForRegisteredUsers = [
         {
             text: 'Главная',
-            icon: <HomeIcon color="secondary" />,
+            icon: <HomeIcon style={{ color: '#f50057' }} />,
             path: '/newHome'
         },
         {
             text: 'Анализ снимков',
-            icon: <BallotIcon color="secondary" />,
+            icon: <BallotIcon style={{ color: '#f50057' }} />,
             path: '/pipelines/create'
         },
         {
             text: 'Форум',
-            icon: <ForumIcon color="secondary" />,
+            icon: <ForumIcon style={{ color: '#f50057' }} />,
             path: '/records/view'
         },
         {
             text: 'Сообщения',
-            icon: <MessageIcon color="secondary" />,
+            icon: <MailOutlineIcon style={{ color: '#f50057' }} />,
             path: '/msg',
             numberOfUnRead: numberOfUnRead,
             numberMsg: <Paper
@@ -545,72 +558,38 @@ function App(props) {
 
 
     const IconsForNotRegisteredUsers = () =>{
-        const breakpoint_1 = 580;
-        if(width > breakpoint_1){
-            return (
-                <Grid container >
-                    <Grid item xs />
-                    <Grid item >
-                        <ListItemButton
-                            sx={{
-                                paddingTop: 0, paddingBottom: 0, '&:hover': {
-                                    color: "#ffffff",
-                                }
-                            }}
-                            component={Link} to={"/login"}
-                            title={"Войти"}
-                        >
-                            <ListItemText primary={"Войти"} />
-                        </ListItemButton>
-                    </Grid>
-                    <Grid item>
-                        <ListItemButton
-                            sx={{
-                                paddingTop: 0, paddingBottom: 0, '&:hover': {
-                                    color: "#ffffff",
-                                }
-                            }}
-                            component={Link} to={"/register"}
-                            title={"Регистрация"}
-                        >
-                            <ListItemText primary={"Регистрация"}
-                            />
-                        </ListItemButton>
-                    </Grid>
+        return (
+            <Grid container >
+                <Grid item xs />
+                <Grid item >
+                    <ListItemButton
+                        sx={{
+                            paddingTop: 0, paddingBottom: 0, '&:hover': {
+                                color: "#ffffff",
+                            }
+                        }}
+                        component={Link} to={"/login"}
+                        title={"Войти"}
+                    >
+                        <ListItemText primary={"Войти"} />
+                    </ListItemButton>
                 </Grid>
-            );
-        }
-        else {
-            return (
-                <Grid container alignItems={"flex-start"} direction={'column'}>
-                    <Grid >
-                        <ListItemButton
-                            sx={{
-                                paddingTop: 0, paddingBottom: 0, '&:hover': {
-                                    color: "#ffffff",
-                                }
-                            }}
-                            component={Link} to={"/login"}
-                        >
-                            <ListItemText primary={"Войти"} />
-                        </ListItemButton>
-                    </Grid>
-                    <Grid >
-                        <ListItemButton
-                            sx={{
-                                paddingTop: 0, paddingBottom: 0, '&:hover': {
-                                    color: "#ffffff",
-                                }
-                            }}
-                            component={Link} to={"/register"}>
-
-                            <ListItemText primary={"Регистрация"} />
-                        </ListItemButton>
-                    </Grid>
+                <Grid item>
+                    <ListItemButton
+                        sx={{
+                            paddingTop: 0, paddingBottom: 0, '&:hover': {
+                                color: "#ffffff",
+                            }
+                        }}
+                        component={Link} to={"/register"}
+                        title={"Регистрация"}
+                    >
+                        <ListItemText primary={"Регистрация"}
+                        />
+                    </ListItemButton>
                 </Grid>
-            );
-        }
-
+            </Grid>
+        );
     }
 
 
@@ -684,27 +663,7 @@ function App(props) {
 
 
     function ContainerBorder(){
-        if(width <= 320){
-            return "container mt-3 ml-0 pl-0";
-        }
-        else if (width <= 375) {
-            return "container mt-3 ml-3 pl-0";
-        }
-        else if (width <= 450) {
-            return "container mt-3 ml-3";
-        }
-        else if (width <= 600) {
-            return "container mt-3 ";
-        }
-        else if (width <= 768) {
-            return "container mt-3";
-        }
-        else if (width <= 1024) {
-            return "container mt-3 ml-1 pl-0";
-        }
-        else {
-            return "container mt-3";
-        }
+        return "container mt-3";
     }
 
 
@@ -819,11 +778,16 @@ function App(props) {
         return url.slice(0, num + 1) + "3000/local/";
     }
 
+    function IsHomePage() {
+        return (window.location.href.split('/')[4] === "newHome" || window.location.href.split('/')[4] === "")
+    }
+
+
     return (
-        <div className={classes.root}>
+        <div className={clsx(classes.root, (window.location.href.split('/')[4] === "newHome" || window.location.href.split('/')[4] === "") && classes.rootHome)}>
             <CssBaseline />
 
-            <AppBar position="fixed" className={clsx(classes.appBar, false && classes.appBarShift)}>
+            <AppBar  position="fixed" className={clsx(classes.appBar, false && classes.appBarShift)}>
                 <Toolbar className={classes.toolbar} >
                     <IconButton
                         edge="start"
@@ -866,18 +830,18 @@ function App(props) {
 
                 </Toolbar>
             </AppBar>
-
-            <Grid container >
-                <Grid item id="menu_bar" className={clsx(classes.leftIndent)} >
-                  <MyDrawer open = {open} classes = {classes}/>
-                </Grid>
-                <Grid item xs>
+            <div >
+                 <MyDrawer open = {open} classes = {classes} id="menu_bar" className={clsx(classes.leftIndent)}/>
+            </div>
+            <Grid container className={classes.content}>
+                <Grid item xs className={(IsHomePage()) && clsx(ContainerBorder())}>
                     <div className={classes.appBarSpacer}/>
                     <div className={classes.appBarSpacer2}/>
-                    <div className={ContainerBorder()} style={{justifyContent : "center"}
-                    }>
+                    <div className={(!IsHomePage()) &&clsx(ContainerBorder())} >
                         <Switch>
-                            <Route exact path={["/","/newHome"]} component={NewHomeComponent}/>
+                            <Route exact path={["/","/newHome"]} >
+                                <NewHomeComponent />
+                            </Route>
                             <Route exact path="/home/patient" component={HomePatient}/>
                             <Route exact path="/home/doctor" component={HomeDoctor}/>
                             <Route exact path="/login" component={Login} />
@@ -914,10 +878,14 @@ function App(props) {
                                 {AuthService.getCurrentUser() ? <UploadAttachmentsComponent /> : <Redirect to="/login" />}
                             </Route>
                             <Route exact path="/records/view" component={ViewRecordsComponent} />
-                            <Route exact path="/records/create" component={CreateRecordComponent} />
-                            <Route path="/records/thread/:recordId" component={RecordThreadComponent} />
+                            <Route exact path="/records/create" component={CreateRecordComponent}>
+                                <CreateRecordComponent open={open}/>
+                            </Route>
+                            <Route path="/records/thread/:recordId" component={RecordThreadComponent} >
+                                <RecordThreadComponent open={open} recordId={window.location.href.split('/')[6]}/>
+                            </Route>
                             <Route exact path="/topics/create" component={TopicComponent}>
-                                {AuthService.getCurrentUser() ? <TopicComponent /> : <Redirect to="/login" />}
+                                {AuthService.getCurrentUser() ? <TopicComponent open = {open} /> : <Redirect to="/login" />}
                             </Route>
                             <Route component={NotExist} />
                         </Switch>

@@ -25,11 +25,14 @@ const useStyles = theme => ({
     avatar: {
         width: 30,
         height: 30,
-        margin: theme.spacing(2, 0, 0, 2),
+        margin: theme.spacing(3, 0, 0, 2),
+        "@media (min-width : 451px)": {
+            margin: theme.spacing(2, 0, 0, 2),
+        },
     },
     paper: {
         margin: theme.spacing(3),
-        marginLeft: theme.spacing(1),
+        marginLeft: theme.spacing(2.5),
         borderRadius: 20,
         backgroundColor: "#eeeeee"
     },

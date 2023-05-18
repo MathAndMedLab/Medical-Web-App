@@ -9,7 +9,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import {Add, AddCircleOutlineSharp, PostAdd, Style} from "@material-ui/icons";
 import {Link} from "react-router-dom";
-
+import {IconButton} from "@material-ui/core"
 
 
 type Anchor = 'bottom';
@@ -60,14 +60,14 @@ export default function TemporaryDrawer(){
         <div>
             {(['right']).map((anchor) => (
                 <React.Fragment key={anchor} >
-                <Button onClick={toggleDrawer(anchor, true)}>
+                <IconButton onClick={toggleDrawer(anchor, true)} >
                     <AddCircleOutlineSharp color = "secondary" fontSize={"large"}/>
-                </Button>
+                </IconButton>
                 <Drawer
                 anchor={anchor}
                 open={state[anchor]}
                 onClose={toggleDrawer(anchor, false)}
-                sx={{zIndex: 1250}}
+                sx={{zIndex: 'tooltip'}}
                 >
             {list(anchor)}
                 </Drawer>

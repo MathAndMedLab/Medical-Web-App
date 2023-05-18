@@ -1,11 +1,13 @@
-import {Component, useRef} from "react";
+import {Component} from "react";
 import {Typography} from "@mui/material";
-import {Grid, Paper, withStyles} from "@material-ui/core";
-import MirfImage from './MirfImageWithoutText.png';
-import LeftPatientPicture from './LeftPatientPicture.png';
-import MiddleUpperPatientPicture from './MiddleUpperPatientPicture.png';
-import MiddleBottomPatientPicture from './MiddleBottomPatientPicture.png';
-import RightPatientPicture from './RightPatientPicture.png';
+import {Grid, withStyles} from "@material-ui/core";
+import Forum from './forum.jpg';
+import Doctor from './doctor.jpg';
+import AI from './ai.jpg';
+import HomeCard from "./HomeCard";
+import 'animate.css';
+import "@fontsource/unbounded";
+import clsx from "clsx"
 
 const useStyles = theme => ({
     root: {
@@ -13,250 +15,155 @@ const useStyles = theme => ({
         flexGrow: 1,
         overflowX: 'hidden',
         overflowY: 'hidden',
-        "@media (min-width : 446px)": {
-            marginLeft: theme.spacing(-10),
-        },
+        // "@media (min-width : 446px)": {
+        //     marginLeft: theme.spacing(-10),
+        // },
 
-        "@media (min-width : 600px)": {
-            width: 500,
-            marginLeft: theme.spacing(-10),
-        },
+        // "@media (min-width : 600px)": {
+        //     width: 500,
+        //     marginLeft: theme.spacing(-10),
+        // },
 
-        "@media (min-width : 690px)": {
-            width: 650,
-            marginLeft: theme.spacing(-15),
-        },
+        // "@media (min-width : 690px)": {
+        //     width: 650,
+        //     marginLeft: theme.spacing(-15),
+        // },
 
-        "@media (min-width : 768px)": {
-            width: 650,
-            marginLeft: theme.spacing(-10),
-        },
+        // "@media (min-width : 768px)": {
+        //     width: 650,
+        //     marginLeft: theme.spacing(-10),
+        // },
 
-        "@media (min-width : 769px)": {
-            width: 700,
-            marginLeft: theme.spacing(7),
-        },
-        "@media (min-width : 874px)": {
-            width: 750,
-            marginLeft: theme.spacing(-10),
-        },
-        "@media (min-width : 960px)": {
-            width: 800,
-            marginLeft: theme.spacing(-12),
-        },
-        "@media (min-width : 991px)": {
-            width: 800,
-            marginLeft: theme.spacing(15),
-        },
-        "@media (min-width : 1100px)": {
-            width: 800,
-            marginLeft: theme.spacing(6)
-        },
-        "@media (min-width : 1280px)": {
-            width: 1600,
-            marginLeft: theme.spacing(-40)
-        },
+        // "@media (min-width : 769px)": {
+        //     width: 700,
+        //     marginLeft: theme.spacing(7),
+        // },
+        // "@media (min-width : 874px)": {
+        //     width: 750,
+        //     marginLeft: theme.spacing(-10),
+        // },
+        // "@media (min-width : 960px)": {
+        //     width: 800,
+        //     marginLeft: theme.spacing(-12),
+        // },
+        // "@media (min-width : 991px)": {
+        //     width: 800,
+        //     marginLeft: theme.spacing(15),
+        // },
+        // "@media (min-width : 1100px)": {
+        //     width: 800,
+        //     marginLeft: theme.spacing(6)
+        // },
+        // "@media (min-width : 1280px)": {
+        //     width: 1600,
+        //     marginLeft: theme.spacing(-40)
+        // },
 
-        alignItems: "center",
+        // alignItems: "center",
     },
 
-    mainGrid: {
-        marginTop: theme.spacing(3),
-    },
-
-    textGrid: {
-        [theme.breakpoints.only("md")]: {
-            marginTop: theme.spacing(2),
-        },
-        "@media (min-width : 1280px)": {
-            marginTop: theme.spacing(10),
-
-        },
+    backgroundImageRight: {
+        top: 0,
+        position: "absolute",
+        width: "100%",
+        height: "100%",
+        right: 0,
+        zIndex: -4,
     },
     
-    patientGrid: {
-        [theme.breakpoints.down("xs")]: {
-            marginTop: theme.spacing(4),
-        },
-        [theme.breakpoints.only("sm")]: {
-            marginTop: theme.spacing(6),
-        },
-        [theme.breakpoints.only("md")]: {
-            marginTop: theme.spacing(8),
-        },
+    textSelection: {
+        color: "#FFF",
+        backgroundColor: "#0049FF",
     },
 
-    patientBoxes: {
-        [theme.breakpoints.down("xs")]: {
-            marginTop: theme.spacing(3),
-        },
-        "@media (min-width : 1280px)": {
-            marginTop: theme.spacing(3),
-
-        },
-        
+    boxes: {
+        marginTop: theme.spacing(10),
+        alignItems:"center",
     },
 
     bigTitle: {
-        fontFamily: 'Roboto',
-        fontStyle: "inherit",
-        fontWeight: 500,
-        fontSize: "80px",
-        lineHeight: "47px",
-        textAlign: "center",
-        color: "#000000",
-    },
-
-    secondTitle: {
-        [theme.breakpoints.between("xs", "sm")]: {
-            paddingTop: theme.spacing(4),
-        },
-        [theme.breakpoints.only("md")]: {
-            paddingTop: theme.spacing(2),
-        },
-        "@media (min-width : 1280px)": {
-            paddingTop: theme.spacing(10),
-
-        },
-
-        fontFamily: 'Roboto',
-        fontStyle: "normal",
-        fontWeight: 400,
-        fontSize: "32px",
-        lineHeight: "38px",
-        textAlign: "center",
-        color: "#5A5A5A",
-    },
-
-    thirdTitle: {
-        fontFamily: 'Roboto',
-        fontStyle: "inherit",
-        fontWeight: 500,
-        fontSize: "80px",
-        lineHeight: "47px",
-        textAlign: "center",
-        color: "#000000",
-    },
-    fourthTitle: {
-        fontFamily: 'Roboto',
-        fontStyle: "normal",
-        fontWeight: 500,
-        fontSize: "24px",
-        lineHeight: "28px",
-        textAlign: "center",
-    },
-
-    // Левая пикча с логотипом
-    leftBrain: {
         [theme.breakpoints.down("xs")]: {
-            width: 150,
+            fontSize: theme.spacing(3.5),
+            lineHeight: "27px",
         },
-        [theme.breakpoints.only("sm")]: {
-            width: 230,
-            
+        [theme.breakpoints.between("sm", "md")]: {
+            fontSize: theme.spacing(4),
+            lineHeight: "37px",
         },
-        [theme.breakpoints.only("md")]: {
-            width: 200,
+        "@media (min-width: 1280px)": {
+            fontSize: theme.spacing(5),
+            lineHeight: "47px",
         },
-        "@media (min-width : 1280px)": {
-            width: 350,
+        alignContent: "center",
+	    justifyContent: "center",
+        margin: 0,
+        padding: 0,
+        display: "flex",
+        fontStyle: "inherit",
+        fontWeight: 500,
+        textAlign: "center",
+        color: "#fff",
+    },
+    littleTitle: {
+        [theme.breakpoints.down("xs")]: {
+            lineHeight: "25px",
+            fontSize: theme.spacing(1.75),
+        },
+        [theme.breakpoints.between("sm", "md")]: {
+            lineHeight: "30px",
+            fontSize: theme.spacing(2),
+        },
+        "@media (min-width: 1280px)": {
+            lineHeight: "34px",
+            fontSize: theme.spacing(2.25),
+        },
+        alignContent: "center",
+	    justifyContent: "center",
+        margin: 0,
+        padding: 0,
+        display: "flex",
+        fontStyle: "inherit",
+        fontWeight: 500,
+        textAlign: "center",
+    },
+    card: {
+        "@media (min-width : 0px) and (max-width: 359px)": {
+            padding: "0.75rem",
+            maxWidth: 280,
+        },
+        "@media (min-width : 360px)": {
+            padding: "1rem",
+            width: 330,
+        },
+        "@media (min-width : 450px)": {
+            width: 400,
+        },
+        "@media (min-width : 600px)": {
+            padding: "1.5rem",
+            width: 520,
+        },
+        "@media (min-width : 960px)": {
+            width: 880,
+
+        },
+        "@media (min-width: 1280px)": {
+            width: 1200,
         },
         
-        transform: "rotate(-46deg)",
-
+        background: "rgba( 255, 255, 255, 0.15 )",
+        boxShadow: "0px 2px 1px -1px rgb(0 0 0 / 20%), 0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%)",
+        backdropFilter: "blur( 18px )",
+        borderRadius: "30px",
+        
+        zIndex: 10,
+        color: "whitesmoke",
     },
-
-    // Правая пикча с логотипом
-    rightBrain: {
-        [theme.breakpoints.down("xs")]: {
-            marginTop: theme.spacing(2),
-            width: 150,
-        },
-        [theme.breakpoints.only("sm")]: {
-            marginTop: theme.spacing(3),
-            width: 230,
-        },
-        [theme.breakpoints.only("md")]: {
-            width: 200,
-        },
-        "@media (min-width : 1280px)": {
-            width: 350,
-        },
-
-        transform: "rotate(27deg)",
-    },
-
-    patientPaper: {
-        [theme.breakpoints.down("xs")]: {
-            marginTop: theme.spacing(5),
-            width: 300,
-            height: 365
-        },
-        [theme.breakpoints.only("sm")]: {
-            marginTop: theme.spacing(5),
-            width: 300,
-            height: 365
-        },
-        [theme.breakpoints.only("md")]: {
-            marginTop: theme.spacing(5),
-            width: 300,
-            height: 365
-        },
-        "@media (min-width : 1280px)": {
-            width: 350,
-            height: 395
-        },
-
-        background: "#FFFFFF",
-        border: "1.5px solid rgba(0, 0, 0, 0.5)",
-    },
-
-    patientBox: {
-        "@media (min-width : 1280px)": {
-            marginTop: theme.spacing(2),
-        },
-    },
-
-
-    patientSidePicture: {
-        [theme.breakpoints.down("md")]: {
-            width: 250,
-            height: 270,
-            marginTop: theme.spacing(1),
-        },
-        "@media (min-width : 1280px)": {
-            width: 300,
-            height: 300
-        },
-    },
-
-    patientText: {
-        paddingTop: theme.spacing(2),
-
-        fontFamily: 'Roboto',
-        fontStyle: "normal",
-        fontWeight: 500,
-        fontSize: "24px",
-        lineHeight: "28px",
-        color: "#000000",
-        textAlign: "center",
-    },
-
-    middlePatientPicture: {
-        [theme.breakpoints.down("md")]: {
-            width: 250,
-            height: 135,
-            marginTop: theme.spacing(0.5),
-        },
-        "@media (min-width : 1280px)": {
-            width: 300,
-            height:150
-        },
-    },
-
- 
-
+    mainGrid: {
+        marginBottom: theme.spacing(4),
+    }
+    
 })
+
 
 class newHome extends Component {
     constructor(props) {
@@ -269,73 +176,73 @@ class newHome extends Component {
 
     render() {
         const {classes} = this.props;
+        const cards = [
+            {
+            title: "Разместите пост на форуме",
+            description: "Форум",
+            status: "Мгновенный отклик от врачей",
+            imgUrl: Forum,
+            url: "/records/view",
+            },
+            {
+            title: "Выберите подходящего врача",
+            description: "Поиск",
+            status: "Высококвалифицированные специалисты",
+            imgUrl: Doctor,
+            url: "/search",
+            },
+            {
+            title: "Получите отчет от искусственного интеллекта",
+            description: "DICOM Viewer",
+            status: "Нейросеть, обученная на большом объеме данных",
+            imgUrl: AI,
+            url: "http://localhost:3000/local",
+            },
+        ];
+        const styles = {
+            root: {
+                fontFamily: 'Unbounded, cursive',
+                
+            },
+        };
+
+        
+
+
         return (
             <div className={classes.root}>
-                <Grid container direction="column" className={classes.mainGrid} >
-                    <Grid container item justifyContent="center">
-                        <Grid item xs={12} md={3} justifyContent="flex-start">
-                            <img src={MirfImage} className={classes.leftBrain}/>
+                <Grid container direction="column" alignItems="center" justifyContent="center" className={classes.mainGrid}>
+                    <Grid container item className={classes.card} direction="column" alignItems="center" justifyContent="center" style={{ gap: 10 }}>
+                        <Grid item class="animated-gradient-text">
+                            <h2 className={classes.bigTitle} style={styles.root}>Консультации врачей онлайн: получите второе мнение, не покидая дома</h2>
                         </Grid>
-
-                        <Grid item xs={12} sm={10} md={6} className={classes.textGrid}>
-                            <Typography variant={"h4"} className={classes.bigTitle} >
-                                Второе мнение по медицинским снимкам
-                            </Typography>
-                            <Typography variant={"h5"} className={classes.secondTitle}>
-                                Ранняя диагностика и правильный диагноз могут спасти вашу жизнь!
-                            </Typography>
+                        <Grid item class="gradient-text"  >
+                            <h6 className={classes.littleTitle} style={styles.root}>
+                                Наш медицинский сайт с консультациями врачей онлайн - это надежный и удобный инструмент для всех, кто хочет получить профессиональное мнение по своему состоянию. 
+                                У нас вы можете получить консультацию от опытных и квалифицированных врачей, которые помогут вам разобраться в вашей проблеме и выработать наиболее эффективный план лечения. 
+                                Мы понимаем, что ваше здоровье - это самое важное, и поэтому мы предоставляем быстрый и удобный доступ к квалифицированным врачам онлайн. 
+                                Не стесняйтесь обращаться к нам, мы всегда готовы помочь!
+                            </h6>
                         </Grid>
-
-                        <Grid container item xs={12} md={3} justifyContent="flex-end">
-                            <img src={MirfImage} className={classes.rightBrain}/>
-                        </Grid>
+                        
                     </Grid>
-
-
-                    <Grid container item justifyContent="center" className={classes.patientGrid} direction="column" alignItems="center">
-                        <Grid item xs={12} sm={8} md={12}>
-                            <Typography variant={"h6"} className={classes.thirdTitle}>
-                                Если вы пациент и хотите получить дополнительное мнение по вашему снимку:
-                            </Typography>
-                        </Grid>
-
-                        <Grid container item className={classes.patientBoxes} justifyContent="space-evenly">
-                            <Grid item >
-                                <Paper className={classes.patientPaper} justifyContent="center" >
-                                    <Grid container direction="column" alignItems="center" className={classes.patientBox}>
-                                        <img src={LeftPatientPicture} className={classes.patientSidePicture}/>
-                                        <Typography variant={"h6"} className={classes.patientText}>
-                                            <a href="#/records/view"> Разместите пост на форуме </a>
-                                        </Typography>
-                                    </Grid>
-                                </Paper>
-                            </Grid>
-
-                            <Grid item>
-                                <Paper className={classes.patientPaper} justifyContent="center" >
-                                    <Grid container direction="column" alignItems="center" className={classes.patientBox}>
-                                        <img src={MiddleUpperPatientPicture} className={classes.middlePatientPicture}/>
-                                        <img src={MiddleBottomPatientPicture} className={classes.middlePatientPicture}/>
-                                        <Typography variant={"h6"} className={classes.patientText}>
-                                            <a href="#/search"> Выберите подходящего врача </a>
-                                        </Typography>
-                                    </Grid>
-                                </Paper>
-                            </Grid>
-
-                            <Grid item>
-                                <Paper className={classes.patientPaper} justifyContent="center" >
-                                    <Grid container direction="column" alignItems="center" className={classes.patientBox}>
-                                        <img src={RightPatientPicture} className={classes.patientSidePicture}/>
-                                        <Typography variant={"h6"} className={classes.patientText}>
-                                            <a href="http://localhost:3000/local"> Получите отчет от искусственного интеллекта </a>
-                                        </Typography>
-                                    </Grid>
-                                </Paper>
-                            </Grid>
-                        </Grid>
+                    
+                
+                    <Grid container item className={classes.boxes}  alignItems="center" justifyContent="center" style={{ gap: 40 }}>
+                        {
+                        cards.map((card, index) => {
+                            return (<HomeCard
+                            key={index}
+                            
+                            {...card}
+                            />
+                            
+                            )
+                        })
+                        }
                     </Grid>
                 </Grid>
+                
             </div>
         );
     }

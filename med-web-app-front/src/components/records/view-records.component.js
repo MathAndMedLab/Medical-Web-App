@@ -168,16 +168,21 @@ const useStyles = theme => ({
 
         "@media (min-width : 300px)": {
             width: 400,
-            marginLeft: theme.spacing(1),
+            marginLeft: theme.spacing(3),
+        },
+        "@media (min-width : 410px)": {
+            marginLeft: theme.spacing(5),
         },
         "@media (min-width : 430px)": {
-            width: 400,
-            marginLeft: theme.spacing(3),
+            marginLeft: theme.spacing(7),
         },
 
         "@media (min-width : 451px)": {
-            width: 450,
+            width: 425,
             marginLeft: theme.spacing(5),
+        },
+        "@media (min-width : 475px)": {
+            marginLeft: theme.spacing(8),
         },
 
         "@media (min-width : 530px)": {
@@ -187,39 +192,22 @@ const useStyles = theme => ({
         
         "@media (min-width : 600px)": {
             width: 530,
-            marginLeft: theme.spacing(10),
-        },
-        "@media (min-width : 690px)": {
-            width: 530,
-            marginLeft: theme.spacing(1),
+            marginLeft: theme.spacing(5),
         },
         "@media (min-width : 768px)": {
-            width: 550,
-            marginLeft: theme.spacing(20),
-        },
-        "@media (min-width : 769px)": {
-            width: 550,
-            marginLeft: theme.spacing(25),
-        },
-        "@media (min-width : 839px)": {
-            width: 550,
-            marginLeft: theme.spacing(10),
-        },
-        "@media (min-width : 900px)": {
-            width: 550,
             marginLeft: theme.spacing(15),
         },
         "@media (min-width : 960px)": {
             width: 800,
             marginLeft: theme.spacing(2),
         },
-       
-        "@media (min-width : 1025px)": {
-            width: 850,
+        "@media (min-width : 992px)": {
             marginLeft: theme.spacing(15),
         },
-         "@media (min-width : 1110px)": {
+        "@media (min-width : 1025px)": {
             width: 850,
+        },
+         "@media (min-width : 1110px)": {
             marginLeft: theme.spacing(10),
         },
         "@media (min-width : 1200px)": {
@@ -276,7 +264,7 @@ const useStyles = theme => ({
         "@media (min-width : 960px)": {
             marginLeft: theme.spacing(37),
         },
-        marginTop: theme.spacing(3),
+        marginTop: theme.spacing(2),
     },
 
     postGrid: {

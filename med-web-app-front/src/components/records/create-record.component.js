@@ -16,6 +16,7 @@ import Chip from '@material-ui/core/Chip';
 import FormControl from "@material-ui/core/FormControl";
 import InputLabel from '@material-ui/core/InputLabel';
 import {Link} from "react-router-dom";
+import {IconButton} from "@material-ui/core"
 import {ListItemButton} from "@mui/material";
 import {ArrowBack} from "@material-ui/icons";
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
@@ -31,38 +32,47 @@ import Upload from "../messenger/upload-files.component"
 
 const useStyles = theme => ({
     paper: {
-        "@media (min-width: 312px)": {
-            marginTop: theme.spacing(5),
+        
+        "@media (min-width: 0px)": {
+            marginTop: theme.spacing(7.5),
             marginBottom: theme.spacing(6),
             padding: theme.spacing(3),
+            width: 300
+        },
+        "@media (min-width: 400px)": {
+            marginTop: theme.spacing(0),
+            width: 330
+        },
+        "@media (min-width: 600px)": {
+            width: 350,
+        },
+        "@media (min-width: 687px)": {
+            width: 400,
+        },
+        "@media (min-width: 768px)": {
+            width: 450,
+        },
+        "@media (min-width: 960px)": {
+            width: 500,
+        },
+        "@media (min-width: 1280px)": {
+            width: 650,
+        },
+    },
+    layout: {
+        display: "flex",
+        "@media (min-width: 400px)": {
+            marginLeft: theme.spacing(3),
         },
         "@media (min-width: 600px)": {
             marginTop: theme.spacing(10),
+            marginLeft: theme.spacing(0),
         },
         "@media (min-width: 960px)": {
             marginTop: theme.spacing(1),
         },
         "@media (min-width: 1280px)": {
             marginTop: theme.spacing(6),
-        },
-    },
-    layout: {
-        width: "auto",
-        "@media (min-width: 312px)": {
-            marginLeft: theme.spacing(-10),
-            marginRight: theme.spacing(5),
-        },
-        "@media (min-width: 900px)": {
-            marginLeft: theme.spacing(1),
-        },
-        "@media (min-width: 960px)": {
-            marginLeft: theme.spacing(-1),
-        },
-        "@media (min-width: 992px)": {
-            marginLeft: theme.spacing(-10),
-        },
-        "@media (min-width: 1280px)": {
-            marginLeft: theme.spacing(-55),
         },
     },
     buttons: {
@@ -74,11 +84,23 @@ const useStyles = theme => ({
         marginLeft: 0,
         backgroundColor: '#3f51b5',
     },
-    backButton: {
-        "@media (min-width: 1280px)": {
-            marginRight: theme.spacing(30),
+    backButtonStyle: {
+        position: "fixed",
+        zIndex: 2500,
+        [theme.breakpoints.down("xs")]: {
+            left: "0%",
+        },
+        "@media (min-width : 600px)": {
+            left: "14%",
+        },
+        "@media (min-width : 960px)": {
+            left: "13%",
+        },
+        "@media (min-width : 1280px)": {
+            left: "15%",
         },
     },
+   
     uploadMenuButton: {
         marginTop: theme.spacing(3),
         padding: theme.spacing(2, 0, 2, 0),
@@ -175,6 +197,9 @@ const useStyles = theme => ({
         marginBottom: theme.spacing(1),
         borderRadius: "15px",
         boxShadow: "0px 2px 1px -1px rgb(0 0 0 / 20%), 0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%)",
+    },
+    modalWindow: {
+        zIndex: 3000
     },
 })
 
@@ -535,257 +560,256 @@ class CreateRecordComponent extends Component {
 
     render() {
         const {classes} = this.props;
-
+        const {open} = this.props;
         return (
-            <Grid container  alignItems="baseline" justifyContent="center" className={classes.layout}>
-                <Grid item className={classes.backButton}>
-                    <ListItemButton component={Link} to={"/records/view"} title={"Назад к постам"}>
-                        <ArrowBack color={"secondary"} fontSize={"large"}/>
-                    </ListItemButton>
-                </Grid>
-                <Grid item >
-                    <Paper className={classes.paper}>
-                        <Typography variant="h6" gutterBottom>
-                            Создание поста
-                        </Typography>
+            <Grid container xs={12} alignItems="flex-start" justifyContent="center" className={classes.layout}>
+                <IconButton title={"Назад к постам"} component={Link} to={"/records/view"} disabled={open || this.state.modalShowUploadDevice || this.state.modalShowUploadProfile} className={classes.backButtonStyle}>
+                        { (!open && !this.state.modalShowUploadDevice && !this.state.modalShowUploadProfile) && (<ArrowBack color={"secondary"} fontSize={"large"}/>)}
+                </IconButton>
+                
+                <Paper className={classes.paper}>
+                    <Typography variant="h6" gutterBottom>
+                        Создание поста
+                    </Typography>
 
-                        <form className={classes.form}
-                                onSubmit={this.handleSubmitRecord}
-                        >
-                            <TextField
+                    <form className={classes.form}
+                            onSubmit={this.handleSubmitRecord}
+                    >
+                        <TextField
+                            className={classes.root}
+                            variant="outlined"
+                            margin="normal"
+                            required
+                            fullWidth
+                            id="title"
+                            label="Заголовок"
+                            name="title"
+                            autoComplete="off"
+                            autoFocus
+                            value={this.state.title}
+                            onChange={this.onChangeTitle}
+                        />
+
+                        <TextField
+                            className={classes.root}
+                            variant="outlined"
+                            margin="normal"
+                            required
+                            fullWidth
+                            id="content"
+                            label="Содержание"
+                            multiline
+                            name="content"
+                            autoComplete="off"
+                            rows={7}
+                            value={this.state.content}
+                            onChange={this.onChangeContent}
+                        />
+
+                        <FormControl className={classes.formControl}>
+                            <InputLabel id="selected-topics">Выбрать ключевые слова</InputLabel>
+                            <Select
                                 className={classes.root}
-                                variant="outlined"
-                                margin="normal"
-                                required
+                                multiple
+                                title={"Прикрепить тэги"}
+                                labelId="selected-topics"
+                                value={this.state.selectedTopicsValue}
+                                onChange={this.handleTopics}
+                                input={<Input id="select-multiple-chip-for-topics"/>}
+                                renderValue={(selected) => (
+                                    <div className={classes.chips}>
+                                        {selected.map((value) => (
+                                            <Chip key={value} label={value.label} className={classes.chip}/>
+                                        ))}
+                                    </div>
+                                )}
+                                MenuProps={MenuProps}
+                            >
+                                {this.state.availableTopics.map(x => (
+                                    <MenuItem key={x.value} value={x} id={x.value}>
+                                        {x.label}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+
+                        { this.state.uploadMenuState ? (
+                            <Button
                                 fullWidth
-                                id="title"
-                                label="Заголовок"
-                                name="title"
-                                autoComplete="off"
-                                autoFocus
-                                value={this.state.title}
-                                onChange={this.onChangeTitle}
-                            />
-
-                            <TextField
-                                className={classes.root}
-                                variant="outlined"
-                                margin="normal"
-                                required
-                                fullWidth
-                                id="content"
-                                label="Содержание"
-                                multiline
-                                name="content"
-                                autoComplete="off"
-                                rows={7}
-                                value={this.state.content}
-                                onChange={this.onChangeContent}
-                            />
-
-                            <FormControl className={classes.formControl}>
-                                <InputLabel id="selected-topics">Выбрать ключевые слова</InputLabel>
-                                <Select
-                                    className={classes.root}
-                                    multiple
-                                    title={"Прикрепить тэги"}
-                                    labelId="selected-topics"
-                                    value={this.state.selectedTopicsValue}
-                                    onChange={this.handleTopics}
-                                    input={<Input id="select-multiple-chip-for-topics"/>}
-                                    renderValue={(selected) => (
-                                        <div className={classes.chips}>
-                                            {selected.map((value) => (
-                                                <Chip key={value} label={value.label} className={classes.chip}/>
-                                            ))}
-                                        </div>
-                                    )}
-                                    MenuProps={MenuProps}
-                                >
-                                    {this.state.availableTopics.map(x => (
-                                        <MenuItem key={x.value} value={x} id={x.value}>
-                                            {x.label}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-
-                            { this.state.uploadMenuState ? (
+                                variant="contained"
+                                color="primary"
+                                className={classes.uploadMenuButton}
+                                title = {"Загрузить файлы"}
+                                onClick={this.onClickUpload}
+                            >
+                                Прикрепить файлы <KeyboardArrowDownIcon />
+                            </Button>
+                        ) : (
+                            <div className={classes.dropZone}>
                                 <Button
                                     fullWidth
                                     variant="contained"
                                     color="primary"
                                     className={classes.uploadMenuButton}
-                                    title = {"Загрузить файлы"}
-                                    onClick={this.onClickUpload}
+                                    title = {"Закрыть меню"}
+                                    onClick={() => this.setState({uploadMenuState: true,})}
                                 >
-                                    Прикрепить файлы <KeyboardArrowDownIcon />
+                                    Закрыть <KeyboardArrowUpIcon />
                                 </Button>
-                            ) : (
-                                <div className={classes.dropZone}>
-                                    <Button
-                                        fullWidth
-                                        variant="contained"
-                                        color="primary"
-                                        className={classes.uploadMenuButton}
-                                        title = {"Закрыть меню"}
-                                        onClick={() => this.setState({uploadMenuState: true,})}
-                                    >
-                                        Закрыть <KeyboardArrowUpIcon />
-                                    </Button>
-                                    
-                                    <Grid container spacing={2} className={classes.uploadGrid}>
-                                        <Grid item xs={6}>
-                                            <Button
-                                                fullWidth
-                                                variant="outlined"
-                                                color="primary"
-                                                onClick={() => this.setState({modalShowUploadDevice: true,})}
-                                            >
-                                                С устройства
-                                            </Button>
-                                            <Modal
-                                                show={this.state.modalShowUploadDevice}
-                                                centered="true"
-                                                aria-labelledby="contained-modal-title-vcenter"
-                                                onHide={this.handleCloseModalDevice}
-                                            >
-                                                <Modal.Header>
-                                                    <Modal.Title id="contained-modal-title-vcenter">
-                                                        Выберите изображения с устройства
-                                                    </Modal.Title>
-                                                </Modal.Header>
-                                                <Modal.Body>
-                                                <Card className={classes.paperGrey}>
-                                                    <div className={classes.dropZone} onDragEnter={this.dragEnterHandler} onDragLeave={this.dragLeaveHandler} onDragOver={this.dragEnterHandler} onDrop={(e) => this.dropHandler(e)}>
-                                                    <Grid className={classes.gridContent}>
-                                                            { !this.state.dragEnter ? (
-                                                                <Grid>
-                                                                    <p><strong>Перетащите сюда</strong> файлы или нажмите на кнопку ниже</p>
-                                                                </Grid>
-                                                            ) : (
-                                                                <Grid>
-                                                                    <p><strong>Отпустите файлы</strong></p>
-                                                                </Grid>
-                                                            )}
-
-                                                            <Grid className={classes.gridInput} as="button" variant="contained" onClick={this.selectFiles}>
-                                                                <AttachFileIcon />
-                                                                <input type="file" style={{ display: "none" }} ref={this.fileInput} multiple onChange={(e) => this.fileHandler(e)}/>
+                                
+                                <Grid container spacing={2} className={classes.uploadGrid}>
+                                    <Grid item xs={6}>
+                                        <Button
+                                            fullWidth
+                                            variant="outlined"
+                                            color="primary"
+                                            onClick={() => this.setState({modalShowUploadDevice: true,})}
+                                        >
+                                            С устройства
+                                        </Button>
+                                        <Modal
+                                            show={this.state.modalShowUploadDevice}
+                                            centered="true"
+                                            aria-labelledby="contained-modal-title-vcenter"
+                                            onHide={this.handleCloseModalDevice}
+                                            className={classes.modalWindow}
+                                        >
+                                            <Modal.Header>
+                                                <Modal.Title id="contained-modal-title-vcenter">
+                                                    Выберите изображения с устройства
+                                                </Modal.Title>
+                                            </Modal.Header>
+                                            <Modal.Body>
+                                            <Card className={classes.paperGrey}>
+                                                <div className={classes.dropZone} onDragEnter={this.dragEnterHandler} onDragLeave={this.dragLeaveHandler} onDragOver={this.dragEnterHandler} onDrop={(e) => this.dropHandler(e)}>
+                                                <Grid className={classes.gridContent}>
+                                                        { !this.state.dragEnter ? (
+                                                            <Grid>
+                                                                <p><strong>Перетащите сюда</strong> файлы или нажмите на кнопку ниже</p>
                                                             </Grid>
-                                                        </Grid>
-                                                    </div>
-                                                </Card>
-                                                </Modal.Body>
-                                                <Modal.Footer>
-                                                    <Button onClick={() => this.setState({modalShowUploadDevice: false,})} >Принять</Button>
-                                                    <Button onClick={() => this.handleCloseModalDevice()}>Отменить</Button>
-                                                </Modal.Footer>
-                                            </Modal>
-                                        </Grid>
-                                        <Grid item xs={6}>
-                                            <Button
-                                                fullWidth
-                                                variant="outlined"
-                                                color="primary"
-                                                onClick={() => this.setState({modalShowUploadProfile: true,})}
-                                            >
-                                                Из профиля
-                                            </Button>
-                                            <Modal
-                                                show={this.state.modalShowUploadProfile}
-                                                centered="true"
-                                                aria-labelledby="contained-modal-title-vcenter"
-                                                onHide={this.handleCloseModalProfile}
-                                            >
-                                                <Modal.Header>
-                                                    <Modal.Title id="contained-modal-title-vcenter">
-                                                        Выберите изображения из профиля
-                                                    </Modal.Title>
-                                                </Modal.Header>
-                                                <Modal.Body>
-                                                <FormControl className={classes.formControl}>
-                                                    <InputLabel id="selected-files">Прикрепить файлы</InputLabel>
-                                                    <Select
-                                                        className={classes.root}
-                                                        multiple
-                                                        labelId="selected-files"
-                                                        value={this.state.selectedFilesValue}
-                                                        title={"Прикрепить файлы"}
-                                                        onChange={this.handleFiles}
-                                                        input={<Input id="select-multiple-chip-for-files"/>}
-                                                        renderValue={(selected) => (
-                                                            <div className={classes.chips}>
-                                                                {selected.map((value) => (
-                                                                    <Chip key={value} label={value.name} className={classes.chip}/>
-                                                                ))}
-                                                            </div>
+                                                        ) : (
+                                                            <Grid>
+                                                                <p><strong>Отпустите файлы</strong></p>
+                                                            </Grid>
                                                         )}
-                                                        MenuProps={MenuProps}
-                                                    >
 
-                                                        {this.state.availableFiles.map(x => (
-                                                            <MenuItem key={x.value} value={x} id={x.value}>
-                                                                {x.name}
-                                                            </MenuItem>
-                                                        ))}
-                                                    </Select>
-                                                </FormControl>
-                                                </Modal.Body>
-                                                <Modal.Footer>
-                                                    <Button onClick={() => this.setState({modalShowUploadProfile: false,})} >Принять</Button>
-                                                    <Button onClick={() => this.handleCloseModalProfile()}>Отменить</Button>
-                                                </Modal.Footer>
-                                            </Modal>
-                                        </Grid>
+                                                        <Grid className={classes.gridInput} as="button" variant="contained" onClick={this.selectFiles}>
+                                                            <AttachFileIcon />
+                                                            <input type="file" style={{ display: "none" }} ref={this.fileInput} multiple onChange={(e) => this.fileHandler(e)}/>
+                                                        </Grid>
+                                                    </Grid>
+                                                </div>
+                                            </Card>
+                                            </Modal.Body>
+                                            <Modal.Footer>
+                                                <Button onClick={() => this.setState({modalShowUploadDevice: false,})} >Принять</Button>
+                                                <Button onClick={() => this.handleCloseModalDevice()}>Отменить</Button>
+                                            </Modal.Footer>
+                                        </Modal>
                                     </Grid>
-                                </div>                  
-                            )}
-                            
-                            <Grid>
-                                {this.state.selectedFilesUpload && [...this.state.selectedFilesUpload].map((file, i) => 
-                                    <div>
-                                        <span>{file.name}  {"\n"}</span>
-                                        <span as="button" key={i} style={{cursor: "pointer", '&:hover': {color: "#fff",},}} onClick={() => this.delFilesDevice(i)}><HighlightOffIcon/></span>
-                                    </div>
-                                )}
+                                    <Grid item xs={6}>
+                                        <Button
+                                            fullWidth
+                                            variant="outlined"
+                                            color="primary"
+                                            onClick={() => this.setState({modalShowUploadProfile: true,})}
+                                        >
+                                            Из профиля
+                                        </Button>
+                                        <Modal
+                                            show={this.state.modalShowUploadProfile}
+                                            centered="true"
+                                            aria-labelledby="contained-modal-title-vcenter"
+                                            onHide={this.handleCloseModalProfile}
+                                            className={classes.modalWindow}
+                                        >
+                                            <Modal.Header>
+                                                <Modal.Title id="contained-modal-title-vcenter">
+                                                    Выберите изображения из профиля
+                                                </Modal.Title>
+                                            </Modal.Header>
+                                            <Modal.Body>
+                                            <FormControl className={classes.formControl}>
+                                                <InputLabel id="selected-files">Прикрепить файлы</InputLabel>
+                                                <Select
+                                                    className={classes.root}
+                                                    multiple
+                                                    labelId="selected-files"
+                                                    value={this.state.selectedFilesValue}
+                                                    title={"Прикрепить файлы"}
+                                                    onChange={this.handleFiles}
+                                                    input={<Input id="select-multiple-chip-for-files"/>}
+                                                    renderValue={(selected) => (
+                                                        <div className={classes.chips}>
+                                                            {selected.map((value) => (
+                                                                <Chip key={value} label={value.name} className={classes.chip}/>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                    MenuProps={MenuProps}
+                                                >
 
-                                {this.state.selectedFilesValue && [...this.state.selectedFilesValue].map((file, i) => 
-                                    <div>
-                                        <span>{file.name}  {"\n"}</span>
-                                        <span as="button" key={i} style={{cursor: "pointer", '&:hover': {color: "#fff",},}} onClick={() => this.delFilesProfile(i)}><HighlightOffIcon/></span>
-                                    </div>
-                                )}
-                            </Grid>
-
-                            <Button
-                                type="submit"
-                                fullWidth
-                                variant="contained"
-                                color="primary"
-                                className={classes.button}
-                                disabled={!this.state.contentPresence}
-                                title = {"Опубликовать"}
-                            >
-                                Опубликовать
-                            </Button>
-                            {this.state.message && (
-                                <div className="form-group">
-                                    <div
-                                        className={
-                                            this.state.submittedSuccessfully
-                                                ? "alert alert-success"
-                                                : "alert alert-danger"
-                                        }
-                                        role="alert"
-                                    >
-                                        {this.state.message}
-                                    </div>
+                                                    {this.state.availableFiles.map(x => (
+                                                        <MenuItem key={x.value} value={x} id={x.value}>
+                                                            {x.name}
+                                                        </MenuItem>
+                                                    ))}
+                                                </Select>
+                                            </FormControl>
+                                            </Modal.Body>
+                                            <Modal.Footer>
+                                                <Button onClick={() => this.setState({modalShowUploadProfile: false,})} >Принять</Button>
+                                                <Button onClick={() => this.handleCloseModalProfile()}>Отменить</Button>
+                                            </Modal.Footer>
+                                        </Modal>
+                                    </Grid>
+                                </Grid>
+                            </div>                  
+                        )}
+                        
+                        <Grid>
+                            {this.state.selectedFilesUpload && [...this.state.selectedFilesUpload].map((file, i) => 
+                                <div>
+                                    <span>{file.name}  {"\n"}</span>
+                                    <span as="button" key={i} style={{cursor: "pointer", '&:hover': {color: "#fff",},}} onClick={() => this.delFilesDevice(i)}><HighlightOffIcon/></span>
                                 </div>
                             )}
-                        </form>
-                    </Paper>
-                </Grid>
+
+                            {this.state.selectedFilesValue && [...this.state.selectedFilesValue].map((file, i) => 
+                                <div>
+                                    <span>{file.name}  {"\n"}</span>
+                                    <span as="button" key={i} style={{cursor: "pointer", '&:hover': {color: "#fff",},}} onClick={() => this.delFilesProfile(i)}><HighlightOffIcon/></span>
+                                </div>
+                            )}
+                        </Grid>
+
+                        <Button
+                            type="submit"
+                            fullWidth
+                            variant="contained"
+                            color="primary"
+                            className={classes.button}
+                            disabled={!this.state.contentPresence}
+                            title = {"Опубликовать"}
+                        >
+                            Опубликовать
+                        </Button>
+                        {this.state.message && (
+                            <div className="form-group">
+                                <div
+                                    className={
+                                        this.state.submittedSuccessfully
+                                            ? "alert alert-success"
+                                            : "alert alert-danger"
+                                    }
+                                    role="alert"
+                                >
+                                    {this.state.message}
+                                </div>
+                            </div>
+                        )}
+                    </form>
+                </Paper>
                 
             </Grid>
         )

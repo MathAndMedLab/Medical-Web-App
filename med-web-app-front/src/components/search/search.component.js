@@ -27,53 +27,98 @@ const StyledTableRow = withStyles((theme) => ({
         '&:nth-of-type(odd)': {
             backgroundColor: "#e0e0e0",
 
-        }, height: 190
+        },
+
+        height: 190
     },
 }))(TableRow);
 
 const useStyles = theme => ({
     root: {
         "& .MuiPaper-root": {
-            width: 800, backgroundColor: '#ffffff'
+            width: 800, 
+            backgroundColor: '#ffffff'
 
-        }, "& .MuiTableRow-root": {
+        }, 
+        
+        "& .MuiTableRow-root": {
             color: "black",
         }
-    }, input: {
+    },
+
+    input: {
         [theme.breakpoints.down("xs")]: {
             width: 285,
-        }, [theme.breakpoints.between("sm", "md")]: {
+        },
+
+         [theme.breakpoints.between("sm", "md")]: {
             width: 650
-        }, "@media (min-width : 1280px)": {
+        }, 
+        
+        "@media (min-width : 1280px)": {
             width: 800,
-        }, marginBottom: theme.spacing(1.5), "& .MuiFormLabel-root": {
-            margin: 0, color: "black"
+        },
+
+        marginBottom: theme.spacing(1.5),
+        
+        "& .MuiFormLabel-root": {
+            margin: 0,
+            color: "black"
         }
-    }, header: {
-        backgroundColor: '#3f51b5', color: 'white', [theme.breakpoints.down("xs")]: {
+    },
+
+    header: {
+        backgroundColor: '#3f51b5', 
+        color: 'white',
+        [theme.breakpoints.down("xs")]: {
             fontSize: 13,
-        }, [theme.breakpoints.between("sm", "md")]: {
-            fontSize: 17,
-        }, "@media (min-width : 1280px)": {
+        }, 
+
+        [theme.breakpoints.between("sm", "md")]: {
             fontSize: 17,
         },
-    }, table: {
+
+        "@media (min-width : 1280px)": {
+            fontSize: 17,
+        },
+    },
+
+    table: {
         width: 800,
-    }, formControlLab: {
-        marginBottom: theme.spacing(0), marginTop: theme.spacing(0)
-    }, label: {
-        margin: theme.spacing(2, 0, 1), color: "black"
-    }, button: {
+    },
+
+    formControlLab: {
+        marginBottom: theme.spacing(0), 
+        marginTop: theme.spacing(0)
+    },
+
+    label: {
+        margin: theme.spacing(2, 0, 1), 
+        color: "black"
+    },
+    
+    button: {
         height: 55
-    }, inputAdornment: {
+    },
+
+    inputAdornment: {
         marginRight: theme.spacing(-1.8),
-    }, mainGrid: {
+    },
+
+    mainGrid: {
         display: 'flex',
-    }, paper: {
-        marginLeft: 50, paddingLeft: 10, paddingTop: 3, paddingRight: 25, marginTop: 0,
-    }, nextPaper: {
-        marginLeft: 50, paddingLeft: 10, paddingTop: 3, paddingRight: 25, marginTop: 15, paddingBottom: 3
-    }
+    },
+
+    paper: {
+        marginLeft: 50, 
+        paddingLeft: 10, 
+        paddingTop: 10, 
+        paddingRight: 10, 
+        paddingBottom: 10,
+        width: "275px"
+    },
+
+    
 });
 
 
@@ -388,70 +433,78 @@ class Search extends Component {
         this.getUsers();
     }
 
-    printSearchParamsAboutDoctors(nextPaperClass, labelClass) {
+    printSearchParamsAboutDoctors(classes) {
         if (this.state.searchParamsRole === "Врач") {
-            return (<span>
-                    <Paper className={nextPaperClass}>
-                        <FormLabel className={labelClass}>
-                        Специальность:
-                        </FormLabel>
-                            {CreatableSelectSpecialties(this.state.selectedSpecialties, this.onChangeSelectedSpecialties)}
-                        <FormLabel className={labelClass}>
-                        Ваш диагноз:
-                        </FormLabel>
-                            {CreatableSelectDiagnoses(this.state.specializedDiagnoses, this.onChangeSpecializedDiagnoses)}
-                        <br/>
-                    </Paper>
-                    <Paper className={nextPaperClass}>
-                    <Grid>
-                        <FormLabel className={labelClass}>
-                        Стаж: от <input required minLength="3" maxLength="8" size="8" value={this.state.minExperience}
-                                        onChange={this.onChangeMinExperience}/> лет
+            return (<Grid container item style={{ gap: 40 }}>
+                        <Paper className={classes.paper}>
+                            <FormLabel className={classes.label} style={{textAlign: "center"}}>
+                            Специальность:
                             </FormLabel>
-                        <input id="price_slider" style={{
-                            background: `linear-gradient(to right, #f50057 0% ${this.state.minExperience * 100 / 30}%, #ffffff ${this.state.minExperience * 100 / 30}%)`,
-                            border: 'solid 1px #82CFD0',
-                            borderRadius: '8px',
-                            height: '7px',
-                            width: '285px',
-                            WebkitAppearance: 'none'
-                        }} min="0" max="30" step="1" type="range" value={this.state.minExperience}
-                               onChange={this.onChangeMinExperience}/>
+                                {CreatableSelectSpecialties(this.state.selectedSpecialties, this.onChangeSelectedSpecialties)}
+                            <FormLabel className={classes.label} style={{textAlign: "center"}}>
+                            Ваш диагноз:
+                            </FormLabel>
+                                {CreatableSelectDiagnoses(this.state.specializedDiagnoses, this.onChangeSpecializedDiagnoses)}
+                            <br/>
+                        </Paper>
+                        <Paper className={classes.paper}>
+                            <Grid className={classes.mainGrid} container direction="column" justifyContent="center" alignItems="center">
+                                <FormLabel className={classes.label}>
+                                Стаж: от <input required minLength="3" maxLength="8" size="8" value={this.state.minExperience}
+                                                onChange={this.onChangeMinExperience}/> лет
+                                    </FormLabel>
+                                    <Grid style={{ display: "flex", justifyContent: "center", alignItems: "center", height: 50}}>
+                                        <input id="price_slider" style={{
+                                                background: `linear-gradient(to right, #f50057 0% ${this.state.minExperience * 100 / 30}%, #ffffff ${this.state.minExperience * 100 / 30}%)`,
+                                                border: 'solid 1px #82CFD0',
+                                                borderRadius: '8px',
+                                                height: '7px',
+                                                width: '225px',
+                                                WebkitAppearance: 'none',
+                                                margin: "0 auto",
+                                            }} min="0" max="30" step="1" type="range" value={this.state.minExperience}
+                                                onChange={this.onChangeMinExperience}/> 
+                                    </Grid>
+                                
+                            </Grid>
+                        </Paper>
+                        <Paper className={classes.paper}>
+                            <Grid className={classes.mainGrid} container direction="column" justifyContent="center" alignItems="center">
+                                <FormLabel className={classes.label}>
+                                    Цена: от <input required minLength="3" maxLength="8" size="8" value={this.state.minPrice}
+                                                onChange={this.onChangeMinPrice}/> ₽
+                                </FormLabel>
+                                <Grid style={{ display: "flex", justifyContent: "center", alignItems: "center", height: 50}}>
+                                    <input id="price_slider" style={{
+                                        background: `linear-gradient(to right, #f50057 0% ${this.state.minPrice * 100 / 100000}%, #ffffff ${this.state.minPrice * 100 / 100000}%)`,
+                                        border: 'solid 1px #82CFD0',
+                                        borderRadius: '8px',
+                                        height: '7px',
+                                        width: '225px',
+                                        WebkitAppearance: 'none',
+                                        margin: "0 auto",
+                                    }} min="0" max="100000" step="100" type="range" value={this.state.minPrice}
+                                        onChange={this.onChangeMinPrice}/>
+                                </Grid>
+                                <FormLabel className={classes.label}>
+                                    Цена: до <input required minLength="3" maxLength="8" size="8" value={this.state.maxPrice}
+                                                onChange={this.onChangeMaxPrice}/> ₽
+                                </FormLabel>
+                                <Grid style={{ display: "flex", justifyContent: "center", alignItems: "center", height: 50}}>
+                                    <input id="price_slider" style={{
+                                        background: `linear-gradient(to right, #f50057 0% ${this.state.maxPrice * 100 / 100000}%, #ffffff ${this.state.maxPrice * 100 / 100000}%)`,
+                                        border: 'solid 1px #82CFD0',
+                                        borderRadius: '8px',
+                                        height: '7px',
+                                        width: '225px',
+                                        WebkitAppearance: 'none',
+                                        margin: "0 auto",
+                                    }} min="0" max="100000" step="100" type="range" value={this.state.maxPrice}
+                                        onChange={this.onChangeMaxPrice}/>
+                                </Grid>
+                            </Grid>
+                        </Paper>
                     </Grid>
-                    </Paper>
-                    <Paper className={nextPaperClass}>
-                        <Grid>
-                        <FormLabel className={labelClass}>
-                        Цена: от <input required minLength="3" maxLength="8" size="8" value={this.state.minPrice}
-                                        onChange={this.onChangeMinPrice}/> ₽
-                            </FormLabel>
-                        <input id="price_slider" style={{
-                            background: `linear-gradient(to right, #f50057 0% ${this.state.minPrice * 100 / 100000}%, #ffffff ${this.state.minPrice * 100 / 100000}%)`,
-                            border: 'solid 1px #82CFD0',
-                            borderRadius: '8px',
-                            height: '7px',
-                            width: '285px',
-                            WebkitAppearance: 'none'
-                        }} min="0" max="100000" step="100" type="range" value={this.state.minPrice}
-                               onChange={this.onChangeMinPrice}/>
-                        </Grid>
-                        <Grid>
-                        <FormLabel className={labelClass}>
-                        Цена: до <input required minLength="3" maxLength="8" size="8" value={this.state.maxPrice}
-                                        onChange={this.onChangeMaxPrice}/> ₽
-                            </FormLabel>
-                        <input id="price_slider" style={{
-                            background: `linear-gradient(to right, #f50057 0% ${this.state.maxPrice * 100 / 100000}%, #ffffff ${this.state.maxPrice * 100 / 100000}%)`,
-                            border: 'solid 1px #82CFD0',
-                            borderRadius: '8px',
-                            height: '7px',
-                            width: '285px',
-                            WebkitAppearance: 'none'
-                        }} min="0" max="100000" step="100" type="range" value={this.state.maxPrice}
-                               onChange={this.onChangeMaxPrice}/>
-                        </Grid>
-                    </Paper>
-                </span>
 
             )
         }
@@ -547,86 +600,89 @@ class Search extends Component {
                     </Grid>
                 </Grid>
             </Grid>
-            <Grid>
-                <Paper className={classes.paper}>
-                    <FormLabel className={classes.label}>Параметры поиска:</FormLabel>
-                    <Grid className={classes.mainGrid}>
-                        <FormControl>
-                            <RadioGroup value={this.state.searchParamsRole}
-                                        onChange={this.onChangeParamsRoleSearch}>
-                                <FormControlLabel className={classes.formControlLab}
-                                                  control={<Radio/>}
-                                                  value="Все"
-                                                  label="по всем"
-                                />
-                                {/*<FormControlLabel className={classes.formControlLab}*/}
-                                {/*                  control={<Radio/>}*/}
-                                {/*                  value="Пользователь"*/}
-                                {/*                  label="по пользователям"*/}
-                                {/*                  labelPlacement='end'*/}
-                                {/*/>*/}
-                                <FormControlLabel className={classes.formControlLab}
-                                                  control={<Radio/>}
-                                                  value="Врач"
-                                                  label="по врачам"
-                                                  labelPlacement='end'
-                                />
-                            </RadioGroup>
-                        </FormControl>
-                    </Grid>
-                </Paper>
-                <Paper className={classes.nextPaper}>
-                    <FormLabel className={classes.label}>
-                        Сортировать по:
-                    </FormLabel>
-                    <Grid>
-                        <FormControl>
-                            <RadioGroup value={this.state.usersSortType}
-                                        onChange={this.onChangeUsersSortType}>
-                                <FormControlLabel className={classes.formControlLab}
-                                                  control={<Radio/>}
-                                                  value="alphabet"
-                                                  label="по алфавиту"
-                                />
-                                <FormControlLabel className={classes.formControlLab}
-                                                  control={<Radio/>}
-                                                  value="rating"
-                                                  label="по рейтингу"
-                                />
-                                <FormControlLabel className={classes.formControlLab}
-                                                  control={<Radio/>}
-                                                  value="reviewsCounter"
-                                                  label="по количеству отзывов"
-                                                  labelPlacement='end'
-                                />
-                            </RadioGroup>
-                        </FormControl>
-                    </Grid>
-                </Paper>
-                <Paper className={classes.nextPaper}>
-                    <FormLabel className={classes.label}>
-                        Искать по:
-                    </FormLabel>
-                    <Grid>
-                        <FormControl>
-                            <RadioGroup value={this.state.searchParamsType}
-                                        onChange={this.onChangeParamsTypeSearch}>
-                                <FormControlLabel className={classes.formControlLab}
-                                                  control={<Radio/>}
-                                                  value="login"
-                                                  label="по логину"
-                                />
-                                <FormControlLabel className={classes.formControlLab}
-                                                  control={<Radio/>}
-                                                  value="initials"
-                                                  label="по фамилии и имени"
-                                                  labelPlacement='end'
-                                />
-                            </RadioGroup>
-                        </FormControl>
-                    </Grid>
-                </Paper>
-                {this.printSearchParamsAboutDoctors(classes.nextPaper, classes.label)}
+            <Grid container direction="column" style={{ gap: 40 }}>
+                <Grid container item style={{ gap: 40 }}>
+                    <Paper className={classes.paper}>
+                        <FormLabel className={classes.label} style={{textAlign: "center"}}>Параметры поиска:</FormLabel>
+                        <Grid className={classes.mainGrid}>
+                            <FormControl>
+                                <RadioGroup value={this.state.searchParamsRole}
+                                            onChange={this.onChangeParamsRoleSearch}>
+                                    <FormControlLabel className={classes.formControlLab}
+                                                    control={<Radio/>}
+                                                    value="Все"
+                                                    label="по всем"
+                                    />
+                                    {/*<FormControlLabel className={classes.formControlLab}*/}
+                                    {/*                  control={<Radio/>}*/}
+                                    {/*                  value="Пользователь"*/}
+                                    {/*                  label="по пользователям"*/}
+                                    {/*                  labelPlacement='end'*/}
+                                    {/*/>*/}
+                                    <FormControlLabel className={classes.formControlLab}
+                                                    control={<Radio/>}
+                                                    value="Врач"
+                                                    label="по врачам"
+                                                    labelPlacement='end'
+                                    />
+                                </RadioGroup>
+                            </FormControl>
+                        </Grid>
+                    </Paper>
+                    <Paper className={classes.paper}>
+                        <FormLabel className={classes.label} style={{textAlign: "center"}}>
+                            Сортировать по:
+                        </FormLabel>
+                        <Grid className={classes.mainGrid}>
+                            <FormControl>
+                                <RadioGroup value={this.state.usersSortType}
+                                            onChange={this.onChangeUsersSortType}>
+                                    <FormControlLabel className={classes.formControlLab}
+                                                    control={<Radio/>}
+                                                    value="alphabet"
+                                                    label="по алфавиту"
+                                    />
+                                    <FormControlLabel className={classes.formControlLab}
+                                                    control={<Radio/>}
+                                                    value="rating"
+                                                    label="по рейтингу"
+                                    />
+                                    <FormControlLabel className={classes.formControlLab}
+                                                    control={<Radio/>}
+                                                    value="reviewsCounter"
+                                                    label="по количеству отзывов"
+                                                    labelPlacement='end'
+                                    />
+                                </RadioGroup>
+                            </FormControl>
+                        </Grid>
+                    </Paper>
+                    <Paper className={classes.paper}>
+                        <FormLabel className={classes.label} style={{textAlign: "center"}}>
+                            Искать по:
+                        </FormLabel>
+                        <Grid className={classes.mainGrid}>
+                            <FormControl>
+                                <RadioGroup value={this.state.searchParamsType}
+                                            onChange={this.onChangeParamsTypeSearch}>
+                                    <FormControlLabel className={classes.formControlLab}
+                                                    control={<Radio/>}
+                                                    value="login"
+                                                    label="по логину"
+                                    />
+                                    <FormControlLabel className={classes.formControlLab}
+                                                    control={<Radio/>}
+                                                    value="initials"
+                                                    label="по фамилии и имени"
+                                                    labelPlacement='end'
+                                    />
+                                </RadioGroup>
+                            </FormControl>
+                        </Grid>
+                    </Paper>
+                </Grid>
+                
+                {this.printSearchParamsAboutDoctors(classes)}
             </Grid>
         </Grid>);
     }

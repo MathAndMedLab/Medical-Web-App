@@ -9,21 +9,51 @@ import Button from "@material-ui/core/Button";
 import DropUpOnRecordThread from "./DropUpOnRecordThread";
 import {ListItemButton} from "@mui/material";
 import {ArrowBack} from "@material-ui/icons";
+import {IconButton} from "@material-ui/core"
 
 const useStyles = theme => ({
     mainGrid: {
-        marginTop: theme.spacing(3),
         [theme.breakpoints.down("xs")]: {
-            width: 280,
+            width: 270,
         },
-        [theme.breakpoints.between("sm", "md")]: {
-            width: 650
+        "@media (min-width : 414px)": {
+            marginLeft: theme.spacing(0),
+        },
+        "@media (min-width : 451px)": {
+            width: 325,
+        },
+        "@media (min-width : 600px)": {
+            marginLeft: theme.spacing(7),
+            width: 375,
+        },
+        "@media (min-width : 768px)": {
+           marginLeft: theme.spacing(18),
+        },
+        "@media (min-width : 960px)": {
+            marginLeft: theme.spacing(3),
+            width: 550
+        },
+        "@media (min-width : 992px)": {
+            marginLeft: theme.spacing(15),
+        },
+        "@media (min-width : 1000px)": {
+            marginLeft: theme.spacing(-10),
+        },
+        "@media (min-width : 1025px)": {
+            marginLeft: theme.spacing(-5),
+        },
+        "@media (min-width : 1110px)": {
+            width: 650,
+            marginLeft: theme.spacing(5),
+        },
+        "@media (min-width : 1200px)": {
+            marginLeft: theme.spacing(0),
         },
         "@media (min-width : 1280px)": {
             width: 800,
         },
         display: "center",
-        justifyContent: "flex-start",
+        justifyContent: "center",
         alignSelf: "center"
     },
     paper2: {
@@ -38,16 +68,21 @@ const useStyles = theme => ({
         display: 'flex',
     },
     paper: {
-        marginTop: theme.spacing(3),
         marginLeft: theme.spacing(0),
         marginRight: "auto",
         padding: theme.spacing(1),
         color: "black",
         [theme.breakpoints.down("xs")]: {
-            width: 268,
+            width: 270,
         },
-        [theme.breakpoints.between("sm", "md")]: {
-            width: 650
+        "@media (min-width : 451px)": {
+            width: 325,
+        },
+        "@media (min-width : 600px)": {
+            width: 375,
+        },
+        "@media (min-width : 960px)": {
+            width: 650,
         },
         "@media (min-width : 1280px)": {
             width: 800,
@@ -56,6 +91,7 @@ const useStyles = theme => ({
         justifyContent: 'center'
     },
     Grid: {
+        marginTop: theme.spacing(5),
         [theme.breakpoints.down("xs")]: {
             width: 268,
             justifyContent: "flex-start",
@@ -69,8 +105,7 @@ const useStyles = theme => ({
         },
         "@media (min-width : 1000px)": {
             width: 1100,
-            justifyContent: "center",
-            marginLeft: theme.spacing(-5)
+            justifyContent: "center"
 
         },
         display: "flex",
@@ -101,21 +136,20 @@ const useStyles = theme => ({
             top: "90%"
         },
     },
-    divBackButtonStyle: {
+    backButtonStyle: {
         position: "fixed",
-        padding: "auto",
-        top: "12%",
-        "@media (max-width: 320px)": {
-            left: "3%"
+        zIndex: 2500,
+        [theme.breakpoints.down("xs")]: {
+            left: "0%",
         },
-        "@media (min-width : 321 px, max-width: 426px)": {
-            left: "15%",
+        "@media (min-width : 600px)": {
+            left: "14%",
         },
-        [theme.breakpoints.between("sm", "md")]: {
-            left: "8%",
+        "@media (min-width : 960px)": {
+            left: "13%",
         },
-        "@media (min-width : 1000px)": {
-            left: "5%"
+        "@media (min-width : 1280px)": {
+            left: "12%",
         },
     },
 
@@ -129,8 +163,8 @@ class RecordThreadComponent extends Component {
         this.refreshAnswers = this.refreshAnswers.bind(this);
 
         this.state = {
-            //recordId: null,
-            recordId: this.props.match.params.recordId,
+            recordId: props.recordId,
+            //recordId: this.props.match.params.recordId,
             record: null,
             answers: [],
         };
@@ -162,46 +196,46 @@ class RecordThreadComponent extends Component {
 
     render() {
         const {classes} = this.props;
+        const {open} = this.props;
         const {answers} = this.state;
         return (
-            <Grid item xs={12} className={classes.Grid}>
-                <Grid item>
-                    <ListItemButton component={Link} to={"/records/view"} title={"Назад к постам"}>
-                        <ArrowBack color={"secondary"} fontSize={"large"}/>
-                    </ListItemButton>
+            <Grid container xs={12} alignItems="flex-start" justifyContent="center" className={classes.Grid}>
+                <IconButton title={"Назад к постам"} component={Link} to={"/records/view"} disabled={open } className={classes.backButtonStyle}>
+                    { !open  && (<ArrowBack color={"secondary"} fontSize={"large"}/>)}
+                </IconButton>
+                
+                <Grid container item direction="column" className={classes.mainGrid}>
+
+                    {this.state.record &&
+                    (<RecordCard record={this.state.record} isPreview={false} isReply={false}/>)
+                    }
+                    <Card className={classes.paper}>
+
+                        <ReplyRecordForm
+                            refreshRecords={this.refreshAnswers}
+                            parentId={this.state.recordId}/>
+
+                        <ul className="list-group">
+                            {answers !== undefined && this.state.answers !== null &&
+                            this.state.answers.map((record, index) => (
+                                <li
+                                    style={{
+                                        listStyleType: "none",
+                                        width: "100%",
+                                        marginLeft: "auto",
+                                        marginRight: "auto",
+                                        marginTop: "1"
+                                    }}
+                                    key={index}
+                                >
+                                    <ReviewCard review={record} isPreview={false} isReply={true}/>
+                                </li>
+
+                            ))}
+                        </ul>
+                    </Card>
                 </Grid>
-                <Grid item xs={8} style={{justifyContent: "center", alignItems: "center"}}>
-                    <Grid className={classes.mainGrid}>
-
-                        {this.state.record &&
-                        (<RecordCard record={this.state.record} isPreview={false} isReply={false}/>)
-                        }
-                        <Card className={classes.paper}>
-
-                            <ReplyRecordForm
-                                refreshRecords={this.refreshAnswers}
-                                parentId={this.state.recordId}/>
-
-                            <ul className="list-group">
-                                {answers !== undefined && this.state.answers !== null &&
-                                this.state.answers.map((record, index) => (
-                                    <li
-                                        style={{
-                                            listStyleType: "none",
-                                            width: "100%",
-                                            marginLeft: "auto",
-                                            marginTop: "1"
-                                        }}
-                                        key={index}
-                                    >
-                                        <ReviewCard review={record} isPreview={false} isReply={true}/>
-                                    </li>
-
-                                ))}
-                            </ul>
-                        </Card>
-                    </Grid>
-                </Grid>
+               
                 {/*<Grid xs={4} item>
                     <Card className={classes.paper2}>
                         <Grid className={classes.grid}>

@@ -1,10 +1,14 @@
 import React, {Component} from "react";
 import TopicService from "../../services/topic.service";
 import TopicCard from "./topic-card.component";
-import {Card, Grid, withStyles} from "@material-ui/core";
+import {Card, Grid, Hidden, withStyles} from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
 import DoneOutlineIcon from "@material-ui/icons/DoneOutline";
 import Button from "@material-ui/core/Button";
+import {Link} from "react-router-dom";
+import {ArrowBack} from "@material-ui/icons";
+import {IconButton} from "@material-ui/core"
+
 
 const useStyles = theme => ({
     root: {
@@ -36,41 +40,63 @@ const useStyles = theme => ({
         padding: theme.spacing(1),
         color: "black",
         minWidth: 280,
+        
 
-        "@media (min-width : 451px)":{
-            marginLeft: theme.spacing(5)
+        "@media (min-width : 0px)":{
+            marginLeft: theme.spacing(4)
         },
-        "@media (min-width : 600px)":{
-            marginLeft: theme.spacing(12)
-        },
-        "@media (min-width : 690px)":{
+        "@media (min-width : 576px)":{
             marginLeft: theme.spacing(2)
         },
-        "@media (min-width : 768px)":{
-            marginLeft: theme.spacing(20)
+        "@media (min-width : 600px)":{
+            marginLeft: theme.spacing(8)
         },
-        "@media (min-width : 769px)":{
-            marginLeft: theme.spacing(30)
+        "@media (min-width : 690px)":{
+            marginLeft: theme.spacing(4)
+        },
+        "@media (min-width : 768px)":{
+            marginLeft: theme.spacing(2),
+            maxWidth: 450,
         },
         "@media (min-width : 874px)":{
-            marginLeft: theme.spacing(10)
-        },
-        "@media (min-width : 960px)":{
-            marginLeft: theme.spacing(25)
-        },
-        "@media (min-width : 992px)":{
-            marginLeft: theme.spacing(35)
+            maxWidth: 600,
+            marginLeft: theme.spacing(9)
         },
         "@media (min-width : 1025px)":{
-            marginLeft: theme.spacing(25)
+            marginLeft: theme.spacing(8)
         },
-        "@media (min-width : 1039px)":{
-            marginLeft: theme.spacing(15)
-        },
-        "@media (min-width : 1280px)":{
-            marginLeft: theme.spacing(20)
+       
+        "@media (min-width : 1100px)":{
+            marginLeft: theme.spacing(0),
         },
     },
+
+  
+    backButtonStyle: {
+        position: "fixed",
+        zIndex: 2500,
+        top: theme.spacing(13),
+        [theme.breakpoints.down("xs")]: {
+            left: "0%",
+        },
+        "@media (min-width : 600px)": {
+            left: "12%",
+        },
+        "@media (min-width : 960px)": {
+            left: "13%",
+        },
+        "@media (min-width : 1280px)": {
+            left: "12%",
+        },
+    },
+    backButtonIcon: {
+        [theme.breakpoints.down("xs")]: {
+            fontSize: "24px"
+        },
+        "@media (min-width : 600px)": {
+            fontSize: "35px"
+        },
+    }
 })
 
 class TopicComponent extends Component {
@@ -90,6 +116,7 @@ class TopicComponent extends Component {
             message: null,
         };
     }
+
 
     handleSubmitTopic(e) {
         e.preventDefault();
@@ -144,9 +171,12 @@ class TopicComponent extends Component {
 
     render() {
         const {classes} = this.props;
+        const {open} = this.props;
         return (
-            <Grid item xs={11} sm={10} md={9} lg={8}>
-                <Grid classes={classes.mainGrid}>
+                <Grid container xs={12} classes={classes.mainGrid} alignItems="flex-start" justifyContent="center">
+                    <IconButton title={"Назад к постам"} component={Link} to={"/records/view"} disabled={open} className={classes.backButtonStyle}>
+                        { !open && (<ArrowBack color={"secondary"} className={classes.backButtonIcon}/>)}
+                    </IconButton>
                     <Card className={classes.paper}>
                         <div>
                             <form className={classes.form}
@@ -209,7 +239,6 @@ class TopicComponent extends Component {
                         </Grid>
                     </Card>
                 </Grid>
-            </Grid>
         )
     }
 }

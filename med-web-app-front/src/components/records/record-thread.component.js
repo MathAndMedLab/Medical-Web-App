@@ -9,6 +9,7 @@ import Button from "@material-ui/core/Button";
 import DropUpOnRecordThread from "./DropUpOnRecordThread";
 import {IconButton, ListItemButton} from "@mui/material";
 import {ArrowBack} from "@material-ui/icons";
+import {useLocation} from "react-router-dom/cjs/react-router-dom";
 
 const useStyles = theme => ({
     mainGrid: {
@@ -128,7 +129,7 @@ class RecordThreadComponent extends Component {
         this.refreshAnswers = this.refreshAnswers.bind(this);
 
         this.state = {
-            //recordId: null,
+            // recordId: null,
             recordId: this.props.match.params.recordId,
             record: null,
             answers: [],

@@ -36,7 +36,7 @@ export default function TemporaryDrawer(){
 
     const list = (anchor: Anchor) => (
         <Box
-            sx={{ width: 250 }}
+            sx={{ width: "100%" }}
             onClick={toggleDrawer(anchor, false)}
             onKeyDown={toggleDrawer(anchor, false)}
         >

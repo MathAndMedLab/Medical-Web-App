@@ -56,14 +56,17 @@ public class ChatMessageService {
                 }
             }
         }
+
         String chatId;
-        if (msg.getSenderName().compareTo(msg.getRecipientName()) < 0) {
-            chatId = (msg.getSenderName() + msg.getRecipientName());
+        if (msg.getChatId() == null) {
+            chatId = chatIdGenerateByTwoUser(msg.getSenderName(), msg.getRecipientName());
         } else {
-            chatId = (msg.getRecipientName() + msg.getSenderName());
+            chatId = msg.getChatId();
         }
+
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setChatId(chatId);
+        chatMessage.setType(msg.getType());
         chatMessage.setRecipientId(msg.getRecipientId());
         chatMessage.setSenderId(msg.getSenderId());
         chatMessage.setRecipientName(msg.getRecipientName());
@@ -87,13 +90,7 @@ public class ChatMessageService {
     /**
      * Поиск всех сообщений между двумя пользователями.
      */
-    public List<ChatMessage> findMessages(String senderUsername, String recipientUsername) throws Exception {
-        String chatId;
-        if (senderUsername.compareTo(recipientUsername) < 0) {
-            chatId = (senderUsername + recipientUsername);
-        } else {
-            chatId = (recipientUsername + senderUsername);
-        }
+    public List<ChatMessage> findMessages(String chatId) throws Exception {
         List<ChatMessage> messages;
         Optional<List<ChatMessage>> messagesOptional = chatMessageRepository.findByChatIdAndDeleted(chatId, false);
         messages = messagesOptional.orElseGet(ArrayList::new);
@@ -105,6 +102,8 @@ public class ChatMessageService {
 
         return messages;
     }
+
+
 
     /**
      * Функция устанавливает в объекты сообщений данные о UID и byte[]
@@ -177,12 +176,8 @@ public class ChatMessageService {
      * Удаление сообщения с предварительным поиском нужного сообщения по времени отправления и chatId.
      */
     public void deleteMsgByTimeAndChatId(LocalDateTime time, String senderUsername, String recipientUsername) {
-        String chatId;
-        if (senderUsername.compareTo(recipientUsername) < 0) {
-            chatId = (senderUsername + recipientUsername);
-        } else {
-            chatId = (recipientUsername + senderUsername);
-        }
+        String chatId = chatIdGenerateByTwoUser(senderUsername, recipientUsername);
+
         ChatMessage messageToDelete = chatMessageRepository.findBySendDateAndChatId(time, chatId);
         this.delete(messageToDelete);
     }
@@ -193,7 +188,8 @@ public class ChatMessageService {
 
     public List<ChatMessage> findMessagesByKeywords(String senderUsername, String recipientUsername, String keywordsString) throws Exception {
         String[] keywords = keywordsString.split(" ");
-        var allMessages = this.findMessages(senderUsername, recipientUsername);
+        String chatId = chatIdGenerateByTwoUser(senderUsername, recipientUsername);
+        var allMessages = this.findMessages(chatId);
         var foundMessages = new ArrayList<ChatMessage>();
         for (String keyword : keywords) {
             foundMessages.addAll(allMessages
@@ -209,12 +205,8 @@ public class ChatMessageService {
      * Поиск сообщения по времени отправления и chatId.
      */
     public ChatMessage getMsgByTimeAndChatId(LocalDateTime time, String senderName, String recipientName) {
-        String chatId;
-        if (senderName.compareTo(recipientName) < 0) {
-            chatId = (senderName + recipientName);
-        } else {
-            chatId = (recipientName + senderName);
-        }
+        String chatId = chatIdGenerateByTwoUser(senderName, recipientName);
+
         var count = 0;
         ChatMessage message = chatMessageRepository.findBySendDateAndChatId(time, chatId);
         while (message == null && count <= 1000) {
@@ -222,6 +214,16 @@ public class ChatMessageService {
             count++;
         }
         return message;
+    }
+
+    public String chatIdGenerateByTwoUser(String senderName, String recipientName) {
+        String chatId;
+        if (senderName.compareTo(recipientName) < 0) {
+            chatId = (senderName + recipientName);
+        } else {
+            chatId = (recipientName + senderName);
+        }
+        return chatId;
     }
 }
 

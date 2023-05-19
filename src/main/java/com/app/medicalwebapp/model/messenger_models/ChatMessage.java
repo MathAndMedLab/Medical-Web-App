@@ -27,6 +27,9 @@ public class ChatMessage {
     @Column(name = "chatId")
     private String chatId;
 
+    @Column(name = "type")
+    private MessageType type;
+
     @Column(name = "senderId")
     private Long senderId;
 
@@ -67,4 +70,12 @@ public class ChatMessage {
 
     @ElementCollection
     private List<String> uidFilesDicom;
+
+    public enum MessageType {
+        CHAT,
+        CREATE,
+        JOIN,
+        LEAVE
+    }
+
 }

@@ -1,9 +1,13 @@
 package com.app.medicalwebapp.controllers.messenger_controllers;
 
 import com.app.medicalwebapp.controllers.requestbody.MessageResponse;
-import com.app.medicalwebapp.controllers.requestbody.messenger.ChatMessageDeletionRequest;
-import com.app.medicalwebapp.controllers.requestbody.messenger.EntityByTimeChatIdRequest;
-import com.app.medicalwebapp.controllers.requestbody.messenger.MessagesRequest;
+import com.app.medicalwebapp.controllers.requestbody.messenger.*;
+import com.app.medicalwebapp.model.messenger_models.ChatMessage;
+import com.app.medicalwebapp.model.messenger_models.ChatRoom;
+import com.app.medicalwebapp.repositories.UserRepository;
+import com.app.medicalwebapp.repositories.messenger_repositories.ChatMessageRepository;
+import com.app.medicalwebapp.repositories.messenger_repositories.ChatRoomRepository;
+import com.app.medicalwebapp.repositories.messenger_repositories.ContactsRepository;
 import com.app.medicalwebapp.services.FileService;
 import com.app.medicalwebapp.services.messenger_services.ChatMessageService;
 import com.app.medicalwebapp.services.messenger_services.ContactsService;
@@ -16,6 +20,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
 import java.util.Objects;
 
 @CrossOrigin(origins = "*", maxAge = 604800)
@@ -25,12 +32,115 @@ public class ChatControllerHTTP {
     private final ChatMessageService chatMessageService;
     private final ContactsService contactsService;
     private final FileService fileService;
+    private final ChatRoomRepository chatRoomRepository;
+    private final UserRepository userRepository;
+    private final ContactsRepository contactsRepository;
+    private final ChatControllerWS chatControllerWS;
+    private final ChatMessageRepository chatMessageRepository;
+    public static final String CREATE_CHAT = "/create-group-chat";
 
     @Autowired
-    public ChatControllerHTTP(ChatMessageService chatMessageService, ContactsService contactsService, FileService fileService) {
+    public ChatControllerHTTP(ChatMessageService chatMessageService,
+                              ContactsService contactsService,
+                              FileService fileService,
+                              ChatRoomRepository chatRoomRepository,
+                              UserRepository userRepository,
+                              ContactsRepository contactsRepository,
+                              ChatControllerWS chatControllerWS, ChatMessageRepository chatMessageRepository) {
         this.chatMessageService = chatMessageService;
         this.contactsService = contactsService;
         this.fileService = fileService;
+        this.chatRoomRepository = chatRoomRepository;
+        this.userRepository = userRepository;
+        this.contactsRepository = contactsRepository;
+        this.chatControllerWS = chatControllerWS;
+        this.chatMessageRepository = chatMessageRepository;
+    }
+
+    @PostMapping(CREATE_CHAT)
+    public ResponseEntity<?> createChat(@Valid @RequestBody GroupChatCreateRequest request) {
+        try {
+            List<Long> members = new ArrayList<>();
+            List<String> membersName = new ArrayList<>();
+            if (request.getMembers() != null) {
+                for (MemberRequest member : request.getMembers()) {
+                    members.add(member.getUserId());
+                    membersName.add(member.getMemberName());
+                }
+            }
+
+            byte[] avatar = null;
+            if (request.getAvatar() != null) {
+                Base64.Decoder decoder = Base64.getDecoder();
+                String fileBase64 = request.getAvatar().split(",")[1];
+                avatar = decoder.decode(fileBase64);
+            }
+
+            ChatRoom chat = new ChatRoom();
+            chat.setChatName(request.getChatName());
+            chat.setAvatar(avatar);
+            chat.setMembers(members);
+            chatRoomRepository.save(chat);
+
+            var savedChat = chatRoomRepository.findChatRoomByChatId(chat.getChatId());//Приходится сохранять чат сначала,
+            // а потом добавлять контактам чат в список чатов
+            for (String name : membersName) {
+                var contact = contactsRepository.findByContactsOwner(name);
+                if (contact.isPresent()) {
+                    var changedContact = contact.get();
+                    List<ChatRoom> chats = changedContact.getChats();
+                    chats.add(savedChat);
+                    changedContact.setChats(chats);
+                    contactsRepository.save(changedContact);
+                }
+            }
+            ChatMessage chatMessage = new ChatMessage();
+            chatMessage.setType(ChatMessage.MessageType.CREATE);
+            chatMessage.setChatId(savedChat.getChatId());
+            chatMessage.setContent("");
+            chatMessage.setSenderName(request.getCreator());
+            chatMessage.setSenderId(request.getCreatorId());
+            chatMessage.setSendDate(request.getSendDate());
+            chatMessage.setTimeZone(request.getTimeZone());
+            var message = chatMessageRepository.save(chatMessage);
+
+            chatControllerWS.sendNotificationMessage(message);
+
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/all/groupChats")
+    public ResponseEntity<?> getChats(@RequestParam String memberName) {
+        try {
+            List<ChatRoom> chats = null;
+            if (memberName != null) {
+                var user = userRepository.findByUsername(memberName);
+                chats = chatRoomRepository.findAllByMembersContains(user.get().getId());
+            }
+            return ResponseEntity.ok().body(chats);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    @GetMapping("/groupChat")
+    public ResponseEntity<?> getChat(@RequestParam String chatId) {
+        try {
+            ChatRoom chat = null;
+            if (chatId != null) {
+                chat = chatRoomRepository.findChatRoomByChatId(chatId);
+            }
+            return ResponseEntity.ok().body(chat);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
@@ -41,7 +151,24 @@ public class ChatControllerHTTP {
             @RequestParam String senderUsername, @RequestParam String recipientUsername
     ) {
         try {
-            var messages = chatMessageService.findMessages(senderUsername, recipientUsername);
+            String chatId = chatMessageService.chatIdGenerateByTwoUser(senderUsername, recipientUsername);
+            var messages = chatMessageService.findMessages(chatId);
+            return ResponseEntity.ok().body(messages);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Функция принимает запросы о поиске всех сообщений между двумя пользователями.
+     */
+    @GetMapping("all/chatRoom/messages")
+    public ResponseEntity<?> getChatMessages(
+            @RequestParam String chatId
+    ) {
+        try {
+            var messages = chatMessageService.findMessages(chatId);
             return ResponseEntity.ok().body(messages);
         } catch (Exception e) {
             e.printStackTrace();
@@ -91,8 +218,9 @@ public class ChatControllerHTTP {
         try {
             chatMessageService.deleteMessage(request.getMessage());
 
+            String chatId = chatMessageService.chatIdGenerateByTwoUser(request.getMessage().getSenderName(), request.getMessage().getRecipientName());
             // Если между пользователями не осталось сообщений, то необходимо их удалить из списка контактов друг друга.
-            if (chatMessageService.findMessages(request.getMessage().getSenderName(), request.getMessage().getRecipientName()).isEmpty()) {
+            if (chatMessageService.findMessages(chatId).isEmpty()) {
                 contactsService.deleteUsersFromEachOthersContacts(request.getMessage().getSenderName(), request.getMessage().getRecipientName());
             }
             return ResponseEntity.ok().build();

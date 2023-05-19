@@ -68,7 +68,13 @@ class ChatMessageServiceTest {
             Mockito.doReturn(Optional.of(List.of(chatMessage)))
                     .when(chatMessageRepository)
                     .findByChatIdAndDeleted(chatMessage.getChatId(), false);
-            List<ChatMessage> returnedChatMessage = chatMessageService.findMessages(chatMessage.getSenderName(), chatMessage.getRecipientName());
+            String chatId;
+            if (chatMessage.getSenderName().compareTo(chatMessage.getRecipientName()) < 0) {
+                chatId = (chatMessage.getSenderName() + chatMessage.getRecipientName());
+            } else {
+                chatId = (chatMessage.getRecipientName() + chatMessage.getSenderName());
+            }
+            List<ChatMessage> returnedChatMessage = chatMessageService.findMessages(chatId);
             Mockito.verify(chatMessageRepository, Mockito.times(1))
                     .findByChatIdAndDeleted(chatMessage.getChatId(), false);
             assertEquals(chatMessage, returnedChatMessage.get(0));

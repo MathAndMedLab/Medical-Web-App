@@ -97,9 +97,8 @@ const useStyles = theme => ({
         height: "100%",
     },
     leftIndent: {
-        [theme.breakpoints.down("xs")]: {
-            width: 25,
-            marginRight: theme.spacing(0)
+        "@media (max-width: 600px)": {
+            width: 0,
         },
         width: 60,
     },
@@ -136,7 +135,7 @@ const useStyles = theme => ({
         top: 0,
         left: 0,
         minWidth: 600,
-        minHeigft: 64,
+        minHeight: 64,
         maxHeight: 64,
         zIndex: theme.zIndex.drawer + 2,
         transition: theme.transitions.create(['width', 'margin'], {
@@ -252,6 +251,7 @@ function App(props) {
      */
     const [allMessages, setAllMessages] = useState(new Map())
     const [usersWithLastMsgReceived, setUsersWithLastMsgReceived] = useState(new Map())
+    const [chatsWithLastMsgReceived, setChatsWithLastMsgReceived] = useState(new Map())
     const [numberOfUnRead, setNumberOfUnRead] = useState(0)
 
     useEffect(() => {
@@ -285,13 +285,13 @@ function App(props) {
                         // сообщения, если есть, то сообщение добавится к существующим.
                         if (allMessages.get(response.data[index].senderName)) {
                             let list = allMessages.get(response.data[index].senderName).messages
-                            list.push(response.data[index])
+                            list.push({msg: response.data[index], checked: false})
                             const unRead = allMessages.get(response.data[index].senderName).unRead
                             const valueMap = { unRead: unRead + 1, messages: list }
                             setAllMessages(prev => (prev.set(response.data[index].senderName, valueMap)))
                         } else {
                             let list = []
-                            list.push(response.data[index])
+                            list.push({msg: response.data[index], checked: false})
                             const valueMap = { unRead: 1, messages: list }
                             setAllMessages(prev => (prev.set(response.data[index].senderName, valueMap)))
                         }
@@ -320,7 +320,68 @@ function App(props) {
      */
     function onConnected() {
         stompClient.subscribe('/topic/' + AuthService.getCurrentUser().username + '/private', onMessageReceived)
+        stompClient.subscribe('/topic/' +
+            AuthService.getCurrentUser().username +
+            '/private-group-chat', onMessageReceivedGroupChat)
     }
+
+    function checkHistoryChat(data, chatId) {
+        console.log(data)
+        if (allMessages.get(chatId)) {
+            let list = allMessages.get(chatId).messages
+            const unRead = allMessages.get(chatId).unRead
+            list.push({msg: data, checked: false})
+            const valueMap = { unRead: unRead + 1, messages: list }
+            setAllMessages(prev => (prev.set(chatId, valueMap)))
+            setNumberOfUnRead(prev => (prev + 1))
+        } else {
+            let list = []
+            list.push({msg: data, checked: false})
+            const valueMap = { unRead: 1, messages: list }
+            setAllMessages(prev => (prev.set(chatId, valueMap)))
+            setNumberOfUnRead(prev => (prev + 1))
+            setRefresh({})
+        }
+    }
+
+    function onMessageReceivedGroupChat (response) {
+        let data = JSON.parse(response.body)
+        let chatMembership = false
+        let chat
+        for (let chatId of chatsWithLastMsgReceived.keys()) {
+            if (chatId === data.chatId) { // Проверка есть ли пользователь, в чате от которого пришло сообщение.
+                chatMembership = true
+                chat = chatId
+                break
+            }
+        }
+
+        if (chatMembership) {
+            const chatsWithLastMsg = chatsWithLastMsgReceived.get(chat)
+            chatsWithLastMsg.second = data
+            setChatsWithLastMsgReceived(prev => prev.set(chat, chatsWithLastMsg))
+        } else { // Если пользователя в списке нет, то необходимо получить данные о нем от сервера.
+            ChatService.getGroupChat(data.chatId)
+                .then(async (response) => {
+                    const chatRoom = response.data;
+                    if (chatRoom.avatar) {
+                        const base64Response = await fetch(`data:application/json;base64,${chatRoom.avatar}`)
+                        const blob = await base64Response.blob()
+                        chatRoom.avatar = URL.createObjectURL(blob)
+                    }
+                    let chatsWithLastMsg = { first: chatRoom, second: data }
+                    setChatsWithLastMsgReceived(prev => (prev.set(chatRoom.chatId, chatsWithLastMsg)))
+                    setRefresh({})
+                })
+                .catch((e) => {
+                    console.log(e);
+                })
+        }
+        // Проверка есть ли "история переписки" с пользователем от которого пришло сообщение, если есть,
+        // то сообщение добавится к существующим.
+        checkHistoryChat(data, data.chatId)
+    }
+
 
     /**
      * Данная функция вызывается при получении сообщения.
@@ -360,21 +421,7 @@ function App(props) {
         }
         // Проверка есть ли "история переписки" с пользователем от которого пришло сообщение, если есть,
         // то сообщение добавится к существующим.
-        if (allMessages.get(data.senderName)) {
-            let list = allMessages.get(data.senderName).messages
-            const unRead = allMessages.get(data.senderName).unRead
-            list.push(data)
-            const valueMap = { unRead: unRead + 1, messages: list }
-            setAllMessages(prev => (prev.set(data.senderName, valueMap)))
-            setNumberOfUnRead(prev => (prev + 1))
-        } else {
-            let list = []
-            list.push(data)
-            const valueMap = { unRead: 1, messages: list }
-            setAllMessages(prev => (prev.set(data.senderName, valueMap)))
-            setNumberOfUnRead(prev => (prev + 1))
-            setRefresh({})
-        }
+        checkHistoryChat(data, data.senderName)
     }
 
     /**
@@ -680,27 +727,7 @@ function App(props) {
                 window.removeEventListener("resize", handleResizeWindow);
             };
         }, []);
-        if (width <= 320) {
-            return "container mt-3 ml-0 pl-0";
-        }
-        else if (width <= 375) {
-            return "container mt-3 ml-3 pl-0";
-        }
-        else if (width <= 450) {
-            return "container mt-3 ml-3";
-        }
-        else if (width <= 600) {
-            return "container mt-3 ";
-        }
-        else if (width <= 768) {
-            return "container mt-3";
-        }
-        else if (width <= 1024) {
-            return "container mt-3 ml-1 pl-0";
-        }
-        else {
-            return "container mt-3";
-        }
+        return "container mt-3";
     }
 
     function MyDrawer(props) {
@@ -713,7 +740,7 @@ function App(props) {
                 window.removeEventListener("resize", handleResizeWindow);
             };
         }, []);
-        if (width <= 425) {
+        if (width <= 600) {
             return (
                 <Drawer
                     height="100%"
@@ -860,13 +887,7 @@ function App(props) {
                 <Grid item xs className={clsx(classes.content, open && classes.contentOpen)}>
                     <div className={classes.appBarSpacer} />
                     <div className={classes.appBarSpacer2} />
-                    <div className={ContainerBorder()} style={(open && {
-                        justifyContent: "center",
-                        marginLeft: 0
-                    }) || (!open && {
-                        justifyContent: "center"
-                    })
-                    }>
+                    <div className={ContainerBorder()} style={{justifyContent : "center"}}>
                         <Switch>
                             <Route exact path={["/", "/newHome"]} component={NewHomeComponent} />
                             <Route exact path="/home/patient" component={HomePatient} />
@@ -879,6 +900,8 @@ function App(props) {
                                            number={numberOfUnRead} minusUnRead={minusUnRead}
                                            usersWithLastMsg={usersWithLastMsgReceived}
                                            setUsersWithLastMsg={setUsersWithLastMsgReceived}
+                                           chatsWithLastMsg={chatsWithLastMsgReceived}
+                                           setChatsWithLastMsg={setChatsWithLastMsgReceived}
                                     />) : (<Redirect to="/login" />)}
                             </Route>
                             <Route exact path="/register" component={Register} />

@@ -12,13 +12,19 @@ const useStyles = theme => ({
     msgNotMy: {
         width: "fit-content",
         height: "fit-content",
-        margin: 20,
+        margin: 5,
         padding: theme.spacing(0.5),
         whiteSpace: 'pre-wrap',
         wordWrap: 'break-word',
         maxWidth: 400,
         elevation: 2,
-        backgroundColor: '#eeeeee'
+        backgroundColor: '#eeeeee',
+        '@media (max-width: 475px)': {
+            maxWidth: 300
+        },
+        '@media (max-width: 375px)': {
+            maxWidth: 250
+        }
     },
     txt: {
         fontWeight: 'bold',
@@ -41,6 +47,8 @@ function RecipientMsg(props) {
     const {msg} = props;
     const {updateStatusMsg} = props
     const {initialsSender} = props
+    const {getInitials} = props
+    const {sender} = props
     const {scrollToBottom} = props
     const [images, setImages] = useState([])
     const [files, setFiles] = useState([])
@@ -106,7 +114,8 @@ function RecipientMsg(props) {
         setFiles(filesPreview)
     }
 
-    function openDicomViewer(uid) {
+    function openDicomViewer(event, uid) {
+        event.stopPropagation()
         const url = window.location.href
         const num = url.indexOf(":7999")
         window.open(url.slice(0, num + 1) + "3000/viewer/" + uid, '_blank')
@@ -125,7 +134,7 @@ function RecipientMsg(props) {
             <Paper className={classes.msgNotMy}>
                 <Grid className={classes.txt}>
                     <Link to={"/profile/" + msg.senderName} className={classes.link}>
-                        {initialsSender}
+                        {sender === undefined ? initialsSender : getInitials(sender)}
                     </Link>
                 </Grid>
                 <Grid>
@@ -137,7 +146,7 @@ function RecipientMsg(props) {
                                 <ImageListItem key={index}>
                                     {image.uid ?
                                         <Tooltip title="Открыть в DICOM Viewer">
-                                            <img onClick={() => openDicomViewer(image.uid)}
+                                            <img onClick={(event) => openDicomViewer(event, image.uid)}
                                                  src={image.image}
                                                  alt={"Перезагрузите страницу!"}
                                                  loading="lazy"

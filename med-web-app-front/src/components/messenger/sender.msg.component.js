@@ -22,13 +22,19 @@ const useStyles = theme => ({
     msgMy: {
         width: "fit-content",
         height: "fit-content",
-        margin: 20,
+        margin: 5,
         marginLeft: "auto",
         backgroundColor: '#a1e9ff',
         padding: theme.spacing(0.5),
         whiteSpace: 'pre-wrap',
         wordWrap: 'break-word',
         maxWidth: 400,
+        '@media (max-width: 475px)': {
+            maxWidth: 300
+        },
+        '@media (max-width: 375px)': {
+            maxWidth: 250
+        }
     },
     txt: {
         fontWeight: 'bold',
@@ -201,7 +207,8 @@ function SenderMsg(props) {
         }
     }
 
-    function openDicomViewer(uid) {
+    function openDicomViewer(event, uid) {
+        event.stopPropagation()
         const url = window.location.href
         const num = url.indexOf(":7999")
         window.open(url.slice(0, num + 1) + "3000/viewer/" + uid, '_blank')
@@ -269,7 +276,7 @@ function SenderMsg(props) {
                                     <ImageListItem key={index}>
                                         {image.uid ?
                                             <Tooltip title="Открыть в DICOM Viewer">
-                                                <img onClick={() => openDicomViewer(image.uid)}
+                                                <img onClick={(event) => openDicomViewer(event, image.uid)}
                                                      src={image.image}
                                                      alt={"Перезагрузите страницу!"}
                                                      loading="lazy"

@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 import java.util.List;
@@ -14,8 +15,9 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "chatroom")
+@Table(name = "chatrooms")
 @Data
+@DynamicUpdate
 public class ChatRoom {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -29,10 +31,21 @@ public class ChatRoom {
     @Column(name = "chatName")
     private String chatName;
 
+    @Column(name = "creatorName")
+    private String creatorName;
+
+    @Column(name = "creatorId")
+    private Long creatorId;
+
     @Column(name = "avatar")
     private byte[] avatar;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Column(name = "members")
-    private List<Long> members;
+    @ManyToMany
+    @JoinTable(
+            name = "chatrooms_users",
+            joinColumns = @JoinColumn(name = "chatroom_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private List<User> members;
+
 }

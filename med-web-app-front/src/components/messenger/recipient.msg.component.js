@@ -1,11 +1,14 @@
 import React, {useEffect, useState} from "react";
 import '../../styles/Search.css'
-import {ImageList, ImageListItem, Paper, Tooltip, withStyles} from "@material-ui/core";
+import {Divider, ImageList, ImageListItem, List, Paper, Tooltip, withStyles} from "@material-ui/core";
 import {Link} from "react-router-dom";
 import Grid from "@material-ui/core/Grid";
 import AttachmentService from "../../services/attachment.service";
 import ChatService from "../../services/chat.service";
 import Button from "@material-ui/core/Button";
+import UserService from "../../services/user.service";
+import TimeMsg from "./time-msg.component";
+import ForwardMessage from "./forward-message.component";
 
 const useStyles = theme => ({
 
@@ -39,6 +42,17 @@ const useStyles = theme => ({
     },
     link: {
         color: "black",
+    },
+    listForward: {
+        display: 'flex',
+        flexDirection: 'column',
+        width: 392,
+        '@media (max-width: 475px)': {
+            maxWidth: 292
+        },
+        '@media (max-width: 375px)': {
+            maxWidth: 242
+        }
     }
 });
 
@@ -47,37 +61,15 @@ function RecipientMsg(props) {
     const {msg} = props;
     const {updateStatusMsg} = props
     const {initialsSender} = props
-    const {getInitials} = props
-    const {sender} = props
     const {scrollToBottom} = props
     const [images, setImages] = useState([])
     const [files, setFiles] = useState([])
-    const [timeMsgCurrentTimeZone, setTimeMsgCurrentTimeZone] = useState([])
+    const [mapInitials, setMapInitials] = useState(new Map())
     useEffect(async () => {
         updateStatusMsg(msg)
         await getFiles()
-        processTime()
         scrollToBottom()
     }, [msg]);
-
-    function processTime() {
-        let timeZone = (Intl.DateTimeFormat().resolvedOptions().timeZone)
-        const difsTimeZones = getOffsetBetweenTimezonesForDate(new Date(), msg.timeZone, timeZone)
-        setTimeMsgCurrentTimeZone(new Date(new Date(msg.sendDate).getTime() - difsTimeZones))
-    }
-
-    function getOffsetBetweenTimezonesForDate(date, timezone1, timezone2) {
-        const timezone1Date = convertDateToAnotherTimeZone(date, timezone1);
-        const timezone2Date = convertDateToAnotherTimeZone(date, timezone2);
-        return timezone1Date.getTime() - timezone2Date.getTime();
-    }
-
-    function convertDateToAnotherTimeZone(date, timezone) {
-        const dateString = date.toLocaleString('en-US', {
-            timeZone: timezone
-        });
-        return new Date(dateString);
-    }
 
     async function getFiles() {
         setImages([])
@@ -129,79 +121,86 @@ function RecipientMsg(props) {
         }
     }
 
+    function getInitialsUser(username) {
+        let user
+        UserService.getUserByUsername(username).then(async (response) => {
+            user = await response.data
+        })
+        .catch((e) => {
+            console.log(e)
+        })
+        return user.initials
+    }
+
     return (
         <Grid>
             <Paper className={classes.msgNotMy}>
                 <Grid className={classes.txt}>
                     <Link to={"/profile/" + msg.senderName} className={classes.link}>
-                        {sender === undefined ? initialsSender : getInitials(sender)}
+                        {initialsSender !== undefined ? initialsSender : getInitialsUser(msg.senderName)}
                     </Link>
                 </Grid>
-                <Grid>
+                <Grid style={{marginBottom: 10}}>
                     <Grid>{msg.content}</Grid>
                     {images &&
-                    <Grid>
-                        <ImageList cols={1} rowHeight={200} gap={3}>
-                            {images.map((image, index) =>
-                                <ImageListItem key={index}>
-                                    {image.uid ?
-                                        <Tooltip title="Открыть в DICOM Viewer">
-                                            <img onClick={(event) => openDicomViewer(event, image.uid)}
-                                                 src={image.image}
-                                                 alt={"Перезагрузите страницу!"}
-                                                 loading="lazy"
-                                                 style={{cursor: 'pointer'}}
-                                            >
-                                            </img>
-                                        </Tooltip>
-                                        :
-                                        <img
-                                            src={image.image}
-                                            alt={"Перезагрузите страницу!"}
-                                            loading="lazy"
-                                        />
-                                    }
-                                </ImageListItem>
-                            )}
-                        </ImageList>
-                    </Grid>
+                        <Grid>
+                            <ImageList cols={1} rowHeight={200} gap={3}>
+                                {images.map((image, index) =>
+                                    <ImageListItem key={index}>
+                                        {image.uid ?
+                                            <Tooltip title="Открыть в DICOM Viewer">
+                                                <img onClick={(event) => openDicomViewer(event, image.uid)}
+                                                     src={image.image}
+                                                     alt={"Перезагрузите страницу!"}
+                                                     loading="lazy"
+                                                     style={{cursor: 'pointer'}}
+                                                >
+                                                </img>
+                                            </Tooltip>
+                                            :
+                                            <img
+                                                src={image.image}
+                                                alt={"Перезагрузите страницу!"}
+                                                loading="lazy"
+                                            />
+                                        }
+                                    </ImageListItem>
+                                )}
+                            </ImageList>
+                        </Grid>
                     }
                     {files &&
-                    <Grid>
-                        {files.map((file, index) =>
-                            <Grid key={index}>
-                                {file.uid ?
-                                    <Button
-                                        key={index}
-                                        onClick={() => openDicomViewer(file.uid)}>
-                                        <i className="fa fa-folder-open"> Открыть {file.initialName}</i>
-                                    </Button>
-                                    :
-                                    <Button
-                                        key={index}
-                                        onClick={() => download(file)}>
-                                        <i className="fa fa-download"> Скачать {file.initialName}</i>
-                                    </Button>
-                                }
-                            </Grid>
-                        )}
-                    </Grid>
+                        <Grid>
+                            {files.map((file, index) =>
+                                <Grid key={index}>
+                                    {file.uid ?
+                                        <Button
+                                            key={index}
+                                            onClick={() => openDicomViewer(file.uid)}>
+                                            <i className="fa fa-folder-open"> Открыть {file.initialName}</i>
+                                        </Button>
+                                        :
+                                        <Button
+                                            key={index}
+                                            onClick={() => download(file)}>
+                                            <i className="fa fa-download"> Скачать {file.initialName}</i>
+                                        </Button>
+                                    }
+                                </Grid>
+                            )}
+                        </Grid>
+                    }
+                </Grid>
+                <Grid>
+                    {msg.forwardedMessages.length !== 0 &&
+                        <List className={classes.listForward}>
+                            <ForwardMessage forwardMessages={msg.forwardedMessages}/>
+                        </List>
                     }
                 </Grid>
                 <Grid
                     className={classes.time}>
-                    {
-                        (((new Date(timeMsgCurrentTimeZone).getHours() < 10 && "0" + new Date(timeMsgCurrentTimeZone).getHours())
-                                || (new Date(timeMsgCurrentTimeZone).getHours() >= 10 && new Date(timeMsgCurrentTimeZone).getHours())) + ":"
-                            + ((new Date(timeMsgCurrentTimeZone).getMinutes() < 10 && "0" + new Date(timeMsgCurrentTimeZone).getMinutes())
-                                || (new Date(timeMsgCurrentTimeZone).getMinutes() >= 10 && new Date(timeMsgCurrentTimeZone).getMinutes())
-                            )) + "    " + (
-                            ((new Date(timeMsgCurrentTimeZone).getDate() < 10 && "0" + new Date(timeMsgCurrentTimeZone).getDate()) || (new Date(timeMsgCurrentTimeZone).getDate() >= 10 && new Date(timeMsgCurrentTimeZone).getDate()))
-                            + "."
-                            + (((new Date(timeMsgCurrentTimeZone).getMonth() + 1) < 10 && "0" + (new Date(timeMsgCurrentTimeZone).getMonth() + 1)) || (((new Date(timeMsgCurrentTimeZone).getMonth() + 1) >= 10 && (new Date(timeMsgCurrentTimeZone).getMonth() + 1))))
-                            + "." + new Date(timeMsgCurrentTimeZone).getFullYear()
-                        )
-                    }
+                    <TimeMsg timeZone={msg.timeZone} sendDate={msg.sendDate}/>
                 </Grid>
             </Paper>
         </Grid>

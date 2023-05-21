@@ -12,6 +12,7 @@ import com.app.medicalwebapp.services.FileService;
 import com.app.medicalwebapp.services.service_utils.MemoUpload;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -37,9 +38,10 @@ public class ChatMessageService {
     /**
      * Сохранение отправленного сообщения в базу данных.
      */
+    @Transactional
     public ChatMessage save(ChatMessageRequest msg) throws Exception {
         List<FileObject> files = new ArrayList<>();
-
+        List<ChatMessage> forwardedMessages = new ArrayList<>();
         MemoUpload memoize = new MemoUpload(fileObjectRepository, fileService);
 
         // Если к сообщению прикреплены файлы, необходимо строку base64 декодировать в byte[] и отправить файл на сохранение.
@@ -54,6 +56,13 @@ public class ChatMessageService {
                 } else {
                     files.add(fileService.saveFile(file.getFileName(), decodedFileByte, msg.getSenderId(), msg.getUid()));
                 }
+            }
+        }
+
+        if (msg.getForwardedMessages() != null) {
+            for (Long msgId : msg.getForwardedMessages()) {
+                ChatMessage forwardedMsg = chatMessageRepository.findFirstById(msgId);
+                forwardedMessages.add(forwardedMsg);
             }
         }
 
@@ -76,9 +85,10 @@ public class ChatMessageService {
         chatMessage.setSendDate(msg.getSendDate());
         chatMessage.setTimeZone(msg.getTimeZone());
         chatMessage.setAttachments(files);
+        chatMessage.setForwardedMessages(forwardedMessages);
         chatMessage.setDeleted(false);
         var message = chatMessageRepository.save(chatMessage);
-
+        System.out.println(message);
         // Необходимо воспользоваться функцией getImages(), и получить byte[] через функцию fileService.previewFile(),
         // так как иначе изображение не будет корректно отображено на клиенте.
         if (message.getAttachments().size() > 0) {

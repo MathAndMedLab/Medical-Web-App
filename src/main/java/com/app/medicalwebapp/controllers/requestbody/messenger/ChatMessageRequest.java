@@ -27,6 +27,8 @@ public class ChatMessageRequest {
 
     private  List<ChatFileRequest> files;
 
+    private List<Long> forwardedMessages;
+
     private LocalDateTime sendDate;
 
     private String timeZone;

@@ -28,8 +28,12 @@ public class Contact {
     )
     private List<User> contactsList;
 
-    @ManyToMany(cascade = CascadeType.ALL)//,fetch = FetchType.LAZY
-    @JoinColumn(name = "chats")
+    @ManyToMany
+    @JoinTable(
+            name = "contacts_chatrooms",
+            joinColumns = @JoinColumn(name = "contact_id"),
+            inverseJoinColumns = @JoinColumn(name = "chatroom_id")
+    )
     private List<ChatRoom> chats;
 
 }

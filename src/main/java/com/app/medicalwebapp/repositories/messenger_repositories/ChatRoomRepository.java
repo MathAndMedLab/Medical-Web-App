@@ -10,7 +10,7 @@ import java.util.List;
 @Repository
 public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
 
-    List<ChatRoom> findAllByMembersContains (Long memberIds);
+    List<ChatRoom> findAllByMembersContains (User member);
 
     ChatRoom findChatRoomByChatId (String chatId);
 

@@ -2,6 +2,7 @@ package com.app.medicalwebapp.controllers.messenger_controllers;
 
 import com.app.medicalwebapp.controllers.requestbody.MessageResponse;
 import com.app.medicalwebapp.controllers.requestbody.messenger.*;
+import com.app.medicalwebapp.model.User;
 import com.app.medicalwebapp.model.messenger_models.ChatMessage;
 import com.app.medicalwebapp.model.messenger_models.ChatRoom;
 import com.app.medicalwebapp.repositories.UserRepository;
@@ -16,6 +17,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AuthorizationServiceException;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -58,14 +60,18 @@ public class ChatControllerHTTP {
     }
 
     @PostMapping(CREATE_CHAT)
+    @Transactional
     public ResponseEntity<?> createChat(@Valid @RequestBody GroupChatCreateRequest request) {
         try {
-            List<Long> members = new ArrayList<>();
+            List<User> members = new ArrayList<>();
             List<String> membersName = new ArrayList<>();
             if (request.getMembers() != null) {
                 for (MemberRequest member : request.getMembers()) {
-                    members.add(member.getUserId());
-                    membersName.add(member.getMemberName());
+                    var user = userRepository.findByUsername(member.getMemberName());
+                    if (user.isPresent()) {
+                        members.add(user.get());
+                        membersName.add(member.getMemberName());
+                    }
                 }
             }
 
@@ -80,9 +86,11 @@ public class ChatControllerHTTP {
             chat.setChatName(request.getChatName());
             chat.setAvatar(avatar);
             chat.setMembers(members);
+            chat.setCreatorId(request.getCreatorId());
+            chat.setCreatorName(request.getCreator());
             chatRoomRepository.save(chat);
 
-            var savedChat = chatRoomRepository.findChatRoomByChatId(chat.getChatId());//Приходится сохранять чат сначала,
+            var savedChat = chatRoomRepository.findChatRoomByChatId(chat.getChatId());//Необходимо сохранять чат сначала,
             // а потом добавлять контактам чат в список чатов
             for (String name : membersName) {
                 var contact = contactsRepository.findByContactsOwner(name);
@@ -119,7 +127,7 @@ public class ChatControllerHTTP {
             List<ChatRoom> chats = null;
             if (memberName != null) {
                 var user = userRepository.findByUsername(memberName);
-                chats = chatRoomRepository.findAllByMembersContains(user.get().getId());
+                chats = chatRoomRepository.findAllByMembersContains(user.get());
             }
             return ResponseEntity.ok().body(chats);
         } catch (Exception e) {

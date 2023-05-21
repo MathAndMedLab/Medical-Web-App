@@ -159,13 +159,13 @@ const ChatCardMsg = (props) => {
 			<Grid xs item>
 				<Grid className={classes.gridFullWidth}>
 					<Grid className={classes.flex} xs={12} item>
-						<Grid xs={9} item>
+						<Grid xs item>
 							{chatAndLastMsg.first.initials !== undefined ?
 								<UserCardMessage user={chatAndLastMsg.first}/> :
 								<Grid item className={classes.gridText}>{chatAndLastMsg.first.chatName}</Grid>
 							}
 						</Grid>
-						<Grid xs={3} item>
+						<Grid xs={4} item>
 							<Grid className={classes.lastMsgTimeContent}>
 								{
 									chatAndLastMsg.sendDateInCurrentTimeZone && processTimeSend(chatAndLastMsg.sendDateInCurrentTimeZone)

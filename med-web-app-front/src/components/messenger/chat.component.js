@@ -9,7 +9,7 @@ import {
     TextField,
     Typography,
     withStyles,
-    makeStyles
+    makeStyles, Badge
 } from "@material-ui/core"
 import {Link, useParams} from "react-router-dom"
 import React, {useEffect, useRef, useState} from "react"
@@ -29,6 +29,8 @@ import HighlightOffIcon from '@mui/icons-material/HighlightOff'
 import SendIcon from "@mui/icons-material/Send"
 import PhotoCameraOutlinedIcon from "@mui/icons-material/PhotoCameraOutlined"
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
+import CancelIcon from '@mui/icons-material/Cancel'
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline'
 import ClearIcon from '@mui/icons-material/Clear'
 import SearchIcon from '@mui/icons-material/Search'
@@ -47,7 +49,6 @@ import Upload from "./upload-files.component"
 import Checkbox from "@mui/material/Checkbox"
 import ChatCardMsg from "./chat-card-msg.component"
 import NotificationMsg from "./notification-msg.component"
-// import {makeStyles} from "@mui/material";
 
 /**
  * Стили для компонентов mui и react.
@@ -170,6 +171,9 @@ const useStyles = theme => ({
         "@media (max-height: 600px)": {
             minHeight: 446
         },
+        "@media (max-width: 1200px)": {
+            minWidth: 301
+        },
     },
     itemButtonGroupChat: {
         padding: 0,
@@ -185,6 +189,12 @@ const useStyles = theme => ({
             backgroundColor: 'rgba(0,0,0,.1)',
             outline: '1px solid slategrey'
         },
+    },
+    divider: {
+        width: 3,
+        borderRadius: 10,
+        height: 45,
+        backgroundColor: "#7e7e7e"
     },
     usersGrid: {
         height: 440,
@@ -203,6 +213,12 @@ const useStyles = theme => ({
     avatarForCreateChat: {
         width: 45,
         height: 45,
+        margin: theme.spacing(1),
+        cursor: "pointer"
+    },
+    avatarManageGroupChat: {
+        width: 100,
+        height: 100,
         margin: theme.spacing(1),
         cursor: "pointer"
     },
@@ -229,7 +245,6 @@ const useStyles = theme => ({
     iconInput: {
         backgroundColor: "#3f51b5",
         borderRadius: '5px',
-        // width: "100%",
         height: 56,
         width: "auto",
     },
@@ -280,6 +295,23 @@ const useStyles = theme => ({
         '&:hover': {
             color: "#707070",
         },
+    },
+    gridText: {
+        color: "black",
+        fontSize: 15,
+        fontWeight: 450,
+        alignItems: "left"
+    },
+    cancelIcon: {
+        color: '#464646',
+        width: 25,
+        height: 25,
+        marginRight: 10,
+        marginTop: 10,
+        cursor: 'pointer',
+        '&:hover': {
+            color: '#a4a4a4'
+        }
     }
 })
 
@@ -302,8 +334,12 @@ function Chat(props) {
     const [searchContent, setSearchContent] = useState("")
     const [searchMessageButton, setSearchMessageButton] = useState(false)
     const [searchContacts, setSearchContacts] = useState("")
+    const [searchChats, setSearchChats] = useState("")
 
     const [menuGroupChat, setMenuGroupChat] = useState(false)
+    const [forwardChat, setForwardChat] = useState(false)
+    const [manageGroupChat, setManageGroupChat] = useState(false)
+    const [forwardMessages, setForwardMessages] = useState([])
     const [groupContacts, setGroupContacts] = useState([])
     const [searchContactsGroup, setSearchContactsGroup] = useState("")
     const [nameGroupChat, setNameGroupChat] = useState("")
@@ -429,6 +465,9 @@ function Chat(props) {
                 })
                 chatsWithLastMsgArray.map(async chat => {
                     chat.first.avatar && (chat.first.avatar = await getAvatar(chat.first.avatar))
+                    chat.first.members.map(async member => {
+                        member.avatar && (member.avatar = await getAvatar(member.avatar))
+                    })
                     setChatsWithLastMsg(prev => prev.set(chat.first.chatId, chat))
                     setRefresh({})
                 })
@@ -473,6 +512,9 @@ function Chat(props) {
                 break
             case 'group':
                 setSearchContactsGroup(e.target.value)
+                break
+            case 'forward':
+                setSearchChats(e.target.value)
                 break
             default:
                 break
@@ -564,6 +606,7 @@ function Chat(props) {
                 // Переменная используется для быстрой отрисовки отправленных изображений,
                 // чтобы не делать лишних запросов к базе данных.
                 files: fileNameAndStringBase64,
+                forwardedMessages: forwardMessages,
                 sendDate: localISOTime,
                 timeZone: timeZone,
                 uid: uid
@@ -576,13 +619,17 @@ function Chat(props) {
                 message.chatId = selectedChat.chatId
                 isFirstMessage = getMessageHistory(selectedChat.chatId, message, isFirstMessage)
                 setChatsWithLastMsg(prev => prev.set(selectedChat.chatId, {first: selectedChat, second: message}))
-                stompClient.send("/app/send/group-chat/" + selectedChat.chatId, {}, JSON.stringify(message))
+                let messageOnSend = Object.assign({}, message)
+                messageOnSend.forwardedMessages = [...forwardMessages].map(message => {return message.id})
+                stompClient.send("/app/send/group-chat/" + selectedChat.chatId, {}, JSON.stringify(messageOnSend))
             } else {
                 message.recipientId = selectedChat.id
                 message.recipientName = selectedChat.username
                 isFirstMessage = getMessageHistory(selectedChat.username, message, isFirstMessage)
                 setUsersWithLastMsg(prev => prev.set(selectedChat.username, {first: selectedChat, second: message}))
-                stompClient.send("/app/send/" + selectedChat.username, {}, JSON.stringify(message))
+                let messageOnSend = Object.assign({}, message)
+                messageOnSend.forwardedMessages = [...forwardMessages].map(message => {return message.id})
+                stompClient.send("/app/send/" + selectedChat.username, {}, JSON.stringify(messageOnSend))
             }
 
 
@@ -591,6 +638,7 @@ function Chat(props) {
             setContent("")
             setContentCorrect("")
             setContentPresence(false)
+            setForwardMessages([])
 
             // Если это первое сообщение, необходимо добавить пользователя в список контактов.
             if (isFirstMessage)
@@ -640,6 +688,7 @@ function Chat(props) {
                     console.log(e)
                 })
         }
+        forwardChat === false && setForwardMessages([])
         setRefresh({}) // Данное состояние обновляется для принудительного рендеринга страницы.
     }
 
@@ -747,6 +796,8 @@ function Chat(props) {
                                 selected={selectedChat && selectedChat.chatId === chatAndLastMsg.first.chatId}
                                 title={chatAndLastMsg.first.chatName}
                             >
+                                {console.log(chatAndLastMsg)}
+                                {console.log(selectedChat)}
                                 <ChatCardMsg allMessages={allMessages}
                                              chatAndLastMsg={chatAndLastMsg}
                                              getInitials={getInitialsBySenderInGroupChat}
@@ -755,7 +806,6 @@ function Chat(props) {
                             <Divider/>
                         </Link>
                     )}
-
                 </Grid>
             )))
     }
@@ -820,7 +870,109 @@ function Chat(props) {
                      </ListItem>
                 </Grid>))
         }
+    }
 
+    function selectChatForwardMessage(chat) {
+        selectChat(chat)
+        setForwardChat(false)
+    }
+
+    function sortContactsForwardMessages() {
+        let sortedContacts = [...chatsWithLastMsg.values(), ...usersWithLastMsg.values()]
+        for (let i = 0; i < sortedContacts.length; i++) {
+            if (sortedContacts[i].second !== null && sortedContacts[i].second.sendDate !== null && sortedContacts[i].second.timeZone !== null) {
+                let timeInCurrentTimeZoneArray = detectTimeInCurrentTimeZone(sortedContacts[i].second.sendDate, sortedContacts[i].second.timeZone)
+                sortedContacts[i] = {...sortedContacts[i], sendDateInCurrentTimeZone: timeInCurrentTimeZoneArray}
+            }
+        }
+        sortedContacts.sort(function (a, b) {
+            if (a.sendDateInCurrentTimeZone !== null && b.sendDateInCurrentTimeZone !== null) {
+                const aTime = new Date(a.sendDateInCurrentTimeZone)
+                const bTime = new Date(b.sendDateInCurrentTimeZone)
+                if (aTime > bTime) {
+                    return -1
+                }
+                if (aTime < bTime) {
+                    return 1
+                }
+                return 0
+            }
+            return 0
+        })
+        return (sortedContacts
+            .filter((chatAndLastMsg) => {
+                if (chatAndLastMsg.first.chatName === undefined) {
+                    const nameAndSurname = chatAndLastMsg.first.initials.split(" ")
+                    return (nameAndSurname[0] + " " + nameAndSurname[1]).includes(searchChats)
+                } else {
+                    return (chatAndLastMsg.first.chatName).includes(searchChats)
+                }
+            })
+            .map((chatAndLastMsg, index) => (
+                <Grid key={index} xs={12} style={{ width: '100%' }}>
+                    {chatAndLastMsg.first.username !== undefined ? (
+                        <Link onClick={() => selectChatForwardMessage(chatAndLastMsg.first)}
+                              to={"/msg/" + chatAndLastMsg.first.username}
+                              style={{textDecoration: 'none'}}>
+                            <ListItemButton
+                                value={chatAndLastMsg.first}
+                                title={chatAndLastMsg.first.lastname + " " + chatAndLastMsg.first.firstname}
+                            >
+                                <Grid className={classes.flex} xs={12} item direction="row" style={{ display: "flex", alignItems: "center" }}>
+                                    <Grid xs={1} item style={{ minWidth: 60 }}>
+                                        <Avatar className={classes.avatar} src={chatAndLastMsg.first.avatar}>
+                                            <PhotoCameraOutlinedIcon/>
+                                        </Avatar>
+                                    </Grid>
+                                    <Grid xs item>
+                                        <Grid className={classes.gridFullWidth}>
+                                            <Grid className={classes.flex} xs={12} item>
+                                                <Grid xs item>
+                                                    <UserCardMessage user={chatAndLastMsg.first}/>
+                                                </Grid>
+                                                <Grid xs={1} className={classes.gridAlignCenter} item style={{ minWidth: 60 }}>
+                                                    <ArrowForwardIosIcon style={{ color: "#000" }}/>
+                                                </Grid>
+                                            </Grid>
+                                        </Grid>
+                                    </Grid>
+                                </Grid>
+                            </ListItemButton>
+                            <Divider/>
+                        </Link>
+                    ) : (
+                        <Link onClick={() => selectChatForwardMessage(chatAndLastMsg.first)}
+                              to={"/msg/" + chatsArrayId(chatAndLastMsg.first.chatId)}
+                              style={{textDecoration: 'none'}}>
+                            <ListItemButton
+                                value={chatAndLastMsg.first}
+                                title={chatAndLastMsg.first.chatName}
+                            >
+                                <Grid className={classes.flex} xs={12} item direction="row" style={{ display: "flex", alignItems: "center" }}>
+                                    <Grid xs={1} item style={{ minWidth: 60 }}>
+                                        <Avatar className={classes.avatar} src={chatAndLastMsg.first.avatar}>
+                                            <PhotoCameraOutlinedIcon/>
+                                        </Avatar>
+                                    </Grid>
+                                    <Grid xs item>
+                                        <Grid className={classes.gridFullWidth}>
+                                            <Grid className={classes.flex} xs={12} item>
+                                                <Grid xs item>
+                                                    <Grid item className={classes.gridText}>{chatAndLastMsg.first.chatName}</Grid>
+                                                </Grid>
+                                                <Grid xs={1} className={classes.gridAlignCenter} item style={{ minWidth: 60 }}>
+                                                    <ArrowForwardIosIcon style={{ color: "#000" }}/>
+                                                </Grid>
+                                            </Grid>
+                                        </Grid>
+                                    </Grid>
+                                </Grid>
+                            </ListItemButton>
+                            <Divider/>
+                        </Link>
+                    )}
+                </Grid>
+            )))
     }
 
     /**
@@ -1006,10 +1158,10 @@ function Chat(props) {
     async function createChat() {
         let contacts = []
         let contactsCreateGroup = [...groupContacts].filter((contact) => contact.checked === true)
+        contacts.push({userId: AuthService.getCurrentUser().id, memberName: AuthService.getCurrentUser().username})
         for (let contact of contactsCreateGroup) {
             contacts.push({userId: contact.first.id, memberName: contact.first.username})
         }
-        contacts.push({userId: AuthService.getCurrentUser().id, memberName: AuthService.getCurrentUser().username})
         let fileStringBase64 = null
         if (avatarGroupChat) {
             let readerPromise = new Promise((resolve, reject) => {
@@ -1101,7 +1253,8 @@ function Chat(props) {
             width: "auto",
             minWidth: "300px",
             overflowY: "auto",
-            height: `calc(100vh - 154px - 113px - ${selectedFiles ? 27 * selectedFiles.length + 10 : 0}px)`,
+            height: `calc(100vh - 154px - 113px - ${selectedFiles ? 27 * selectedFiles.length + 10 : 0}px
+            - ${forwardMessages.length > 0 && forwardChat === false ? 55 : 0}px)`,
             '&::-webkit-scrollbar': {
                 width: '0.4em'
             },
@@ -1114,7 +1267,8 @@ function Chat(props) {
                 outline: '1px solid slategrey'
             },
             "@media (max-height: 600px)": {
-                minHeight: `calc(332px - ${27 * (selectedFiles ? selectedFiles.length : 0)}px)`,
+                minHeight: `calc(332px - ${selectedFiles ? 27 * selectedFiles.length + 10 : 0}px 
+                - ${forwardMessages.length > 0 && forwardChat === false ? 55 : 0}px)`,
             },
         },
 
@@ -1128,7 +1282,6 @@ function Chat(props) {
                 <Grid>
                     <Paper
                         component="form"
-                        // variant="outlined"
                         square
                         style={{ padding: '2px 3px',}}
                         className={classes.gridAlignCenter}>
@@ -1164,20 +1317,6 @@ function Chat(props) {
                     <Divider/>
                 </Grid>
                 <Grid>
-                    <Grid container>
-                        <Modal
-                            show={menuGroupChat}
-                            centered="true"
-                            aria-labelledby="contained-modal-title-vcenter"
-                            onHide={handleCloseGroupChat}>
-                            <Modal.Header>
-
-                            </Modal.Header>
-                            <Modal.Body>
-
-                            </Modal.Body>
-                        </Modal>
-                    </Grid>
                     <Paper square>
                         <List className={classes.itemButton} style={{ height: `calc(100vh - 153px)`, overflowY: "auto" }}>
                             {usersWithLastMsg && sortContacts()}
@@ -1198,11 +1337,9 @@ function Chat(props) {
                                 onClick={() => handleAvatar()}>
                             <PhotoCameraOutlinedIcon style={{fontSize: 20}}/>
                         </Avatar>
-                        {/*{"Hey"}//*/}
                     </Grid>
                     <Grid item xs className={classes.gridAlignCenter}>
                         <InputBase
-                            // style={{ margin: 5 }}
                             style={{ padding: 5, margin: 1 }}
                             fullWidth
                             placeholder="Введите название чата"
@@ -1219,7 +1356,6 @@ function Chat(props) {
                 <Grid
                     style={{ padding: 5, margin: 1 }}
                     component="form">
-                    {/*<Paper  elevation={0} square>*/}
                     {[...groupContacts]
                         .filter((data) => {
                             return data.checked
@@ -1239,8 +1375,6 @@ function Chat(props) {
                                 })}
                         </Grid>
                     }
-
-                    {/*</Paper>*/}
                     <InputBase
                         style={{ margin: 5 }}
                         placeholder="Поиск по контактам..."
@@ -1255,8 +1389,7 @@ function Chat(props) {
                 </Grid>
                 <Divider/>
                 <Paper square>
-                    <List className={classStyle.itemButtonGroupChat}
-                          >
+                    <List className={classStyle.itemButtonGroupChat}>
                         {groupContacts && menuGroupChat && contactsGroupChat()}
                         {/* Бага с нулем юзеров*/}
                     </List>
@@ -1268,15 +1401,15 @@ function Chat(props) {
                     </Grid>
                 </Paper>
             </Grid>
-        )
-
-        )
+        ))
     }
 
     function selectMessage(chat, index) {
-        let messages = allMessages.get(chat).messages
-        messages[index].checked = !messages[index].checked
-        setRefresh({})
+        if (!window.getSelection().toString()){
+            let messages = allMessages.get(chat).messages
+            messages[index].checked = !messages[index].checked
+            setRefresh({})
+        }
     }
 
     function listItemButtonChat() {
@@ -1288,24 +1421,24 @@ function Chat(props) {
                         .map((message, index) => (
                             ((message.msg.senderName !== selectedChat.username &&
                                     message.msg.type === "CHAT" &&
-                                    (<ListItemButton selected={message.checked}
+                                    (<ListItem selected={message.checked}
                                                      onClick={() => selectMessage(selectedChat.username, index)}
                                                      style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
                                         <SenderMsg msg={message.msg}
                                                    key={index}
                                                    scrollToBottom={scrollToBottom}
                                                    deleteMsgClient={deleteMsgClient}/>
-                                    </ListItemButton>)) ||
+                                    </ListItem>)) ||
                                 ((message.msg.senderName === selectedChat.username &&
                                         message.msg.type === "CHAT" &&
-                                        (<ListItemButton selected={message.checked}
+                                        (<ListItem selected={message.checked}
                                                          onClick={() => selectMessage(selectedChat.username, index)}
                                                          style={{ width: '100%' }}>
                                             <RecipientMsg msg={message.msg} key={index}
                                                           initialsSender={selectedChat.initials}
                                                           updateStatusMsg={updateStatusMsg}
                                                           scrollToBottom={scrollToBottom}/>
-                                        </ListItemButton>))
+                                        </ListItem>))
                                 ))
                         )))) :
                 (allMessages.get(selectedChat.chatId)) &&
@@ -1314,37 +1447,50 @@ function Chat(props) {
                     .map((message, index) => (
                         ((message.msg.senderName === currentUser &&
                                 message.msg.type === "CHAT" &&
-                                (<ListItemButton selected={message.checked}
+                                (<ListItem selected={message.checked}
                                                  onClick={() => selectMessage(selectedChat.chatId, index)}
                                                  style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
                                     <SenderMsg msg={message.msg}
                                                key={index}
                                                scrollToBottom={scrollToBottom}
                                                deleteMsgClient={deleteMsgClient}/>
-                                </ListItemButton>)) ||
+                                </ListItem>)) ||
                             ((message.msg.senderName !== currentUser &&
                                     message.msg.type === "CHAT" &&
-                                    (<ListItemButton selected={message.checked}
+                                    (<ListItem selected={message.checked}
                                                      onClick={() => selectMessage(selectedChat.chatId, index)}>
                                         <RecipientMsg msg={message.msg} key={index}
-                                                      sender={message.msg.senderName}
-                                                      getInitials={getInitialsBySenderInGroupChat}
+                                                      initialsSender={selectedChat.members.filter(member => {
+                                                          return member.username === message.msg.senderName
+                                                      }).map(member => {return member.initials})[0]}
                                                       updateStatusMsg={updateStatusMsg}
                                                       scrollToBottom={scrollToBottom}/>
-                                    </ListItemButton>))
+                                    </ListItem>))
                             ) || (
                                 message.msg.type !== "CHAT" &&
                                 (<NotificationMsg msg={message.msg} key={index}
-                                                  sender={message.msg.senderName}
-                                                  getInitials={getInitialsBySenderInGroupChat}
+                                                  initialsSender={selectedChat.members.filter(member => {
+                                                      return member.username === message.msg.senderName
+                                                  }).map(member => {return member.initials})[0]}
                                                   scrollToBottom={scrollToBottom}/>)
                             ))
                     ))))
         }
     }
 
+    let activeChat = selectedChat && selectedChat.username !== undefined
+
+    function clearSelectedMessage(chat) {
+        let messages = allMessages.get(chat).messages
+        for (let i = 0; i < messages.length; i++) {
+            messages[i].checked = false
+        }
+        setRefresh({})
+    }
+
     function statusBarChat() {
-        let activeChat = selectedChat && selectedChat.username !== undefined
+        let currentChat = activeChat ? selectedChat.username : selectedChat.chatId
+
         function countSelected(chat) {
             return ([...allMessages.get(chat).messages].filter(message => {
                 return message.checked === true
@@ -1358,13 +1504,22 @@ function Chat(props) {
             </Grid>)
         }
 
-        function clearSelectedMessage(chat) {
-            let messages = allMessages.get(chat).messages
-            for (let i = 0; i < messages.length; i++) {
-                messages[i].checked = false
-            }
-            setRefresh({})
+        function chooseMessages() {
+            let forwardedMessages = [...allMessages.get(currentChat).messages].filter(message => {
+                return message.checked === true
+            }).map(message => {
+                return message.msg
+            })
+            setForwardMessages(forwardedMessages)
+            clearSelectedMessage(currentChat)
         }
+
+        function chooseChatToForward() {
+            chooseMessages()
+            setForwardChat(true)
+        }
+
+
 
         return (
             <Grid xs item container>
@@ -1375,100 +1530,188 @@ function Chat(props) {
                             allMessages.get(selectedChat.chatId) && (countSelected(selectedChat.chatId) > 0)) ? (
                             <Grid xs item className={classes.gridAlignCenter} display="flex">
                                 <Grid xs={2} item style={{ marginLeft: 20, minWidth: 150, cursor: 'pointer' }}>
-                                    {activeChat ?
-                                        (countSelectedMessage(selectedChat.username)) :
-                                        (countSelectedMessage(selectedChat.chatId))}
+                                    {activeChat ? (countSelectedMessage(selectedChat.username)) : (countSelectedMessage(selectedChat.chatId))}
                                 </Grid>
-                                <Grid xs item>
+                                <Grid xs item/>
+                                <Grid xs={3} item style={{ display: 'flex', justifyContent: 'flex-end', marginRight: 20, minWidth: 80 }}>
+                                    {countSelected(currentChat) === 1 &&
+                                        <Button onClick={() => chooseMessages()}>
+                                            Ответить
+                                        </Button>
+                                    }
 
-                                </Grid>
-                                <Grid xs={2} item style={{ display: 'flex', justifyContent: 'flex-end', marginRight: 20, minWidth: 80 }}>
-                                    <Button >
+                                    <Button onClick={() => chooseChatToForward()}>
                                         Переслать
                                     </Button>
                                 </Grid>
                             </Grid>
                         ) : (
                             searchMessageButton ?
-                                (
-                                    <Grid xs item className={classes.gridAlignCenter} display="flex">
-                                        <Grid xs={1} item className={classes.gridAlignCenter} style={{ display: "flex", minWidth: "60px" }}>
-                                            <IconButton>
-                                                <SearchIcon/>
-                                            </IconButton>
-                                        </Grid>
-                                        <Grid xs item display="flex" >
-                                            <InputBase size="small"
-                                                       fullWidth
-                                                       className={classes.inputSearchMsg}
-                                                // variant="outlined"
-                                                       square
-                                                       id="searchContent"
-                                                       placeholder="Поиск по сообщениям..."
-                                                       inputProps={{ 'aria-label': 'Поиск по сообщениям...' }}
-                                                       name="searchContent"
-                                                       autoComplete="off"
-                                                       value={searchContent}
-                                                       onChange={(searchContent) =>
-                                                           onChangeSearchContactsContent(searchContent, 'content')}
-                                            />
-                                        </Grid>
-                                        <Grid xs={2} item style={{ display: "flex", justifyContent: "flex-end", minWidth: "80px", marginRight: "15px"}}>
-                                            <Button onClick={() => handleCloseSearchMessage()} style={{ display: "flex", alignItems: "flex-end" }}> Отмена </Button>
-                                        </Grid>
+                                (<Grid xs item className={classes.gridAlignCenter} display="flex">
+                                    <Grid xs={1} item className={classes.gridAlignCenter} style={{ display: "flex", minWidth: "60px" }}>
+                                        <IconButton>
+                                            <SearchIcon/>
+                                        </IconButton>
                                     </Grid>
-                                ) : (
-                                    <Grid xs item className={classes.gridAlignCenter} display="flex" >
-                                        {window.innerWidth < 992 &&
-                                            <Grid xs={1} item className={classes.gridAlignCenter} style={{ display: "flex", minWidth: "60px" }}>
-                                                <IconButton
-                                                    color="inherit"
-                                                    title={"Назад к чатам"}
-                                                    onClick={() => deactivateChat()}>
-                                                    <ArrowBackIcon/>
-                                                </IconButton>
-                                            </Grid>
-                                        }
-                                        <Grid xs item style={{ display: "flex", marginLeft: 15 }}>
-                                            {selectedChat && selectedChat.username !== undefined ?
-                                                <Link to={"/profile/" + selectedChat.username}>
-                                                    <Typography style={{fontSize: 15, fontWeight: "bold", color: '#000'}}>
-                                                        {selectedChat.initials}
-                                                    </Typography>
-                                                </Link>
-                                                :
-                                                <Typography style={{fontSize: 15, fontWeight: "bold", color: '#000'}}>
-                                                    {selectedChat.chatName}
-                                                </Typography>}
-                                        </Grid>
+                                    <Grid xs item display="flex" >
+                                        <InputBase size="small"
+                                                   fullWidth
+                                                   className={classes.inputSearchMsg}
+                                                   square
+                                                   id="searchContent"
+                                                   placeholder="Поиск по сообщениям..."
+                                                   inputProps={{ 'aria-label': 'Поиск по сообщениям...' }}
+                                                   name="searchContent"
+                                                   autoComplete="off"
+                                                   value={searchContent}
+                                                   onChange={(searchContent) =>
+                                                       onChangeSearchContactsContent(searchContent, 'content')}
+                                        />
+                                    </Grid>
+                                    <Grid xs={2} item style={{ display: "flex", justifyContent: "flex-end", minWidth: "80px", marginRight: "15px"}}>
+                                        <Button onClick={() => handleCloseSearchMessage()} style={{ display: "flex", alignItems: "flex-end" }}> Отмена </Button>
+                                    </Grid>
+                                </Grid>
+                            ) : (
+                                <Grid xs item className={classes.gridAlignCenter} display="flex" >
+                                    {window.innerWidth < 992 &&
                                         <Grid xs={1} item className={classes.gridAlignCenter} style={{ display: "flex", minWidth: "60px" }}>
                                             <IconButton
                                                 color="inherit"
-                                                title={"Поиск по сообщениям"}
-                                                onClick={() => setSearchMessageButton(true)}>
-                                                <SearchIcon/>
+                                                title={"Назад к чатам"}
+                                                onClick={() => deactivateChat()}>
+                                                <ArrowBackIcon/>
                                             </IconButton>
                                         </Grid>
-                                        <Grid xs={1} item className={classes.gridAlignCenter} style={{ minWidth: 60 }}>
-                                            {selectedChat && selectedChat.username !== undefined ?
-                                                <Link to={"/profile/" + selectedChat.username}>
-                                                    <Avatar className={classes.avatar} src={selectedChat.avatar}>
-                                                        <PhotoCameraOutlinedIcon/>
-                                                    </Avatar>
-                                                </Link>
-                                                :
+                                    }
+                                    <Modal
+                                        show={manageGroupChat}
+                                        centered="true"
+                                        aria-labelledby="contained-modal-title-vcenter"
+                                        style={{ minWidth: 300 }}
+                                        onHide={() => setManageGroupChat(false)}
+                                    >
+                                        <Modal.Header style={{ backgroundColor:"#fafbfc" }}>
+                                            <Modal.Title id="contained-modal-title-vcenter">
+                                                Информация
+                                            </Modal.Title>
+                                        </Modal.Header>
+                                        <Modal.Body style={{ padding: 0 }}>
+                                            <Grid xs item>
+                                                <Grid xs item>
+                                                    <Badge
+                                                        overlap="circular"
+                                                        anchorOrigin={{
+                                                            vertical: 'top',
+                                                            horizontal: 'right',
+                                                        }}
+                                                        badgeContent={<CancelIcon
+                                                            className={classes.cancelIcon}/>}
+                                                    >
+                                                        <Avatar className={classes.avatarManageGroupChat} src={selectedChat.avatar}>
+                                                            <PhotoCameraOutlinedIcon/>
+                                                        </Avatar>
+                                                    </Badge>
+                                                </Grid>
+                                                <List className={classes.itemButtonGroupChat} fullWidth
+                                                      style={{ height: '50vh', }}>
+                                                    {selectedChat.members !== undefined && selectedChat.members.map(member => {
+                                                        return (<ListItem
+                                                            value={member}
+                                                            title={member.lastname + " " + member.firstname}
+                                                            divider
+                                                        >
+                                                            <Grid className={classes.flex} xs={12} item direction="row" style={{ display: "flex", alignItems: "center" }}>
+                                                                <Grid xs={1} item style={{ minWidth: 60 }}>
+                                                                    <Avatar className={classes.avatar} src={member.avatar}>
+                                                                        <PhotoCameraOutlinedIcon/>
+                                                                    </Avatar>
+                                                                </Grid>
+                                                                <Grid xs item>
+                                                                    <Grid className={classes.gridFullWidth}>
+                                                                        <Grid className={classes.flex} xs={12} item>
+                                                                            <Grid xs item>
+                                                                                <UserCardMessage user={member}/>
+                                                                            </Grid>
+                                                                            {selectedChat.creatorName !== currentUser ?
+                                                                                currentUser === member.username &&
+                                                                                (<Grid xs={1} className={classes.gridAlignCenter} item style={{ minWidth: 60 }}>
+                                                                                    <ClearIcon style={{ color: "#000" }}/>
+                                                                                </Grid> )
+                                                                                :
+                                                                                selectedChat.creatorName === currentUser &&
+                                                                                selectedChat.creatorName === member.username ?
+                                                                                    <Grid xs={2} className={classes.gridAlignCenter} item
+                                                                                          style={{ minWidth: 120,
+                                                                                              color: '#8f8f8f',
+                                                                                              fontSize: 12 }}>
+                                                                                        {"Создатель чата"}
+                                                                                    </Grid>
+                                                                                    :
+                                                                                    <Grid xs={1} className={classes.gridAlignCenter} item style={{ minWidth: 60 }}>
+                                                                                        <ClearIcon style={{ color: "#000" }}/>
+                                                                                    </Grid>
+                                                                            }
+                                                                        </Grid>
+                                                                    </Grid>
+                                                                </Grid>
+                                                            </Grid>
+                                                        </ListItem>)
+                                                    })}
+                                                </List>
+                                            </Grid>
+                                        </Modal.Body>
+                                    </Modal>
+                                    <Grid xs item style={{ display: "flex", marginLeft: 15 }}>
+                                        {selectedChat && selectedChat.username !== undefined ?
+                                            <Link to={"/profile/" + selectedChat.username}>
+                                                <Typography style={{fontSize: 15, fontWeight: "bold", color: '#000'}}>
+                                                    {selectedChat.initials}
+                                                </Typography>
+                                            </Link>
+                                            :
+                                            <Typography
+                                                style={{fontSize: 15, fontWeight: "bold", color: '#000', cursor: 'pointer' }}
+                                                onClick={() => setManageGroupChat(true)}>
+                                                {selectedChat.chatName}
+                                            </Typography>}
+                                    </Grid>
+                                    <Grid xs={1} item className={classes.gridAlignCenter} style={{ display: "flex", minWidth: "60px" }}>
+                                        <IconButton
+                                            color="inherit"
+                                            title={"Поиск по сообщениям"}
+                                            onClick={() => setSearchMessageButton(true)}>
+                                            <SearchIcon/>
+                                        </IconButton>
+                                    </Grid>
+                                    <Grid xs={1} item className={classes.gridAlignCenter} style={{ minWidth: 60 }}>
+                                        {selectedChat && selectedChat.username !== undefined ?
+                                            <Link to={"/profile/" + selectedChat.username}>
                                                 <Avatar className={classes.avatar} src={selectedChat.avatar}>
                                                     <PhotoCameraOutlinedIcon/>
                                                 </Avatar>
-                                            }
-                                        </Grid>
+                                            </Link>
+                                            :
+                                            <Avatar className={classes.avatar}
+                                                    src={selectedChat.avatar}
+                                                    style={{ cursor: 'pointer' }}
+                                                    onClick={() => setManageGroupChat(true)}>
+                                                <PhotoCameraOutlinedIcon/>
+                                            </Avatar>
+                                        }
                                     </Grid>
-                                )
+                                </Grid>
+                            )
                         )
                     }
                 </Paper>
             </Grid>
         )
+    }
+
+    function cancelForwardMessage() {
+        setForwardMessages([])
+        setForwardChat(false)
     }
 
     return (
@@ -1482,6 +1725,52 @@ function Chat(props) {
                 <Grid xs item className={classes.paper2}>
                     {selectedChat &&
                         <Grid xs={12} container item display="flex" direction="column">
+                            <Modal
+                                show={forwardChat}
+                                centered="true"
+                                aria-labelledby="contained-modal-title-vcenter"
+                                onHide={() => cancelForwardMessage()}
+                            >
+                                <Modal.Header style={{ backgroundColor:"#fafbfc" }}>
+                                    <Modal.Title id="contained-modal-title-vcenter">
+                                        Выберите чат
+                                    </Modal.Title>
+                                </Modal.Header>
+                                <Modal.Body style={{ padding: 0 }}>
+                                    <Grid xs item>
+                                        <Paper
+                                            component="form"
+                                            square
+                                            style={{ padding: '10px 0px',}}
+                                            className={classes.gridAlignCenter}>
+                                            <Grid xs={1} item style={{ minWidth: 60, }}
+                                                  className={classes.gridAlignCenter}>
+                                                <SearchIcon
+                                                    className={classes.searchIcon}/>
+                                            </Grid>
+                                            <Grid item xs className={classes.gridAlignCenter}>
+                                                <InputBase size="small"
+                                                           fullWidth
+                                                           className={classes.inputSearchMsg}
+                                                           square
+                                                           id="searchChats"
+                                                           placeholder="Поиск по чатам..."
+                                                           inputProps={{ 'aria-label': 'Поиск по чатам...' }}
+                                                           name="searchChats"
+                                                           autoComplete="off"
+                                                           value={searchChats}
+                                                           onChange={(searchChats) =>
+                                                               onChangeSearchContactsContent(searchChats, 'forward')}
+                                                />
+                                                <Divider/>
+                                            </Grid>
+                                        </Paper>
+                                        <List className={classes.itemButtonGroupChat} fullWidth style={{ height: '50vh', }}>
+                                            {forwardMessages && sortContactsForwardMessages()}
+                                        </List>
+                                    </Grid>
+                                </Modal.Body>
+                            </Modal>
                             {statusBarChat()}
                             <Divider/>
                             <Paper className={classStyle.messageGrid} square>
@@ -1494,8 +1783,7 @@ function Chat(props) {
                             </Paper>
                             <Divider/>
                             <Paper style={{ backgroundColor:"#fafbfc" }} square>
-                                <Grid className={classStyle.selectedFiles} style={{
-                                    height: `calc(${27 * (selectedFiles ? selectedFiles.length : 0)}px)`}} xs={12} item>
+                                <Grid className={classStyle.selectedFiles} xs={12} item>
                                     {selectedFiles && createFilesArray().map((file, i) =>
                                         <Grid xs item key={i}>
                                             <span>{file.name.length > 30 ? file.name.slice(0, 30) + "..." : file.name} {"\n"}</span>
@@ -1505,9 +1793,22 @@ function Chat(props) {
                                         </Grid>
                                     )}
                                 </Grid>
+                                {forwardMessages.length > 0 && forwardChat === false &&
+                                    <Grid xs item fullWidth style={{ display: "flex", alignItems: 'center', height: 45, marginTop: 10}}>
+                                        <Grid xs={1} item style={{ marginLeft: 10, maxWidth: 3, marginRight: 10 }}>
+                                            <Divider orientation="vertical" className={classes.divider}/>
+                                        </Grid>
+                                        <Grid xs item style={{ fontWeight: 'bold' }}>{"Пересланных сообщений: " + forwardMessages.length}</Grid>
+                                        <Grid xs={1} item style={{ display: "flex", minWidth: 60, justifyContent: 'flex-end', marginRight: 10 }}>
+                                            <IconButton onClick={() => setForwardMessages([])}>
+                                                <ClearIcon/>
+                                            </IconButton>
+                                        </Grid>
+                                    </Grid>
+                                }
                                 <Grid container
                                       className={classes.gridAlignCenter}
-                                      style={{ height: `calc(113px )`, marginLeft: 6}}>
+                                      style={{ height: `calc(113px)`, marginLeft: 6}}>
                                     <Grid xs={1} item className={classes.buttonChat}>
                                         <DropdownButton
                                             as={ButtonGroup}
@@ -1551,47 +1852,44 @@ function Chat(props) {
                                                         aria-labelledby="contained-modal-title-vcenter"
                                                         onHide={handleCloseUpload}
                                                     >
+                                                        <Modal.Header style={{ backgroundColor:"#fafbfc" }}>
+                                                            <Modal.Title id="contained-modal-title-vcenter">
+                                                                Выберите изображения из профиля
+                                                            </Modal.Title>
+                                                        </Modal.Header>
                                                         <Modal.Body>
-                                                            <Modal.Header>
-                                                                <Modal.Title id="contained-modal-title-vcenter">
-                                                                    Выберите изображения из профиля
-                                                                </Modal.Title>
-                                                            </Modal.Header>
                                                             <Container component="main">
                                                                 <main className={classes.layout}>
-                                                                    <Paper className={classes.paper3}>
-                                                                        <FormControl className={classes.formControl}>
-                                                                            <InputLabel id="selected-files">Прикрепить файлы</InputLabel>
-                                                                            <Select
-                                                                                className={classes.rootSelect}
-                                                                                multiple
-                                                                                labelId="selected-files"
-                                                                                value={selectFiles}
-                                                                                title={"Прикрепить файлы"}
-                                                                                onChange={handleFiles}
-                                                                                input={<Input id="select-multiple-chip-for-files"/>}
-                                                                                renderValue={(selected) => (
-                                                                                    <div className={classes.chips}>
-                                                                                        {selected.map((value) => (
-                                                                                            <Chip
-                                                                                                key={value.id}
-                                                                                                label={value.name}
-                                                                                                className={classes.chip}
-                                                                                            />
-                                                                                        ))}
-                                                                                    </div>
-                                                                                )}
-                                                                                MenuProps={MenuProps}
-                                                                            >
-                                                                                {allFiles.map((x) => (
-                                                                                    <MenuItem key={x.id} value={x} id={x.id}>
-                                                                                        {x.name}
-                                                                                    </MenuItem>
-                                                                                ))}
-                                                                            </Select>
-                                                                        </FormControl>
-
-                                                                    </Paper>
+                                                                    <FormControl className={classes.formControl}>
+                                                                        <InputLabel id="selected-files">Прикрепить файлы</InputLabel>
+                                                                        <Select
+                                                                            className={classes.rootSelect}
+                                                                            multiple
+                                                                            labelId="selected-files"
+                                                                            value={selectFiles}
+                                                                            title={"Прикрепить файлы"}
+                                                                            onChange={handleFiles}
+                                                                            input={<Input id="select-multiple-chip-for-files"/>}
+                                                                            renderValue={(selected) => (
+                                                                                <div className={classes.chips}>
+                                                                                    {selected.map((value) => (
+                                                                                        <Chip
+                                                                                            key={value.id}
+                                                                                            label={value.name}
+                                                                                            className={classes.chip}
+                                                                                        />
+                                                                                    ))}
+                                                                                </div>
+                                                                            )}
+                                                                            MenuProps={MenuProps}
+                                                                        >
+                                                                            {allFiles.map((x) => (
+                                                                                <MenuItem key={x.id} value={x} id={x.id}>
+                                                                                    {x.name}
+                                                                                </MenuItem>
+                                                                            ))}
+                                                                        </Select>
+                                                                    </FormControl>
                                                                 </main>
                                                             </Container>
                                                         </Modal.Body>

@@ -6,6 +6,7 @@ import Grid from "@material-ui/core/Grid";
 import AttachmentService from "../../services/attachment.service";
 import ChatService from "../../services/chat.service";
 import Button from "@material-ui/core/Button";
+import UserService from "../../services/user.service";
 
 const useStyles = theme => ({
 	txt: {
@@ -32,18 +33,27 @@ function NotificationMsg(props) {
 	const {classes} = props;
 	const {msg} = props;
 	const {initialsSender} = props
-	const {getInitials} = props
-	const {sender} = props
 	const {scrollToBottom} = props
 	useEffect(async () => {
 		scrollToBottom()
 	}, [msg]);
 
+	function getInitialsUser(username) {
+		let user
+		UserService.getUserByUsername(username).then(async (response) => {
+			user = await response.data
+		})
+		.catch((e) => {
+			console.log(e)
+		})
+		return user.initials
+	}
+
 	return (
 		<Grid>
 			<Grid className={classes.txt}>
 				<Link to={"/profile/" + msg.senderName} className={classes.link}>
-					{sender === undefined ? initialsSender : getInitials(sender)}
+					{initialsSender !== undefined ? initialsSender : getInitialsUser(msg.senderName)}
 				</Link>
 				{msg.type === "CREATE" && <span className={classes.txt}> создал чат </span>}
 				{msg.type === "LEAVE" && <span className={classes.txt}> вышел из чата </span>}

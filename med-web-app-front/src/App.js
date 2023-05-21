@@ -363,7 +363,7 @@ function App(props) {
         } else { // Если пользователя в списке нет, то необходимо получить данные о нем от сервера.
             ChatService.getGroupChat(data.chatId)
                 .then(async (response) => {
-                    const chatRoom = response.data;
+                    const chatRoom = response.data.shift()
                     if (chatRoom.avatar) {
                         const base64Response = await fetch(`data:application/json;base64,${chatRoom.avatar}`)
                         const blob = await base64Response.blob()
@@ -405,7 +405,7 @@ function App(props) {
         } else { // Если пользователя в списке нет, то необходимо получить данные о нем от сервера.
             UserService.getAllByUsername(data.senderName)
                 .then(async (response) => {
-                    const user = response.data.shift();
+                    const user = response.data.shift()
                     if (user.avatar) {
                         const base64Response = await fetch(`data:application/json;base64,${user.avatar}`)
                         const blob = await base64Response.blob()

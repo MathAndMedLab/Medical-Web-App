@@ -65,6 +65,14 @@ public class ChatMessage {
     )
     private List<FileObject> attachments;
 
+    @ManyToMany
+    @JoinTable(
+            name = "forwarded_msgs",
+            joinColumns = @JoinColumn(name = "msg_id"),
+            inverseJoinColumns = @JoinColumn(name = "forwarded_msg_id")
+    )
+    private List<ChatMessage> forwardedMessages;
+
     @ElementCollection
     private List<byte[]> images;
 

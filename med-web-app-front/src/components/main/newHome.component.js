@@ -15,51 +15,6 @@ const useStyles = theme => ({
         flexGrow: 1,
         overflowX: 'hidden',
         overflowY: 'hidden',
-        // "@media (min-width : 446px)": {
-        //     marginLeft: theme.spacing(-10),
-        // },
-
-        // "@media (min-width : 600px)": {
-        //     width: 500,
-        //     marginLeft: theme.spacing(-10),
-        // },
-
-        // "@media (min-width : 690px)": {
-        //     width: 650,
-        //     marginLeft: theme.spacing(-15),
-        // },
-
-        // "@media (min-width : 768px)": {
-        //     width: 650,
-        //     marginLeft: theme.spacing(-10),
-        // },
-
-        // "@media (min-width : 769px)": {
-        //     width: 700,
-        //     marginLeft: theme.spacing(7),
-        // },
-        // "@media (min-width : 874px)": {
-        //     width: 750,
-        //     marginLeft: theme.spacing(-10),
-        // },
-        // "@media (min-width : 960px)": {
-        //     width: 800,
-        //     marginLeft: theme.spacing(-12),
-        // },
-        // "@media (min-width : 991px)": {
-        //     width: 800,
-        //     marginLeft: theme.spacing(15),
-        // },
-        // "@media (min-width : 1100px)": {
-        //     width: 800,
-        //     marginLeft: theme.spacing(6)
-        // },
-        // "@media (min-width : 1280px)": {
-        //     width: 1600,
-        //     marginLeft: theme.spacing(-40)
-        // },
-
-        // alignItems: "center",
     },
 
     backgroundImageRight: {

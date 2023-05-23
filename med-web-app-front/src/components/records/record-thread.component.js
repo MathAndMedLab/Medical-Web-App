@@ -123,6 +123,7 @@ const useStyles = theme => ({
     },
     divAddButtonStyle: {
         position: "fixed",
+        
         [theme.breakpoints.down("xs")]: {
             left: "81%",
             top: "90%"
@@ -139,6 +140,7 @@ const useStyles = theme => ({
     backButtonStyle: {
         position: "fixed",
         zIndex: 2500,
+        
         [theme.breakpoints.down("xs")]: {
             left: "0%",
         },

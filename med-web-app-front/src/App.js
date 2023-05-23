@@ -787,7 +787,7 @@ function App(props) {
         <div className={clsx(classes.root, (window.location.href.split('/')[4] === "newHome" || window.location.href.split('/')[4] === "") && classes.rootHome)}>
             <CssBaseline />
 
-            <AppBar  position="fixed" className={clsx(classes.appBar, false && classes.appBarShift)}>
+            <AppBar position="fixed" className={clsx(classes.appBar, false && classes.appBarShift)}>
                 <Toolbar className={classes.toolbar} >
                     <IconButton
                         edge="start"

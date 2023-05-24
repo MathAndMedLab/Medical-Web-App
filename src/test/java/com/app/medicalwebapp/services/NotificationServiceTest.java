@@ -1,7 +1,5 @@
 package com.app.medicalwebapp;
-
 import java.util.List;
-import java.util.Set;
 import java.util.ArrayList;
 
 import com.app.medicalwebapp.model.User;
@@ -131,4 +129,22 @@ public class NotificationServiceTest {
         assertEquals(3, userFound1.getNotificationIds().length);
     }
 
+    @Test
+    public void getAllNotificationsForUserWithoutNotificationsTest()
+    {
+        var userId = 555L;
+        User user = new User();
+        user.setId(userId);
+
+        Mockito.doReturn(user)
+                .when(userRepository)
+                .getById(userId);
+        User userFound = userService.getById(userId);
+
+        Mockito.verify(userRepository, Mockito.times(1)).getById(userId);
+
+        List<Notification> l = notificationService.getAllNotifications(userId);
+
+        assertEquals(0, l.size());
+    }
 }

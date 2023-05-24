@@ -12,40 +12,22 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class NotificationService {
-
     private final UserRepository userRepository;
     private final NotificationRepository notificationRepository;
+
     @Autowired
     public NotificationService(UserRepository userRepository, NotificationRepository notificationRepository) {
         this.userRepository = userRepository;
         this.notificationRepository = notificationRepository;
     }
 
+
     // Сохраняем одно одинаковое уведомление для списка пользователей.
-    public void saveNotification(NotificationRequest request) {
-        List<Long> userIds = request.getUserIds();
-        for (Long userId : userIds) {
-            User user = userRepository.getById(userId);
-            if (user.getNotificationIds() == null) {
-                user.setNotificationIds(new Long[0]);
-            }
-        }
-
-        var timeZoneUnparsed = ZonedDateTime.now().toString();
-        String timeZone = timeZoneUnparsed.substring(timeZoneUnparsed.lastIndexOf("[") + 1).split("]")[0];
-
-        Notification notification = Notification.builder()
-                .data(request.getData())
-                .creationTime(LocalDateTime.now())
-                .notificationType(request.getNotificationType())
-                .notificationLink(request.getNotificationLink())
-                .numberOfOwners(userIds.size())
-                .timeZone(timeZone)
-                .build();
-
+    public void saveNotification(Notification notification, List<Long> userIds) {
         notificationRepository.save(notification);
 
         for (Long userId : userIds) {

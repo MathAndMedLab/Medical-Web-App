@@ -1,9 +1,33 @@
 package com.app.medicalwebapp.controllers;
 
+
+
+
+import java.util.ArrayList;
+import com.app.medicalwebapp.repositories.UserRepository;
+import com.app.medicalwebapp.repositories.NotificationRepository;
+import com.app.medicalwebapp.controllers.requestbody.NotificationRequest;
+import com.app.medicalwebapp.model.Notification;
+import com.app.medicalwebapp.model.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
+
+
+
+
+
+
+
 import com.app.medicalwebapp.controllers.requestbody.NotificationRequest;
 import com.app.medicalwebapp.security.UserDetailsImpl;
 import com.app.medicalwebapp.services.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import com.app.medicalwebapp.model.Notification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,10 +42,12 @@ import com.app.medicalwebapp.model.Notification;
 @RequestMapping("/api/notifications")
 public class NotificationController {
     private final NotificationService notificationService;
+    private final UserRepository userRepository;
 
     @Autowired
-    public NotificationController(NotificationService notificationService) {
+    public NotificationController(NotificationService notificationService, UserRepository userRepository) {
         this.notificationService = notificationService;
+        this.userRepository = userRepository;
     }
 
     @GetMapping("/all")
@@ -38,7 +64,26 @@ public class NotificationController {
     @PostMapping("/save")
     public void saveNotification(@Valid @RequestBody NotificationRequest request)  {
         try {
-            notificationService.saveNotification(request);
+            List<Long> userIds = request.getUserIds();
+            for (Long userId : userIds) {
+                User user = userRepository.getById(userId);
+                if (user.getNotificationIds() == null) {
+                    user.setNotificationIds(new Long[0]);
+                }
+            }
+
+            var timeZoneUnparsed = ZonedDateTime.now().toString();
+            String timeZone = timeZoneUnparsed.substring(timeZoneUnparsed.lastIndexOf("[") + 1).split("]")[0];
+
+            Notification notification = Notification.builder()
+                    .data(request.getData())
+                    .creationTime(LocalDateTime.now())
+                    .notificationType(request.getNotificationType())
+                    .notificationLink(request.getNotificationLink())
+                    .numberOfOwners(userIds.size())
+                    .timeZone(timeZone)
+                    .build();
+            notificationService.saveNotification(notification, userIds);
         } catch (Exception e) {
             e.printStackTrace();
         }

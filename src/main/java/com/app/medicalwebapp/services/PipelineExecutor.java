@@ -9,6 +9,7 @@ import com.app.medicalwebapp.model.PipelineJob;
 import com.app.medicalwebapp.model.PipelineJobStatus;
 import com.app.medicalwebapp.model.User;
 import com.app.medicalwebapp.repositories.PipelineJobRepository;
+import com.app.medicalwebapp.services.service_utils.MirfZipUtils;
 import com.app.medicalwebapp.utils.extracting.FileExtractorStrategy;
 import com.app.medicalwebapp.utils.extracting.FileExtractorStrategyResolver;
 import org.springframework.beans.factory.annotation.Autowired;

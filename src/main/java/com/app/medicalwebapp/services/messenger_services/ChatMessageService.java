@@ -6,10 +6,13 @@ import com.app.medicalwebapp.model.FileObject;
 import com.app.medicalwebapp.model.FileObjectFormat;
 import com.app.medicalwebapp.model.messenger_models.ChatMessage;
 import com.app.medicalwebapp.model.messenger_models.StatusMessage;
+import com.app.medicalwebapp.repositories.FileObjectRepository;
 import com.app.medicalwebapp.repositories.messenger_repositories.ChatMessageRepository;
 import com.app.medicalwebapp.services.FileService;
+import com.app.medicalwebapp.services.service_utils.MemoUpload;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -22,19 +25,24 @@ import java.util.stream.Collectors;
 @Service
 public class ChatMessageService {
     private final ChatMessageRepository chatMessageRepository;
+    private final FileObjectRepository fileObjectRepository;
     private final FileService fileService;
 
     @Autowired
-    public ChatMessageService(ChatMessageRepository chatMessageRepository, FileService fileService){
+    public ChatMessageService(ChatMessageRepository chatMessageRepository, FileObjectRepository fileObjectRepository, FileService fileService){
         this.chatMessageRepository = chatMessageRepository;
+        this.fileObjectRepository = fileObjectRepository;
         this.fileService = fileService;
     }
 
     /**
      * Сохранение отправленного сообщения в базу данных.
      */
+    @Transactional
     public ChatMessage save(ChatMessageRequest msg) throws Exception {
         List<FileObject> files = new ArrayList<>();
+        List<ChatMessage> forwardedMessages = new ArrayList<>();
+        MemoUpload memoize = new MemoUpload(fileObjectRepository, fileService);
 
         // Если к сообщению прикреплены файлы, необходимо строку base64 декодировать в byte[] и отправить файл на сохранение.
         if (msg.getFiles() != null) {
@@ -42,17 +50,32 @@ public class ChatMessageService {
                 Base64.Decoder decoder = Base64.getDecoder();
                 String fileBase64 = file.getFileContent().split(",")[1];
                 byte[] decodedFileByte = decoder.decode(fileBase64);
-                files.add(fileService.saveFile(file.getFileName(), decodedFileByte, msg.getSenderId(), msg.getUid()));
+                var checkUploadFile = memoize.checkMemo(msg.getSenderId(), decodedFileByte);
+                if (checkUploadFile != null) {
+                    files.add(checkUploadFile);
+                } else {
+                    files.add(fileService.saveFile(file.getFileName(), decodedFileByte, msg.getSenderId(), msg.getUid()));
+                }
             }
         }
-        String chatId;
-        if (msg.getSenderName().compareTo(msg.getRecipientName()) < 0) {
-            chatId = (msg.getSenderName() + msg.getRecipientName());
-        } else {
-            chatId = (msg.getRecipientName() + msg.getSenderName());
+
+        if (msg.getForwardedMessages() != null) {
+            for (Long msgId : msg.getForwardedMessages()) {
+                ChatMessage forwardedMsg = chatMessageRepository.findFirstById(msgId);
+                forwardedMessages.add(forwardedMsg);
+            }
         }
+
+        String chatId;
+        if (msg.getChatId() == null) {
+            chatId = chatIdGenerateByTwoUser(msg.getSenderName(), msg.getRecipientName());
+        } else {
+            chatId = msg.getChatId();
+        }
+
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setChatId(chatId);
+        chatMessage.setType(msg.getType());
         chatMessage.setRecipientId(msg.getRecipientId());
         chatMessage.setSenderId(msg.getSenderId());
         chatMessage.setRecipientName(msg.getRecipientName());
@@ -62,9 +85,10 @@ public class ChatMessageService {
         chatMessage.setSendDate(msg.getSendDate());
         chatMessage.setTimeZone(msg.getTimeZone());
         chatMessage.setAttachments(files);
+        chatMessage.setForwardedMessages(forwardedMessages);
         chatMessage.setDeleted(false);
         var message = chatMessageRepository.save(chatMessage);
-
+        System.out.println(message);
         // Необходимо воспользоваться функцией getImages(), и получить byte[] через функцию fileService.previewFile(),
         // так как иначе изображение не будет корректно отображено на клиенте.
         if (message.getAttachments().size() > 0) {
@@ -76,13 +100,7 @@ public class ChatMessageService {
     /**
      * Поиск всех сообщений между двумя пользователями.
      */
-    public List<ChatMessage> findMessages(String senderUsername, String recipientUsername) throws Exception {
-        String chatId;
-        if (senderUsername.compareTo(recipientUsername) < 0) {
-            chatId = (senderUsername + recipientUsername);
-        } else {
-            chatId = (recipientUsername + senderUsername);
-        }
+    public List<ChatMessage> findMessages(String chatId) throws Exception {
         List<ChatMessage> messages;
         Optional<List<ChatMessage>> messagesOptional = chatMessageRepository.findByChatIdAndDeleted(chatId, false);
         messages = messagesOptional.orElseGet(ArrayList::new);
@@ -94,6 +112,8 @@ public class ChatMessageService {
 
         return messages;
     }
+
+
 
     /**
      * Функция устанавливает в объекты сообщений данные о UID и byte[]
@@ -166,12 +186,8 @@ public class ChatMessageService {
      * Удаление сообщения с предварительным поиском нужного сообщения по времени отправления и chatId.
      */
     public void deleteMsgByTimeAndChatId(LocalDateTime time, String senderUsername, String recipientUsername) {
-        String chatId;
-        if (senderUsername.compareTo(recipientUsername) < 0) {
-            chatId = (senderUsername + recipientUsername);
-        } else {
-            chatId = (recipientUsername + senderUsername);
-        }
+        String chatId = chatIdGenerateByTwoUser(senderUsername, recipientUsername);
+
         ChatMessage messageToDelete = chatMessageRepository.findBySendDateAndChatId(time, chatId);
         this.delete(messageToDelete);
     }
@@ -182,7 +198,8 @@ public class ChatMessageService {
 
     public List<ChatMessage> findMessagesByKeywords(String senderUsername, String recipientUsername, String keywordsString) throws Exception {
         String[] keywords = keywordsString.split(" ");
-        var allMessages = this.findMessages(senderUsername, recipientUsername);
+        String chatId = chatIdGenerateByTwoUser(senderUsername, recipientUsername);
+        var allMessages = this.findMessages(chatId);
         var foundMessages = new ArrayList<ChatMessage>();
         for (String keyword : keywords) {
             foundMessages.addAll(allMessages
@@ -198,12 +215,8 @@ public class ChatMessageService {
      * Поиск сообщения по времени отправления и chatId.
      */
     public ChatMessage getMsgByTimeAndChatId(LocalDateTime time, String senderName, String recipientName) {
-        String chatId;
-        if (senderName.compareTo(recipientName) < 0) {
-            chatId = (senderName + recipientName);
-        } else {
-            chatId = (recipientName + senderName);
-        }
+        String chatId = chatIdGenerateByTwoUser(senderName, recipientName);
+
         var count = 0;
         ChatMessage message = chatMessageRepository.findBySendDateAndChatId(time, chatId);
         while (message == null && count <= 1000) {
@@ -211,6 +224,16 @@ public class ChatMessageService {
             count++;
         }
         return message;
+    }
+
+    public String chatIdGenerateByTwoUser(String senderName, String recipientName) {
+        String chatId;
+        if (senderName.compareTo(recipientName) < 0) {
+            chatId = (senderName + recipientName);
+        } else {
+            chatId = (recipientName + senderName);
+        }
+        return chatId;
     }
 }
 

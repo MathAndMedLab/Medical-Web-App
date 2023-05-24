@@ -40,18 +40,21 @@ public class NotificationServiceTest {
 
     @Test
     public void saveNotificationAndgetAllNotificationsTest() {
+        var userId = 777L;
+        var notificationId = 778L;
+
         User user = new User();
-        user.setId(777L);
+        user.setId(userId);
         Long[] userNotificationIds = new Long[1];
-        userNotificationIds[0] = 778L;
+        userNotificationIds[0] = notificationId;
         user.setNotificationIds(userNotificationIds);
 
         Mockito.doReturn(user)
                 .when(userRepository)
-                .getById(777L);
-        User userFound = userService.getById(777L);
+                .getById(userId);
+        User userFound = userService.getById(userId);
 
-        Mockito.verify(userRepository, Mockito.times(1)).getById(777L);
+        Mockito.verify(userRepository, Mockito.times(1)).getById(userId);
 
         List<Long> userIds = new ArrayList<Long>();
         userIds.add(userFound.getId());
@@ -60,65 +63,72 @@ public class NotificationServiceTest {
         notification.setData("Test notification right here.");
         notification.setNotificationType("testNotification");
         notification.setNotificationLink("testLink");
-        notification.setId(778L);
+        notification.setId(notificationId);
 
         Mockito.doReturn(notification)
                 .when(notificationRepository)
-                .getById(778L);
+                .getById(notificationId);
 
-        Notification notificationFound = notificationRepository.getById(778L);
+        Notification notificationFound = notificationRepository.getById(notificationId);
 
-        Mockito.verify(notificationRepository, Mockito.times(1)).getById(778L);
+        Mockito.verify(notificationRepository, Mockito.times(1)).getById(notificationId);
 
         // Saving...
         notificationService.saveNotification(notificationFound, userIds);
         Mockito.verify(notificationRepository, Mockito.times(1)).save(notificationFound);
 
         // Let's take all user's notifications...
-        List<Notification> l = notificationService.getAllNotifications(777L);
-        Mockito.verify(notificationRepository, Mockito.times(3)).getById(778L);
+        List<Notification> l = notificationService.getAllNotifications(userId);
+        Mockito.verify(notificationRepository, Mockito.times(3)).getById(notificationId);
 
-        assertEquals(l.get(0).getData(), "Test notification right here.");
+        assertEquals("Test notification right here.", l.get(0).getData());
     }
 
+    @Test
     public void deleteNotificationTest()
     {
+        var userId = 888L;
+        var notificationId = 889L;
+
         User user = new User();
-        user.setId(888L);
-        Long[] userNotificationIds = new Long[1];
-        userNotificationIds[0] = 889L;
+        user.setId(userId);
+        Long[] userNotificationIds = new Long[4];
+        userNotificationIds[0] = 111L;
+        userNotificationIds[1] =  notificationId;
+        userNotificationIds[2] =  555L;
+        userNotificationIds[3] =  444L;
         user.setNotificationIds(userNotificationIds);
 
         Mockito.doReturn(user)
                 .when(userRepository)
-                .getById(888L);
-        User userFound = userService.getById(888L);
+                .getById(userId);
+        User userFound = userService.getById(userId);
 
-        Mockito.verify(userRepository, Mockito.times(1)).getById(888L);
+        Mockito.verify(userRepository, Mockito.times(1)).getById(userId);
 
         List<Long> userIds = new ArrayList<Long>();
         userIds.add(userFound.getId());
 
         Notification notification = new Notification();
         notification.setData("Test notification right here.");
-        notification.setId(889L);
+        notification.setId(notificationId);
 
         Mockito.doReturn(notification)
                 .when(notificationRepository)
-                .getById(889L);
+                .getById(notificationId);
 
-        Notification notificationFound = notificationRepository.getById(889L);
+        Notification notificationFound = notificationRepository.getById(notificationId);
 
-        Mockito.verify(notificationRepository, Mockito.times(1)).getById(778L);
+        Mockito.verify(notificationRepository, Mockito.times(1)).getById(notificationId);
 
         // Deleting...
-        notificationService.deleteNotification(888L, 889L);
+        notificationService.deleteNotification(userId, notificationId);
+        Mockito.verify(notificationRepository, Mockito.times(1)).delete(notificationFound);
 
-        User userFound1 = userService.getById(888L);
-        Mockito.verify(userRepository, Mockito.times(1)).getById(888L);
+        User userFound1 = userService.getById(userId);
+        Mockito.verify(userRepository, Mockito.times(3)).getById(userId);
 
-        assertEquals(0, userFound1.getNotificationIds().length);
+        assertEquals(3, userFound1.getNotificationIds().length);
     }
 
-    public void Delete
 }

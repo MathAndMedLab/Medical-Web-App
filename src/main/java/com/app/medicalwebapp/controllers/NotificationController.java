@@ -1,27 +1,10 @@
 package com.app.medicalwebapp.controllers;
 
-
-
-
-import java.util.ArrayList;
 import com.app.medicalwebapp.repositories.UserRepository;
-import com.app.medicalwebapp.repositories.NotificationRepository;
-import com.app.medicalwebapp.controllers.requestbody.NotificationRequest;
-import com.app.medicalwebapp.model.Notification;
 import com.app.medicalwebapp.model.User;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
-import java.util.List;
-import org.springframework.transaction.annotation.Transactional;
-
-
-
-
-
-
 
 import com.app.medicalwebapp.controllers.requestbody.NotificationRequest;
 import com.app.medicalwebapp.security.UserDetailsImpl;
@@ -32,10 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
 import javax.validation.Valid;
 import java.util.List;
-import com.app.medicalwebapp.model.Notification;
 
 @CrossOrigin(origins = "*", maxAge = 604800)
 @RestController

@@ -27,6 +27,9 @@ public class ChatMessage {
     @Column(name = "chatId")
     private String chatId;
 
+    @Column(name = "type")
+    private MessageType type;
+
     @Column(name = "senderId")
     private Long senderId;
 
@@ -62,9 +65,25 @@ public class ChatMessage {
     )
     private List<FileObject> attachments;
 
+    @ManyToMany
+    @JoinTable(
+            name = "forwarded_msgs",
+            joinColumns = @JoinColumn(name = "msg_id"),
+            inverseJoinColumns = @JoinColumn(name = "forwarded_msg_id")
+    )
+    private List<ChatMessage> forwardedMessages;
+
     @ElementCollection
     private List<byte[]> images;
 
     @ElementCollection
     private List<String> uidFilesDicom;
+
+    public enum MessageType {
+        CHAT,
+        CREATE,
+        JOIN,
+        LEAVE
+    }
+
 }

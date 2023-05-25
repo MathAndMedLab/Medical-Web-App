@@ -33,27 +33,10 @@ public class FileService {
      * Сохранение файла.
      */
     public FileObject saveFile(String originalName, byte[] fileContent, Long ownerId, String UID) throws Exception {
-        // Проверка файлов на идентичные загруженные файлы на сервере
-        var savedFiles = fileObjectRepository.findByOwnerAndDeleted(ownerId, false);
-        var element = savedFiles.stream()
-                .filter(x -> {
-                    try {
-                        return (Arrays.equals(fileContent, previewFile(x)));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    return false;
-                })
-                .findFirst();
-
-        if (element.isPresent()) {
-            return element.get();
-        } else {
-            // Выбрать способ сохранения файла, зависит от его расширения.
-            FileSaverStrategy fileSaver = saverStrategyResolver.getFileSaver(originalName);
-            FileObjectFormat format = FileFormatResolver.resolveFormat(originalName);
-            return fileSaver.save(ownerId, originalName, format, fileContent, UID);
-        }
+        // Выбрать способ сохранения файла, зависит от его расширения.
+        FileSaverStrategy fileSaver = saverStrategyResolver.getFileSaver(originalName);
+        FileObjectFormat format = FileFormatResolver.resolveFormat(originalName);
+        return fileSaver.save(ownerId, originalName, format, fileContent, UID);
     }
 
     /**

@@ -5,7 +5,7 @@ import com.app.medicalwebapp.model.PipelineJob;
 import com.app.medicalwebapp.model.PipelineJobStatus;
 import com.app.medicalwebapp.repositories.PipelineJobRepository;
 import com.app.medicalwebapp.services.FileService;
-import com.app.medicalwebapp.services.MirfZipUtils;
+import com.app.medicalwebapp.services.service_utils.MirfZipUtils;
 import com.app.medicalwebapp.services.PipelineExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

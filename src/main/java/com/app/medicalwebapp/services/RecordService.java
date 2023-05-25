@@ -2,7 +2,6 @@ package com.app.medicalwebapp.services;
 
 import com.app.medicalwebapp.controllers.requestbody.RecordCreationRequest;
 import com.app.medicalwebapp.controllers.requestbody.RecordsPageResponse;
-import com.app.medicalwebapp.controllers.requestbody.RecordFileRequest;
 import com.app.medicalwebapp.model.FileObject;
 import com.app.medicalwebapp.model.Record;
 import com.app.medicalwebapp.model.Topic;
@@ -10,7 +9,7 @@ import com.app.medicalwebapp.model.User;
 import com.app.medicalwebapp.repositories.FileObjectRepository;
 import com.app.medicalwebapp.repositories.RecordRepository;
 import com.app.medicalwebapp.repositories.TopicRepository;
-import com.app.medicalwebapp.services.FileService;
+import com.app.medicalwebapp.services.service_utils.MemoUpload;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -86,6 +85,7 @@ public class RecordService {
         if (!request.getParentId().equals(-1L)) {
             updateNumberOfReplies(request.getParentId());
         }
+        MemoUpload memoize = new MemoUpload(fileObjectRepository, fileService);
 
         Set<FileObject> files = null;
         if (request.getFiles() != null && !request.getFiles().isEmpty()) {
@@ -101,7 +101,12 @@ public class RecordService {
                     Base64.Decoder decoder = Base64.getDecoder();
                     String fileBase64 = file.getFileContent().split(",")[1];
                     byte[] decodedFileByte = decoder.decode(fileBase64);
-                    return fileService.saveFile(file.getFileName(), decodedFileByte, creatorId, file.getUid());
+                    var checkUploadFile = memoize.checkMemo(creatorId, decodedFileByte);
+                    if (checkUploadFile != null) {
+                        return checkUploadFile;
+                    } else {
+                        return fileService.saveFile(file.getFileName(), decodedFileByte, creatorId, file.getUid());
+                    }
                 } catch(Exception e) {
                     e.printStackTrace();
                 }

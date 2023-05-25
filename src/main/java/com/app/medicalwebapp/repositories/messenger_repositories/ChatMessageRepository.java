@@ -11,7 +11,6 @@ import java.util.Optional;
 
 @Repository
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
-    long countBySenderIdAndRecipientId(Long senderId, Long recipientId);
 
     Optional<List<ChatMessage>> findByChatIdAndDeleted(String chatId, boolean deleted);
 
@@ -20,4 +19,6 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
     Optional<List<ChatMessage>> findByRecipientIdAndStatusMessageAndDeleted(Long recipientId, StatusMessage UNREAD, boolean deleted);
 
     ChatMessage findBySendDateAndChatId(LocalDateTime sendDate, String chatId);
+
+    ChatMessage findFirstById(Long id);
 }

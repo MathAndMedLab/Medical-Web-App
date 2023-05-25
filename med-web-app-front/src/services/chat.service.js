@@ -20,6 +20,14 @@ class ChatService {
         return params;
     }
 
+    getChatRoomMessages(chatId) {
+        let params = {};
+
+        params["chatId"] = chatId;
+        return axios.get(API_URL + 'all/chatRoom/messages',
+            {headers: authHeader(), params: params});
+    }
+
     getUnreadMessages(recipientId) {
         const parameters = this.createRequestParamsForGetUnreadMsg(recipientId);
 
@@ -60,6 +68,26 @@ class ChatService {
 
     deleteMsg(message) {
         return axios.post(API_URL + 'delete', {message}, {headers: authHeader()})
+    }
+
+    createGroupChat(chatName, members, creator, creatorId, avatar, sendDate, timeZone) {
+        return axios.post(API_URL + 'create-group-chat',
+            {chatName, members, creator, creatorId, avatar, sendDate, timeZone},
+            {headers: authHeader()})
+    }
+
+    getGroupChats (member) {
+        let parameters = {}
+        parameters["memberName"] = member.memberName
+        return axios.get(API_URL + 'all/groupChats',
+            {headers: authHeader(), params: parameters});
+    }
+
+    getGroupChat (chatId) {
+        let parameters = {}
+        parameters["chatId"] = chatId
+        return axios.get(API_URL + 'groupChat',
+            {headers: authHeader(), params: parameters});
     }
 
     deleteMsgByTimeAndChatId(time, senderName, recipientName) {

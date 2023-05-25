@@ -306,7 +306,7 @@ class UploadAttachmentsComponent extends Component {
 
             <div>
                 <Grid>
-                    <Grid itemxs={12}  className={classes.mainGrid}>
+                    <Grid item xs={12}  className={classes.mainGrid}>
                         <Grid  item xs={8} >
                             <Card className={classes.paper}>
                                 <Grid className={classes.grid}>

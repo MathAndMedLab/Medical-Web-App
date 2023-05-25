@@ -23,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class NotificationServiceTest {
-
     @Autowired
     NotificationService notificationService;
 
@@ -54,9 +53,6 @@ public class NotificationServiceTest {
 
         Mockito.verify(userRepository, Mockito.times(1)).getById(userId);
 
-        List<Long> userIds = new ArrayList<Long>();
-        userIds.add(userFound.getId());
-
         Notification notification = new Notification();
         notification.setData("Test notification right here.");
         notification.setNotificationType("testNotification");
@@ -72,7 +68,7 @@ public class NotificationServiceTest {
         Mockito.verify(notificationRepository, Mockito.times(1)).getById(notificationId);
 
         // Saving...
-        notificationService.saveNotification(notificationFound, userIds);
+        notificationService.saveNotification(notificationFound, userId);
         Mockito.verify(notificationRepository, Mockito.times(1)).save(notificationFound);
 
         // Let's take all user's notifications...
@@ -83,8 +79,7 @@ public class NotificationServiceTest {
     }
 
     @Test
-    public void deleteNotificationTest()
-    {
+    public void deleteNotificationTest() {
         var userId = 888L;
         var notificationId = 889L;
 
@@ -103,9 +98,6 @@ public class NotificationServiceTest {
         User userFound = userService.getById(userId);
 
         Mockito.verify(userRepository, Mockito.times(1)).getById(userId);
-
-        List<Long> userIds = new ArrayList<Long>();
-        userIds.add(userFound.getId());
 
         Notification notification = new Notification();
         notification.setData("Test notification right here.");
@@ -130,8 +122,7 @@ public class NotificationServiceTest {
     }
 
     @Test
-    public void getAllNotificationsForUserWithoutNotificationsTest()
-    {
+    public void getAllNotificationsForUserWithoutNotificationsTest() {
         var userId = 555L;
         User user = new User();
         user.setId(userId);
@@ -146,5 +137,31 @@ public class NotificationServiceTest {
         List<Notification> l = notificationService.getAllNotifications(userId);
 
         assertEquals(0, l.size());
+    }
+
+    @Test
+    public void editNotificationsContentTest() {
+        var notificationId = 100L;
+        Notification notification = new Notification();
+        notification.setData("Test notification right here.");
+        notification.setId(notificationId);
+
+        Mockito.doReturn(notification)
+                .when(notificationRepository)
+                .getById(notificationId);
+
+        Notification notificationFound = notificationRepository.getById(notificationId);
+        Mockito.verify(notificationRepository, Mockito.times(1)).getById(notificationId);
+
+        var notificationIds = new ArrayList<Long>();
+        notificationIds.add(100L);
+
+        notificationService.editNotificationsContent("Changed test notification right here.", notificationIds);
+        Mockito.verify(notificationRepository, Mockito.times(1)).save(notification);
+
+        Notification changedNotification = notificationRepository.getById(notificationId);
+        Mockito.verify(notificationRepository, Mockito.times(3)).getById(notificationId);
+
+        assertEquals("Changed test notification right here.", changedNotification.getData());
     }
 }

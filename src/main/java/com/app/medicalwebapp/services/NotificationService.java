@@ -26,7 +26,7 @@ public class NotificationService {
     }
 
 
-    // Сохраняем одно одинаковое уведомление для списка пользователей.
+    // Save one identical notification for the list of users.
     public void saveNotification(Notification notification, List<Long> userIds) {
         notificationRepository.save(notification);
 
@@ -41,6 +41,13 @@ public class NotificationService {
             user.setNotificationIds(newUserNotificationsIds);
             userRepository.save(user);
         }
+    }
+
+    // Unused in client side right now [05.2023], but may be useful in the future.
+    public void saveNotification(Notification notification, Long userId) {
+        var userIds = new ArrayList<Long>();
+        userIds.add(userId);
+        saveNotification(notification, userIds);
     }
 
     public List<Notification> getAllNotifications(Long user_id) {
@@ -85,6 +92,20 @@ public class NotificationService {
         else {
             n.setNumberOfOwners(numberOfOwners - 1);
             notificationRepository.save(n);
+        }
+    }
+
+    // Unused in client side right now [05.2023], but may be useful in the future.
+    public void editNotificationContent(String content, Long id) {
+        Notification n = notificationRepository.getById(id);
+        n.setData(content);
+        notificationRepository.save(n);
+    }
+
+    // Unused in client side right now [05.2023], but may be useful in the future.
+    public void editNotificationsContent(String content, List<Long> ids) {
+        for (Long id : ids) {
+            editNotificationContent(content, id);
         }
     }
 }

@@ -147,7 +147,7 @@ const useStyles = theme => ({
     appBar: {
         top: 0,
         left: 0,
-        minWidth: 600,
+        minWidth: 30,
         minHeight: 64,
         maxHeight: 64,
         zIndex: theme.zIndex.drawer + 2,

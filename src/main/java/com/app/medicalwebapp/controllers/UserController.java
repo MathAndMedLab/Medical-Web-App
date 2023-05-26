@@ -5,6 +5,7 @@ import com.app.medicalwebapp.controllers.requestbody.messenger.ContactsRequest;
 import com.app.medicalwebapp.controllers.requestbody.messenger.ContactsResponse;
 import com.app.medicalwebapp.model.User;
 import com.app.medicalwebapp.model.messenger_models.ChatMessage;
+import com.app.medicalwebapp.model.messenger_models.ChatRoom;
 import com.app.medicalwebapp.model.messenger_models.Contact;
 import com.app.medicalwebapp.security.UserDetailsImpl;
 import com.app.medicalwebapp.services.UserService;
@@ -143,11 +144,15 @@ public class UserController {
         try {
             Optional<Contact> contactOptional = contactsService.getByContactsOwner(currentUserUsername);
             List<User> contactsList;
+            List<ChatRoom> chatRoomsList;
             ContactsResponse contactWithLastMsg = new ContactsResponse();
             contactWithLastMsg.setContactWithLastMsg(new ArrayList<>());
+            contactWithLastMsg.setChatRoomWitLastMsg(new ArrayList<>());
             var contacts = contactWithLastMsg.getContactWithLastMsg();
+            var chats = contactWithLastMsg.getChatRoomWitLastMsg();
             if (contactOptional.isPresent()) {
                 contactsList = contactOptional.get().getContactsList();
+                chatRoomsList = contactOptional.get().getChats();
                 for (User user : contactsList) {
                     String chatId;
                     if (user.getUsername().compareTo(currentUserUsername) < 0) {
@@ -163,7 +168,17 @@ public class UserController {
                         contacts.add(Pair.of(user, new ChatMessage()));
                     }
                 }
+                for (ChatRoom chat : chatRoomsList) {
+                    Optional<ChatMessage> lastMessage = chatMessageService.findFirstByChatIdOrderBySendDateDesc(chat.getChatId());
+
+                    if (lastMessage.isPresent()) {
+                        chats.add(Pair.of(chat, lastMessage.get()));
+                    } else {
+                        chats.add(Pair.of(chat, new ChatMessage()));
+                    }
+                }
                 contactWithLastMsg.setContactWithLastMsg(contacts);
+                contactWithLastMsg.setChatRoomWitLastMsg(chats);
             }
             return ResponseEntity.ok().body(contactWithLastMsg);
         } catch (Exception e) {

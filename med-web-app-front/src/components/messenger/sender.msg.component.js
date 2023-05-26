@@ -5,7 +5,7 @@ import {
     Dialog, DialogActions,
     DialogContent, DialogContentText,
     ImageList,
-    ImageListItem,
+    ImageListItem, List,
     Paper, Tooltip,
     withStyles
 } from "@material-ui/core";
@@ -16,19 +16,27 @@ import ChatService from "../../services/chat.service"
 import Button from "@material-ui/core/Button";
 import DeleteIcon from '@mui/icons-material/Delete';
 import AttachmentService from "../../services/attachment.service";
+import TimeMsg from "./time-msg.component";
+import ForwardMessage from "./forward-message.component";
 
 const useStyles = theme => ({
 
     msgMy: {
         width: "fit-content",
         height: "fit-content",
-        margin: 20,
+        margin: 5,
         marginLeft: "auto",
         backgroundColor: '#a1e9ff',
         padding: theme.spacing(0.5),
         whiteSpace: 'pre-wrap',
         wordWrap: 'break-word',
         maxWidth: 400,
+        '@media (max-width: 475px)': {
+            maxWidth: 300
+        },
+        '@media (max-width: 375px)': {
+            maxWidth: 250
+        }
     },
     txt: {
         fontWeight: 'bold',
@@ -67,6 +75,17 @@ const useStyles = theme => ({
             color: '#fff',
         }
     },
+    listForward: {
+        display: 'flex',
+        flexDirection: 'column',
+        width: 392,
+        '@media (max-width: 475px)': {
+            maxWidth: 292
+        },
+        '@media (max-width: 375px)': {
+            maxWidth: 242
+        }
+    }
 });
 
 function SenderMsg(props) {
@@ -81,32 +100,12 @@ function SenderMsg(props) {
     const [paperX, setPaperX] = useState(false)
     const [paperY, setPaperY] = useState(false)
     const [openDialog, setOpenDialog] = useState(false)
-    const [timeMsgCurrentTimeZone, setTimeMsgCurrentTimeZone] = useState([])
     const KeyboardArrowDownIconRef = useRef();
     useEffect(async () => {
         await getFiles()
-        processTime()
+        // processTime()
         scrollToBottom()
     }, [msg]);
-
-    function processTime() {
-        let timeZone = (Intl.DateTimeFormat().resolvedOptions().timeZone)
-        const difsTimeZones = getOffsetBetweenTimezonesForDate(new Date(), msg.timeZone, timeZone)
-        setTimeMsgCurrentTimeZone(new Date(new Date(msg.sendDate).getTime() - difsTimeZones))
-    }
-
-    function getOffsetBetweenTimezonesForDate(date, timezone1, timezone2) {
-        const timezone1Date = convertDateToAnotherTimeZone(date, timezone1);
-        const timezone2Date = convertDateToAnotherTimeZone(date, timezone2);
-        return timezone1Date.getTime() - timezone2Date.getTime();
-    }
-
-    function convertDateToAnotherTimeZone(date, timezone) {
-        const dateString = date.toLocaleString('en-US', {
-            timeZone: timezone
-        });
-        return new Date(dateString);
-    }
 
     async function getFiles() {
         setImages([])
@@ -201,7 +200,8 @@ function SenderMsg(props) {
         }
     }
 
-    function openDicomViewer(uid) {
+    function openDicomViewer(event, uid) {
+        event.stopPropagation()
         const url = window.location.href
         const num = url.indexOf(":7999")
         window.open(url.slice(0, num + 1) + "3000/viewer/" + uid, '_blank')
@@ -217,7 +217,6 @@ function SenderMsg(props) {
 
     return (
         <Grid>
-
             <Paper className={classes.msgMy} onMouseOver={() => setChecked(true)}
                    onMouseLeave={() => setChecked(false)}>
                 <Grid>
@@ -270,7 +269,7 @@ function SenderMsg(props) {
                                     <ImageListItem key={index}>
                                         {image.uid ?
                                             <Tooltip title="Открыть в DICOM Viewer">
-                                                <img onClick={() => openDicomViewer(image.uid)}
+                                                <img onClick={(event) => openDicomViewer(event, image.uid)}
                                                      src={image.image}
                                                      alt={"Перезагрузите страницу!"}
                                                      loading="lazy"
@@ -312,23 +311,16 @@ function SenderMsg(props) {
                         </Grid>
                         }
                     </Grid>
+                    <Grid>
+                        {msg.forwardedMessages.length !== 0 &&
+                            <List className={classes.listForward}>
+                                <ForwardMessage forwardMessages={msg.forwardedMessages}/>
+                            </List>
+                        }
+                    </Grid>
                     <Grid
                         className={classes.time}>
-                        {
-                            (((new Date(timeMsgCurrentTimeZone).getHours() < 10 && "0" + new Date(timeMsgCurrentTimeZone).getHours())
-                                    || (new Date(timeMsgCurrentTimeZone).getHours() >= 10 && new Date(timeMsgCurrentTimeZone).getHours())) + ":"
-                                + ((new Date(timeMsgCurrentTimeZone).getMinutes() < 10 && "0" + new Date(timeMsgCurrentTimeZone).getMinutes())
-                                    || (new Date(timeMsgCurrentTimeZone).getMinutes() >= 10 && new Date(timeMsgCurrentTimeZone).getMinutes())
-                                )) + "    "
-                            + (
-                                ((new Date(timeMsgCurrentTimeZone).getDate() < 10 && "0" + new Date(timeMsgCurrentTimeZone).getDate())
-                                    || (new Date(timeMsgCurrentTimeZone).getDate() >= 10 && new Date(timeMsgCurrentTimeZone).getDate()))
-                                + "."
-                                + (((new Date(timeMsgCurrentTimeZone).getMonth() + 1) < 10 && "0" + (new Date(timeMsgCurrentTimeZone).getMonth() + 1))
-                                    || (((new Date(timeMsgCurrentTimeZone).getMonth() + 1) >= 10 && (new Date(timeMsgCurrentTimeZone).getMonth() + 1))))
-                                + "." + new Date(timeMsgCurrentTimeZone).getFullYear()
-                            )
-                        }
+                        <TimeMsg timeZone={msg.timeZone} sendDate={msg.sendDate}/>
                     </Grid>
                 </Grid>
             </Paper>

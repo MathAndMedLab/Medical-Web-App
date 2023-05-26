@@ -30,7 +30,7 @@ public class ContactsService {
     }
 
     /**
-     * Удаление пользователей из спика контактов друг друга.
+     * Удаление пользователей из списка контактов друг друга.
      */
     public void deleteUsersFromEachOthersContacts(String contactUsername1, String contactUsername2) {
         try {

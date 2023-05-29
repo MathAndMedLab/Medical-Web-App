@@ -8,10 +8,12 @@ import HomeCard from "./HomeCard";
 import 'animate.css';
 import "@fontsource/unbounded";
 import clsx from "clsx"
+import React, { useState, useEffect, useRef } from 'react'
+
 
 const useStyles = theme => ({
-    root: {
-        
+    mainGrid: {
+        marginBottom: theme.spacing(5),
         flexGrow: 1,
         overflowX: 'hidden',
         overflowY: 'hidden',
@@ -32,7 +34,9 @@ const useStyles = theme => ({
     },
 
     boxes: {
-        marginTop: theme.spacing(10),
+        "@media (max-width: 957px)": {
+           marginTop: theme.spacing(7),
+        },
         alignItems:"center",
     },
 
@@ -113,9 +117,7 @@ const useStyles = theme => ({
         zIndex: 10,
         color: "whitesmoke",
     },
-    mainGrid: {
-        marginBottom: theme.spacing(4),
-    }
+  
     
 })
 
@@ -125,9 +127,12 @@ class newHome extends Component {
         super(props);
 
         this.state = {
-            content: ""
+            content: "",
         };
     }
+
+
+
 
     render() {
         const {classes} = this.props;
@@ -161,29 +166,21 @@ class newHome extends Component {
             },
         };
 
+   
+
         
 
 
         return (
-            <div className={classes.root}>
-                <Grid container direction="column" alignItems="center" justifyContent="center" className={classes.mainGrid}>
-                    <Grid container item className={classes.card} direction="column" alignItems="center" justifyContent="center" style={{ gap: 10 }}>
-                        <Grid item class="animated-gradient-text">
-                            <h2 className={classes.bigTitle} style={styles.root}>Консультации врачей онлайн: получите второе мнение, не покидая дома</h2>
+                <Grid container direction="column" alignItems="center" justifyContent="space-between" className={classes.mainGrid} style={{minHeight: "calc(100vh - 130px)"}}>
+                    <Grid container item className={classes.card} direction="column" alignItems="center" justifyContent="center" style={{ gap: 10 }} ref={ (divElement) => { this.divElement = divElement } }>
+                        <Grid item class="animated-gradient-text" >
+                            <h2 className={classes.bigTitle} style={styles.root}>Консультации врачей онлайн: получите второе мнение, не покидая дома</h2> 
                         </Grid>
-                        <Grid item class="gradient-text"  >
-                            <h6 className={classes.littleTitle} style={styles.root}>
-                                Наш медицинский сайт с консультациями врачей онлайн — это надежный и удобный инструмент для всех, кто хочет получить профессиональное мнение по своему состоянию. 
-                                У нас вы можете получить консультацию от опытных и квалифицированных врачей, которые помогут вам разобраться в вашей проблеме и выработать наиболее эффективный план лечения. 
-                                Мы понимаем, что ваше здоровье — это самое важное, и поэтому мы предоставляем быстрый и удобный доступ к квалифицированным врачам онлайн. 
-                                Не стесняйтесь обращаться к нам, мы всегда готовы помочь!
-                            </h6>
-                        </Grid>
-                        
                     </Grid>
                     
                 
-                    <Grid container item className={classes.boxes}  alignItems="center" justifyContent="center" style={{ gap: 40 }}>
+                    <Grid container item className={classes.boxes}  alignItems="center" justifyContent="center" style={{gap: 40 }}>
                         {
                         cards.map((card, index) => {
                             return (<HomeCard
@@ -198,7 +195,6 @@ class newHome extends Component {
                     </Grid>
                 </Grid>
                 
-            </div>
         );
     }
 }

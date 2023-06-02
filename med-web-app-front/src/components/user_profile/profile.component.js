@@ -14,6 +14,7 @@ import StarRatings from 'react-star-ratings';
 import GetAllReviews from "../../requests_and_responses/review-request";
 import GetAvgRating from "../../avg_rating/get-avg-rating";
 import getCorrectExperienceValue from "./get-correct-experience-value";
+import NotificationService from "../../services/notification.service";
 
 const useStyles = theme => ({
     txtField: {
@@ -161,7 +162,11 @@ function Profile(props) {
         ProfileService.getProfile(username1).then(
             async response => {
                 const user = response.data;
-                console.log(user)
+
+                let currUser = AuthService.getCurrentUser();
+                currUser.notificationIds = user.notificationIds;
+                localStorage.setItem("user", JSON.stringify(currUser));
+
                 if (user.avatar) {
                     const base64Data = user.avatar
                     const base64Response = await fetch(`data:application/json;base64,${base64Data}`)
@@ -175,10 +180,13 @@ function Profile(props) {
                     setReviews(result)
                     setReviewsCounter(result.length)
                 })
+
+
             })
             .catch((e) => {
                 console.log(e);
             });
+
     }
 
     function refreshList() {

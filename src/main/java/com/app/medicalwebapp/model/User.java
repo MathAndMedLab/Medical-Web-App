@@ -1,9 +1,10 @@
 package com.app.medicalwebapp.model;
 
+import java.util.ArrayList;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.hibernate.annotations.DynamicUpdate;
-
+import com.app.medicalwebapp.model.Notification;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -56,7 +57,8 @@ public class User {
     @Column(name = "avatar")
     private byte[] avatar;
 
-
+    @Column(name = "notificationIds")
+    private Long[] notificationIds;
 
     // Only for doctors, users have null on these columns
     @Column(name = "specialization", nullable = true)

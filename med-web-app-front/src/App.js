@@ -56,6 +56,8 @@ import {Logout, LogoutSharp} from "@mui/icons-material";
 import {RemoveRedEye} from "@material-ui/icons";
 import {SwipeableDrawer} from "@mui/material";
 import NewHomeComponent from "./components/main/newHome.component";
+import ProfileEditComponent from "./components/user_profile/profile-edit.component";
+import UserNotificationsComponent from "./components/user_profile/notifications"
 
 const drawerWidth = 240
 
@@ -661,11 +663,13 @@ function App(props) {
             return (<Grid container>
                 <Grid item xs />
                 <Grid item width={'50px'}>
-                    <IconButton color="inherit" title={"Уведомления"}>
-                        <Badge badgeContent={3} color="secondary">
-                            <NotificationsIcon />
-                        </Badge>
-                    </IconButton>
+                    <Link to={"/notifications"} style={{textDecoration: 'none', color: 'white'}}>
+                        <IconButton color="inherit" title={"Уведомления"}>
+                            <Badge badgeContent={currentUser.notificationIds.length} color="secondary">
+                                <NotificationsIcon />
+                            </Badge>
+                        </IconButton>
+                    </Link>
                 </Grid>
                 <Grid item width={'130px'}>
                     <ListItemButton
@@ -797,7 +801,6 @@ function App(props) {
                         paper: clsx(classes.drawerPaper, !open && classes.drawerPaperClose),
                     }}
                     open={open}
-                    onClick={handleDrawerChange}
                 >
                     {open && (<div className={classes.toolbarIcon}>
                         <IconButton onClick={handleDrawerClose}>
@@ -933,6 +936,13 @@ function App(props) {
                             <Route exact path="/topics/create" component={TopicComponent}>
                                 {AuthService.getCurrentUser() ? <TopicComponent /> : <Redirect to="/login" />}
                             </Route>
+                            <Route exact path={["/edit"]} render={(props) => (
+                                <ProfileEditComponent/>
+                            )} />
+                            <Route exact path={["/notifications"]} render={(props) => (
+                                <UserNotificationsComponent/>
+                            )} />
+
                             <Route component={NotExist} />
                         </Switch>
                     </div>

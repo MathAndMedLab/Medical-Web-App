@@ -142,6 +142,28 @@ const useStyles = theme => ({
             minHeight: 45
         },
     },
+    selectedText: {
+        whiteSpace: "nowrap", 
+        overflow: "hidden", 
+        textOverflow: "ellipsis",
+        display: 'inline-block',
+        [theme.breakpoints.down("xs")]: {
+            width: 220,
+        },
+      
+        "@media (min-width : 451px)": {
+            width: 175,
+        },
+        "@media (min-width : 600px)": {
+            width: 325,
+        },
+        "@media (min-width : 960px)": {
+            width: 600,
+        },
+        "@media (min-width : 1280px)": {
+            width: 750,
+        },
+    },
 
     topicPaper: {
         width: 200,
@@ -466,9 +488,9 @@ class ViewRecordsList extends Component {
                                 onChange={this.handleTopics}
                                 input={<Input id="select-multiple-chip-for-topics"/>}
                                 renderValue={(selected) => (
-                                    <div className={classes.chips}>
+                                    <div >
                                         {
-                                            <Chip key={selected} label={selected} className={classes.chip}/>
+                                            <Chip key={selected} label={selected} className={classes.selectedText}/>
                                         }
                                     </div>
                                 )}
@@ -478,7 +500,7 @@ class ViewRecordsList extends Component {
                                     <em>None</em>
                                 </MenuItem>
                                 {this.state.availableTopics.map(x => (
-                                    <MenuItem key={x.value} value={x.label} id={x.value}>
+                                    <MenuItem className={classes.selectedText} key={x.value} value={x.label} id={x.value}>
                                         {x.label}
                                     </MenuItem>
                                 ))}

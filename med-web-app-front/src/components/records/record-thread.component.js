@@ -237,35 +237,6 @@ class RecordThreadComponent extends Component {
                         </ul>
                     </Card>
                 </Grid>
-               
-                {/*<Grid xs={4} item>
-                    <Card className={classes.paper2}>
-                        <Grid className={classes.grid}>
-                            <Link to={"/records/create"} className="nav-link card-link-custom color-orange">
-                                Создать пост
-                            </Link>
-                            <Link to={"/records/view"} className="nav-link card-link-custom color-orange">
-                                Обратно к постам
-                            </Link>
-                            <Button >
-                                <Link  to={"/records/create"} style={{ textDecoration: 'none' }}>
-                                    <Button className={classes.button}>
-                                    Создать пост
-                                    </Button>
-                                </Link>
-                            </Button>
-                            <Button >
-                                <Link to={"/records/view"} style={{ textDecoration: 'none' }}>
-                                    <Button className={classes.button}>
-                                    Обратно к постам
-                                    </Button>
-                                </Link>
-                            </Button>
-                        </Grid>
-                    </Card>
-                </Grid>*/}
-
-
             </Grid>
         );
     }

@@ -273,6 +273,9 @@ function Profile(props) {
             setSelectedFile(URL.createObjectURL(e.target.files[0]))
         }
     }
+    function logOut() {
+        AuthService.logout(AuthService.getCurrentUser().username)
+    }
 
     function getTextFieldsForDoctorRole() {
         if (user.role === "Пользователь") {
@@ -449,6 +452,7 @@ function Profile(props) {
                                             </Link>
                                             <ListItemButton
                                                 component={Link} to={'/login'}
+                                                onClick={logOut}
                                                 title={'Выход'}
                                                 className={classes.exitButton}
                                                 sx={{backgroundColor: "#fff", margin: theme.spacing(1)}}

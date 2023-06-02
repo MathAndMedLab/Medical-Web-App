@@ -20,8 +20,9 @@ const useStyles = theme => ({
         margin: 0
     },
     content: {
+        display: 'inline-block', 
         wordWrap: 'break-word',
-        maxWidth: 400,
+        maxWidth: "80%",
         marginLeft: 10,
     },
 })
@@ -77,8 +78,8 @@ class TopicCard extends Component {
                             </Link>
 
                         </Grid>
-                        <Grid item>
-                            <Typography variant="body1" className={classes.content}>
+                        <Grid item className={classes.content}>
+                            <Typography variant="body1" >
                                 {this.topic.name}
                             </Typography>
                         </Grid>

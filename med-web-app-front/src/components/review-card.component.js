@@ -17,7 +17,8 @@ const useStyles = theme => ({
     },
     grid: {
         margin: theme.spacing(1.5, 0, 0, 1),
-        display: 'flex',
+        display: 'inline-block', 
+        wordWrap: 'break-word',
     },
     gridContent: {
         margin: theme.spacing(2),

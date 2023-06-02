@@ -132,13 +132,16 @@ const useStyles = theme => ({
             margin: 0
         },
         width: '100%',
+       
     },
     chips: {
         display: 'flex',
         flexWrap: 'wrap',
+       
     },
     chip: {
         margin: 2,
+        
     },
     buttonUpload: {
         backgroundColor: '#f50057',
@@ -223,7 +226,8 @@ const useStyles = theme => ({
 const creatableSelectStyle = {
     control: base => ({
         ...base,
-        minHeight: 55
+        minHeight: 55,
+        
     })
 };
 

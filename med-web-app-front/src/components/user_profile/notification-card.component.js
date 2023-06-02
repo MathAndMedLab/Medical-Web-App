@@ -12,13 +12,11 @@ const useStyles = theme => ({
         borderColor: "#e9e9e9",
         borderRadius: 10,
         [theme.breakpoints.down("xs")]: {
-            width: 270,
+            maxWidth: 450,
         },
-        [theme.breakpoints.between("sm", "md")]: {
-            width: 650
-        },
-        "@media (min-width : 1280px)": {
-            width: 900,
+        [theme.breakpoints.up("sm")]: {
+            maxWidth: 900,
+
         },
         margin: theme.spacing(1.5, 0, 0, 1),
     },
@@ -34,28 +32,14 @@ const useStyles = theme => ({
     },
     gridContent: {
         margin: theme.spacing(1, 1, 0, 0),
-        [theme.breakpoints.down("xs")]: {
-            width: 209,
-        },
-        [theme.breakpoints.between("sm", "md")]: {
-            width: 620
-        },
-        "@media (min-width : 1280px)": {
-            width: 1000,
-        },
+        display: 'inline-block', 
+        wordWrap: 'break-word',
+       
     },
     content: {
         whiteSpace: 'pre-wrap',
         wordWrap: 'break-word',
-        [theme.breakpoints.down("xs")]: {
-            width: 240,
-        },
-        [theme.breakpoints.between("sm", "md")]: {
-            width: 620
-        },
-        "@media (min-width : 1280px)": {
-            width: 770,
-        },
+      
     },
     gridStyleBold: {
         margin: theme.spacing(1, 1, 0, 0),
@@ -103,7 +87,7 @@ function NotificationCard(props) {
                 </Grid>
                 <Grid>
                     {
-                        <Typography variant={"subtitle3"}>
+                        <Typography variant={"subtitle3"} style={{display: 'inline-block', wordWrap: 'break-word',}}>
                             {
                                 (((new Date(creationTime).getHours() < 10 && "0" + new Date(creationTime).getHours())
                                         || (new Date(creationTime).getHours() >= 10 && new Date(creationTime).getHours())) + ":"

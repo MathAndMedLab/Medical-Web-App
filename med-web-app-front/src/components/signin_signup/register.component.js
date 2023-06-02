@@ -42,7 +42,12 @@ const useStyles = theme => ({
     root: {
         "& .MuiFormLabel-root": {
             margin: 0
-        }
+        },
+        display: 'inline-block', 
+        wordWrap: 'break-word',
+    },
+    textInner: {
+        marginRight: theme.spacing(8.75)
     },
     div: {
         margin: theme.spacing(3),
@@ -55,13 +60,10 @@ const useStyles = theme => ({
         marginBottom: theme.spacing(3),
         //minWidth: 200,
         "@media (max-width: 365px)": {
-            width: 260,
         },
         "@media (min-width: 350 px)": {
-            width: 300,
         },
         "@media (min-width: 425px)": {
-            width: "90%"
         },
     },
     form: {
@@ -80,10 +82,10 @@ const useStyles = theme => ({
         color: "black"
     },
     creatableSelectGrid: {
-        zIndex: 999999,
+        zIndex: 1001,
     },
     creatableSelectGridNext: {
-        zIndex: 999998,
+        zIndex: 1000,
     }
 })
 
@@ -473,7 +475,7 @@ function Register(props) {
                             </Grid>
                             <Grid item xs={12} sm={6}>
                                 <TextField
-                                    className={classes.root}
+                                    className={classes.textInner}
                                     variant="outlined"
                                     required
                                     fullWidth

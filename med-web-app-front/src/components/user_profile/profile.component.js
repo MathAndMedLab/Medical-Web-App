@@ -19,10 +19,21 @@ import { Logout} from "@mui/icons-material";
 import { width } from "@mui/system";
 import { createTheme} from '@mui/material/styles';
 import getCorrectExperienceValue from "./get-correct-experience-value";
+import ButtonDrawer from "../ButtonDrawer";
+import {Hidden} from "@material-ui/core";
+import {IconButton} from "@material-ui/core"
+import EditIcon from '@material-ui/icons/Edit';
+import FolderIcon from '@mui/icons-material/Folder';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import LogoutIcon from '@mui/icons-material/Logout';
+import SettingsIcon from '@material-ui/icons/Settings';
 
 const useStyles = theme => ({
     txtField: {
         width: 350,
+        [theme.breakpoints.down("xs")]: {
+            width: 250,
+        },
         margin: theme.spacing(1),
         "& .MuiInputBase-input": {
             textAlign: 'center'
@@ -30,6 +41,9 @@ const useStyles = theme => ({
     },
     txtFieldUsername: {
         width: 250,
+        [theme.breakpoints.down("xs")]: {
+            width: 180,
+        },
         margin: theme.spacing(1),
         "& .MuiInputBase-input": {
             textAlign: 'center'
@@ -37,6 +51,9 @@ const useStyles = theme => ({
     },
     txtFieldRole: {
         width: 180,
+        [theme.breakpoints.down("xs")]: {
+            width: 130,
+        },
         margin: theme.spacing(1),
         "& .MuiInputBase-input": {
             textAlign: 'center'
@@ -44,14 +61,17 @@ const useStyles = theme => ({
     },
     txtDoctorFields: {
         width: 350,
+        [theme.breakpoints.down("xs")]: {
+            width: 250,
+        },
         margin: theme.spacing(1),
         "& .MuiInputBase-input": {
             textAlign: 'center'
         }
     },
     paper: {
+
         marginTop: theme.spacing(3),
-        marginLeft: theme.spacing(1),
         padding: theme.spacing(1),
         color: "black",
         // display: 'flex',
@@ -62,8 +82,20 @@ const useStyles = theme => ({
         color: "black",
     },
     mainGrid: {
+        [theme.breakpoints.only("xs")]: {
+            gap: 5
+        },
+        [theme.breakpoints.only("sm")]: {
+            gap: 10
+        },
+        [theme.breakpoints.only("md")]: {
+            gap: 40
+        },
+       
+        "@media (min-width: 1280px)": {
+            gap: 50
+        },
         display: 'flex',
-        minWidth: 1000,
     },
     avatar: {
         width: 150,
@@ -116,14 +148,25 @@ const useStyles = theme => ({
         display: 'flex',
     },
     gridData: {
-        marginLeft: theme.spacing(8),
         alignItems: 'center',
         flexDirection: 'column',
         display: 'flex',
     },
     gridInPaper: {
+        [theme.breakpoints.only("xs")]: {
+            gap: 10
+        },
+        [theme.breakpoints.only("sm")]: {
+            gap: 10
+        },
+        [theme.breakpoints.only("md")]: {
+            gap: 3
+        },
+       
+        "@media (min-width: 1280px)": {
+            gap: 50
+        },
         marginTop: theme.spacing(1),
-        marginLeft: theme.spacing(1),
         padding: theme.spacing(1),
         color: "black",
         display: 'flex',
@@ -147,6 +190,9 @@ const useStyles = theme => ({
         alignItems: 'center',
         flexDirection: 'column',
         display: 'flex',
+    },
+    settingsIcon: {
+        marginTop: theme.spacing(3),
     }
 });
 
@@ -162,6 +208,13 @@ function Profile(props) {
     const [reviews, setReviews] = useState([])
     const [reviewsCounter, setReviewsCounter] = useState(0)
     const theme = createTheme()
+
+    const links = ["/edit", "/files/view", "/files/upload", '/login'];
+    const icons = [<EditIcon style={{ color: '#f50057' }}/>, <FolderIcon style={{ color: '#f50057' }}/>, <FileDownloadIcon style={{ color: '#f50057' }}/>, <LogoutIcon style={{ color: '#f50057' }}/>]
+
+    const titles = ['Редактировать профиль', 'Мои файлы', 'Загрузить файл', 'Выход']
+    const positions = ['right']
+    const icon = <SettingsIcon style={{ color: '#f50057' }} fontSize={"large"}/>
 
     function selectFile() {
         if (user && user.username === AuthService.getCurrentUser().username) {
@@ -281,12 +334,12 @@ function Profile(props) {
         <div>
             {
                 user &&
-                <Grid>
-                    <Grid xs={12} item className={classes.mainGrid}>
-                        <Grid xs={8} item>
+                <Grid container direction="column" alignItems="center" >
+                    <Grid xs={12} item className={classes.mainGrid} justifyContent="center">
+                        <Grid item>
                             <Card className={classes.paper}>
-                                <Grid className={classes.gridInPaper}>
-                                    <Grid className={classes.grid}>
+                                <Grid container className={classes.gridInPaper} justifyContent="center">
+                                    <Grid item className={classes.grid}>
                                         <ButtonBase className={classes.btnbase}
                                                     onMouseOver={() => setChecked(true)}
                                                     onMouseLeave={() => setChecked(false)}>
@@ -318,7 +371,7 @@ function Profile(props) {
                                         /></div>
                                         <span>{user.active}</span>
                                     </Grid>
-                                    <Grid className={classes.gridData}>
+                                    <Grid item className={classes.gridData}>
                                         <TextField
                                             variant="outlined"
                                             multiline
@@ -361,42 +414,51 @@ function Profile(props) {
                             </Card>
                         </Grid>
                         {user && user.username === AuthService.getCurrentUser().username &&
-                            <Grid xs={4} item>
-                                <Card className={classes.paper2}>
-                                    <Grid className={classes.grid}>
-                                        <Link to={"/edit"} style={{textDecoration: 'none'}}>
-                                            <Button className={classes.button} title={"Редактировать профиль"}>
-                                                Редактировать профиль
-                                            </Button>
-                                        </Link>
-                                        <Link to={"/files/view"} style={{textDecoration: 'none'}}>
-                                            <Button className={classes.button} title={"Мои файлы"}>
-                                                Мои файлы
-                                            </Button>
-                                        </Link>
-                                        <Link to={"/files/upload"} style={{textDecoration: 'none'}}>
-                                            <Button className={classes.button} title={"Загрузить файл"}>
-                                                Загрузить файл
-                                            </Button>
-                                        </Link>
-                                        <ListItemButton
-                                            component={Link} to={'/login'}
-                                            title={'Выход'}
-                                            className={classes.exitButton}
-                                            sx={{backgroundColor: "#fff", margin: theme.spacing(1)}}
+                            <Grid item>
+                                <Hidden lgUp >
+                                    <div className={classes.settingsIcon}>
+                                        <ButtonDrawer links={links} icons={icons} titles={titles} positions={positions} icon={icon}/>
+                                    </div>
+                                </Hidden>
 
-                                        >
-                                            <ListItemIcon>{<Logout style={{color: '#f50057'}} />}</ListItemIcon>
-                                            <ListItemText primary={'Выход'}/>
-                                        </ListItemButton>
-                                    </Grid>
-                                </Card>
+                                <Hidden mdDown>
+                                    <Card className={classes.paper2}>
+                                        <Grid className={classes.grid}>
+                                            <Link to={"/edit"} style={{textDecoration: 'none'}}>
+                                                <Button className={classes.button} title={"Редактировать профиль"}>
+                                                    Редактировать профиль
+                                                </Button>
+                                            </Link>
+                                            <Link to={"/files/view"} style={{textDecoration: 'none'}}>
+                                                <Button className={classes.button} title={"Мои файлы"}>
+                                                    Мои файлы
+                                                </Button>
+                                            </Link>
+                                            <Link to={"/files/upload"} style={{textDecoration: 'none'}}>
+                                                <Button className={classes.button} title={"Загрузить файл"}>
+                                                    Загрузить файл
+                                                </Button>
+                                            </Link>
+                                            <ListItemButton
+                                                component={Link} to={'/login'}
+                                                title={'Выход'}
+                                                className={classes.exitButton}
+                                                sx={{backgroundColor: "#fff", margin: theme.spacing(1)}}
+
+                                            >
+                                                <ListItemIcon>{<Logout style={{color: '#f50057'}} />}</ListItemIcon>
+                                                <ListItemText primary={'Выход'}/>
+                                            </ListItemButton>
+                                        </Grid>
+                                    </Card>
+                                </Hidden>
+                                
                             </Grid>
                         }
                     </Grid>
 
                     {showReviews && (
-                        <Review targetId={user.id}/>
+                            <Review targetId={user.id}/>
                     )}
                 </Grid>
             }

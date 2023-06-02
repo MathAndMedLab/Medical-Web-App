@@ -6,32 +6,46 @@ import PipelineJobService from "../../services/pipelinejob.service"
 import AttachmentService from "../../services/attachment.service"
 import {Button, Divider, FormControl, Grid, Paper, Typography, withStyles} from "@material-ui/core";
 import {Link} from "react-router-dom";
+import ViewListIcon from '@material-ui/icons/ViewList';
+import FolderIcon from '@mui/icons-material/Folder';
+import ButtonDrawer from "../ButtonDrawer";
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import SaveAltIcon from '@material-ui/icons/SaveAlt';
+import DataUsageIcon from '@material-ui/icons/DataUsage';
+import {Hidden} from "@material-ui/core";
 
 const useStyles = theme => ({
+    listIcon: {
+        marginTop: theme.spacing(3),
+    },
     paper: {
         marginTop: theme.spacing(3),
         //padding: theme.spacing(1),
         //display: 'flex',
         flexGrow: 1,
-        [theme.breakpoints.down("xs")]: {
-            width: "250px",
-            marginLeft: "5%",
-        },
-        "@media (min-width: 424px)": {
-            width: "80%",
-            marginLeft: theme.spacing(5)
-        }
+      
     },
     paper2: {
-        margin: theme.spacing(3),
+        marginTop: theme.spacing(3),
         padding: theme.spacing(3),
 
     },
     mainGrid: {
         display: 'flex',
-        minWidth: 1000,
-
-
+        height: "calc(100vh - 80px)",
+        [theme.breakpoints.only("xs")]: {
+            gap: 10
+        },
+        [theme.breakpoints.only("sm")]: {
+            gap: 10
+        },
+        [theme.breakpoints.only("md")]: {
+            gap: 3
+        },
+       
+        "@media (min-width: 1280px)": {
+            gap: 50
+        },
     },
     button: {
         marginTop: theme.spacing(3),
@@ -72,75 +86,32 @@ const useStyles = theme => ({
     },
     title: {
         padding: theme.spacing(3),
+        textAlign: "center"
     },
     content: {
         //margin: theme.spacing(1),
+        display: 'inline-block', 
+        wordWrap: 'break-word',
         padding: theme.spacing(1),
         marginLeft: 7,
     },
-    CenterContainer: {
-        spacing: theme.spacing(3),
-        justifyContent: "center",
-        // paddingLeft : theme.spacing(4),
-        "@media (max-width: 768px)": {
-            justifyContent: "flex-start"
+    select: {
+        margin: theme.spacing(1),
+        display: 'inline-block', 
+        wordWrap: 'break-word',
+    },
+    viewList: {
+         [theme.breakpoints.down("xs")]: {
+            width: '28px', // изменяем ширину иконки
+            height: '28px'
         },
-
+        [theme.breakpoints.up("sm")]:{
+            width: '35px', // изменяем ширину иконки
+            height: '35px'
+        },
     }
 })
 
-function rightSideRender(classes) {
-    if (window.innerWidth >= 958) {
-        return (<Grid item xs={4}>
-            <Paper className={classes.paper2}>
-                <Grid className={classes.grid}>
-                    <Link to={"/files/view"} style={{textDecoration: 'none'}}>
-                        <Button className={classes.buttons} title={"Мои файлы"}>
-                            Мои файлы
-                        </Button>
-                    </Link>
-
-                    <Link to={"/files/upload"} style={{textDecoration: 'none'}}>
-                        <Button className={classes.buttons} title={"Загрузить файл"}>
-                            Загрузить файл
-                        </Button>
-                    </Link>
-
-                    <Link to={"/pipelines/results"} style={{textDecoration: 'none'}}>
-                        <Button className={classes.buttons} title={"Результаты"}>
-                            Результаты
-                        </Button>
-                    </Link>
-
-                    <Link to={"/pipelines/save"} style={{textDecoration: 'none'}}>
-                        <Button className={classes.buttons}>
-                            Сохранить конфигурацию
-                        </Button>
-                    </Link>
-
-
-                    {/*For admin board:
-                                <a href={"http://localhost:3000"} target="_blank"
-                                   style={{textDecoration: 'none'}}>
-                                    <Button className={classes.buttons}>
-                                        Все файлы в OHIF
-                                    </Button>
-                                </a>
-
-                                For admin board:
-                                {this.state.currentUser !== null && this.state.currentUser.username === "admin" &&
-                                (<Link to={"/pipelines/save"} style={{textDecoration: 'none'}}>
-                                    <Button className={classes.buttons}>
-                                        Сохранить конфигурацию
-                                    </Button>
-                                </Link>)
-
-                                }*/}
-                </Grid>
-            </Paper>
-        </Grid>);
-    }
-}
 
 
 class PipelinesComponent extends Component {
@@ -156,6 +127,11 @@ class PipelinesComponent extends Component {
         this.onFileDropdownSelected = this.onFileDropdownSelected.bind(this);
         this.submitPipeline = this.submitPipeline.bind(this);
 
+        const links = ["/files/view", "/files/upload", "/pipelines/results", "/pipelines/save"];
+        const icons = [ <FolderIcon style={{ color: '#f50057' }}/>, <FileDownloadIcon style={{ color: '#f50057' }}/>, <DataUsageIcon style={{ color: '#f50057' }}/>,<SaveAltIcon style={{ color: '#f50057' }}/>,]
+        const titles = [ 'Мои файлы', 'Загрузить файл', "Результаты" , "Сохранить конфигурацию"]
+        const positions = ['right']
+        const icon = <ViewListIcon style={{ color: '#f50057' }} className={this.props.classes.viewList}/>
         this.state = {
             currentUser: user,
             pipelines: [],
@@ -163,7 +139,12 @@ class PipelinesComponent extends Component {
             message: [],
             selectedFile: null,
             selectedPipeline: null,
-            submitted: false
+            submitted: false,
+            links: links,
+            icons: icons,
+            titles: titles,
+            positions: positions,
+            icon: icon,
         };
     }
 
@@ -245,118 +226,102 @@ class PipelinesComponent extends Component {
         const {classes} = this.props;
 
         return (
-            <Grid className={classes.mainGrid}>
-                <Grid container className={classes.CenterContainer}>
-                    <Grid item xs={6}>
-                        <Paper className={classes.paper}>
-                            <Typography className={classes.title} variant="h5">
-                                Автоматический анализ снимка
-                            </Typography>
-                            <Divider/>
+            <Grid container className={classes.mainGrid} justifyContent="center">
+                <Grid xs={9} md={8} lg={6} item>
+                    <Paper className={classes.paper}>
+                        <Typography className={classes.title} variant="h5">
+                            Автоматический анализ снимка
+                        </Typography>
+                        <Divider/>
 
-                            <form className={classes.form}
-                                  onSubmit={this.submitPipeline}
+                        <form className={classes.form}
+                                onSubmit={this.submitPipeline}
+                        >
+                            <FormControl className={classes.formControl}>
+                                <Typography className={classes.content} color="inherit">
+                                    Проанализировать снимок на
+                                </Typography>
+                                <Select className={classes.select}
+                                        onChange={this.onPipelineDropdownSelected}
+                                        options={pipelines}
+                                        autoFocus={true}
+                                        fullWidth
+                                />
+                            </FormControl>
+                            <FormControl className={classes.formControl}>
+                                <Typography className={classes.content} color="inherit" noWrap>
+                                    Выберите файл
+                                </Typography>
+                                <Select className={classes.select}
+                                        onChange={this.onFileDropdownSelected}
+                                        options={files}
+                                        fullWidth
+                                />
+                            </FormControl>
+                            <Button
+                                type="submit"
+                                fullWidth
+                                variant="contained"
+                                color="primary"
+                                disabled={selectedFile == null || selectedPipeline == null || submitted}
+                                className={classes.button}
+                                title={"Запустить"}
                             >
-                                <FormControl className={classes.formControl}>
-                                    <Typography className={classes.content} color="inherit" noWrap>
-                                        Проанализировать снимок на
-                                    </Typography>
-                                    <Select className="col-9 col-offset-4"
-                                            onChange={this.onPipelineDropdownSelected}
-                                            options={pipelines}
-                                            autoFocus={true}
-                                    />
-                                </FormControl>
-                                <FormControl className={classes.formControl}>
-                                    <Typography className={classes.content} color="inherit" noWrap>
-                                        Выберите файл
-                                    </Typography>
-                                    <Select className="col-9 col-offset-4"
-                                            onChange={this.onFileDropdownSelected}
-                                            options={files}
-                                    />
-                                </FormControl>
-                                <Button
-                                    type="submit"
-                                    fullWidth
-                                    variant="contained"
-                                    color="primary"
-                                    disabled={selectedFile == null || selectedPipeline == null || submitted}
-                                    className={classes.button}
-                                    title={"Запустить"}
-                                >
-                                    Запустить
-                                </Button>
-                            </form>
+                                Запустить
+                            </Button>
+                        </form>
 
 
-                            {this.state.submitted && (
-                                <div className="form-group">
-                                    <div
-                                        className="alert alert-success top-buffer-10"
-                                        role="alert">
-                                        Отправлено исполняться <br/> Результаты можно посмотреть на вкладке
-                                        "Запущенные
-                                        конвейеры"
-                                    </div>
+                        {this.state.submitted && (
+                            <div className="form-group">
+                                <div
+                                    className="alert alert-success top-buffer-10"
+                                    role="alert">
+                                    Отправлено исполняться <br/> Результаты можно посмотреть на вкладке
+                                    "Запущенные
+                                    конвейеры"
                                 </div>
-                            )}
+                            </div>
+                        )}
+                    </Paper>
+                </Grid>
+
+                <Grid item>
+                    <Hidden lgUp >
+                        <div className={classes.listIcon}>
+                            <ButtonDrawer links={this.state.links} icons={this.state.icons} titles={this.state.titles} positions={this.state.positions} icon={this.state.icon}/>
+                        </div>
+                    </Hidden>
+                    <Hidden mdDown>
+                        <Paper className={classes.paper2}>
+                            <Grid className={classes.grid}>
+                                <Link to={"/files/view"} style={{textDecoration: 'none'}}>
+                                    <Button className={classes.buttons} title={"Мои файлы"}>
+                                        Мои файлы
+                                    </Button>
+                                </Link>
+
+                                <Link to={"/files/upload"} style={{textDecoration: 'none'}}>
+                                    <Button className={classes.buttons} title={"Загрузить файл"}>
+                                        Загрузить файл
+                                    </Button>
+                                </Link>
+
+                                <Link to={"/pipelines/results"} style={{textDecoration: 'none'}}>
+                                    <Button className={classes.buttons} title={"Результаты"}>
+                                        Результаты
+                                    </Button>
+                                </Link>
+
+                                <Link to={"/pipelines/save"} style={{textDecoration: 'none'}}>
+                                    <Button className={classes.buttons}>
+                                        Сохранить конфигурацию
+                                    </Button>
+                                </Link>
+                            </Grid>
                         </Paper>
-                    </Grid>
-
-                    {/*<rightSideRender classes = {classes}/>*/}
-                    {rightSideRender(classes)}
-
-                    {/*<Grid item xs={4}>*/}
-                    {/*    <Paper className={classes.paper2}>*/}
-                    {/*        <Grid className={classes.grid}>*/}
-                    {/*            <Link to={"/files/view"} style={{textDecoration: 'none'}}>*/}
-                    {/*                <Button className={classes.buttons}>*/}
-                    {/*                    Мои файлы*/}
-                    {/*                </Button>*/}
-                    {/*            </Link>*/}
-
-                    {/*            <Link to={"/files/upload"} style={{textDecoration: 'none'}}>*/}
-                    {/*                <Button className={classes.buttons}>*/}
-                    {/*                    Загрузить файл*/}
-                    {/*                </Button>*/}
-                    {/*            </Link>*/}
-
-                    {/*            <Link to={"/pipelines/results"} style={{textDecoration: 'none'}}>*/}
-                    {/*                <Button className={classes.buttons}>*/}
-                    {/*                    Результаты*/}
-                    {/*                </Button>*/}
-                    {/*            </Link>*/}
-
-                    {/*            /!*TODO сделать так же, как в record-card*!/*/}
-                    {/*            <a href={"http://localhost:3000/local"} target="_blank"*/}
-                    {/*                  style={{textDecoration: 'none'}}>*/}
-                    {/*                <Button className={classes.buttons}>*/}
-                    {/*                    Открыть DICOM-файл*/}
-                    {/*                </Button>*/}
-                    {/*            </a>*/}
-
-
-                    {/*            /!*For admin board:*!/*/}
-                    {/*            /!*<a href={"http://localhost:3000"} target="_blank"*!/*/}
-                    {/*            /!*   style={{textDecoration: 'none'}}>*!/*/}
-                    {/*            /!*    <Button className={classes.buttons}>*!/*/}
-                    {/*            /!*        Все файлы в OHIF*!/*/}
-                    {/*            /!*    </Button>*!/*/}
-                    {/*            /!*</a>*!/*/}
-
-                    {/*            /!*For admin board:*!/*/}
-                    {/*            {this.state.currentUser !== null && this.state.currentUser.username === "admin" &&*/}
-                    {/*            (<Link to={"/pipelines/save"} style={{textDecoration: 'none'}}>*/}
-                    {/*                <Button className={classes.buttons}>*/}
-                    {/*                    Сохранить конфигурацию*/}
-                    {/*                </Button>*/}
-                    {/*            </Link>)*/}
-
-                    {/*            }*/}
-                    {/*        </Grid>*/}
-                    {/*    </Paper>*/}
-                    {/*</Grid>*/}
+                    </Hidden>
+                    
                 </Grid>
             </Grid>
         )

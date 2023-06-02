@@ -136,11 +136,11 @@ const useStyles = theme => ({
             width: 250,
         },
         "@media (min-width : 960px)": {
-            width: 200,
+            width: 220,
 
         },
         "@media (min-width: 1280px)": {
-            width: 178,
+            width: 200,
             //marginRight: "70%",
         },
     },
@@ -663,16 +663,30 @@ function App(props) {
                         </Badge>
                     </IconButton>
                 </Grid>
-                <Grid item width={'130px'}>
-                    <ListItemButton
-                        component={Link} to={getPathForProfile()}
-                        title={"Профиль"}
-                        sx={{ '&:hover': { color: "#ffffff" } }}
-                    >
-                        <AccountCircleRoundedIcon />
-                        <ListItemText primary={username} />
-                    </ListItemButton>
-                </Grid>
+                <Hidden smDown>
+                    <Grid item width={'130px'}>
+                        <ListItemButton
+                            component={Link} to={getPathForProfile()}
+                            title={"Профиль"}
+                            sx={{ '&:hover': { color: "#ffffff" } }}
+                        >
+                            <AccountCircleRoundedIcon />
+                            <ListItemText primary={username} />
+                        </ListItemButton>
+                    </Grid>
+                </Hidden>
+                <Hidden mdUp>
+                    <Grid item width={'50px'}>
+                        <Link to={getPathForProfile()}>
+                            <IconButton 
+                                title={"Профиль"}
+                                >
+                                    <AccountCircleRoundedIcon style={{color: "#fff" }}/>
+                            </IconButton>
+                        </Link>
+                    </Grid>
+                </Hidden>
+                
             </Grid>);
         }
         else {
@@ -695,14 +709,29 @@ function App(props) {
                             </Badge>
                         </IconButton>
                     </Grid>
-                    <Grid item width={'100px'}>
-                        <ListItemButton
-                            component={Link} to={getPathForProfile()}
-                        >
-                            <AccountCircleRoundedIcon сolor = "inherit"/>
-                            <ListItemText primary={username}/>
-                        </ListItemButton>
-                    </Grid>
+                    <Hidden smDown>
+                        <Grid item width={'100px'}>
+                            <ListItemButton
+                                component={Link} to={getPathForProfile()}
+                            >
+                                <AccountCircleRoundedIcon сolor = "inherit"/>
+                                <Hidden smDown>
+                                    <ListItemText primary={username} />
+                                </Hidden>
+                            </ListItemButton>
+                        </Grid>
+                    </Hidden>
+                    <Hidden mdUp>
+                        <Grid item width={'25px'}>
+                            <Link to={getPathForProfile()}>
+                                <IconButton 
+                                    title={"Профиль"}
+                                    >
+                                        <AccountCircleRoundedIcon style={{color: "#fff" }}/>
+                                </IconButton>
+                            </Link>
+                        </Grid>
+                    </Hidden>
                 </Grid>
             );
         }
@@ -936,6 +965,9 @@ function App(props) {
                             </Route>
                             <Route exact path="/topics/create" component={TopicComponent}>
                                 {AuthService.getCurrentUser() ? <TopicComponent open = {open} /> : <Redirect to="/login" />}
+                            </Route>
+                            <Route exact path="/edit" component={ProfileEditComponent}>
+                                {AuthService.getCurrentUser() ? <ProfileEditComponent/> : <Redirect to="/login" />}
                             </Route>
                             <Route component={NotExist} />
                         </Switch>

@@ -3,6 +3,10 @@ import Form from "react-validation/build/form";
 import Input from "react-validation/build/input";
 import CheckButton from "react-validation/build/button";
 
+import Button from "@material-ui/core/Button";
+import {Card, withStyles} from "@material-ui/core";
+import Grid from "@material-ui/core/Grid";
+
 import PipelineService from "../../services/pipeline.service";
 import {Link} from "react-router-dom";
 
@@ -86,134 +90,91 @@ export default class SavePipelineConfigComponent extends Component {
         );
     }
 
-    // handleClickOpen() {
-    //     this.setState({open: true})
-    // }
-    //
-    // handleClose() {
-    //     this.setState({open: false})
-    // }
-    //
-    // delete(pipelineId) {
-    //     PipelineService.deletePipeline(AuthService.getCurrentUser().username, pipelineId).then();
-    //     this.setState({open: false})
-    // }
 
     render() {
 
         return (
             <div>
-                <div className="row">
-                    <div className="col-sm-9">
+                <Grid container direction="column" justifyContent="center">
+                    <Grid item>
                         <div className="card record-create-form color-light-blue">
-                            <Form
-                                onSubmit={this.handleSaveRecord}
-                                ref={c => {
-                                    this.inputForm = c;
-                                }}
-                            >
-                                <div className="form-group">
-                                    <label htmlFor="title">Краткое описание:</label>
-                                    <Input
-                                        type="text"
-                                        autoComplete="off"
-                                        className="form-control"
-                                        name="description"
-                                        value={this.state.description}
-                                        onChange={this.onChangeDescription}
-                                    />
-                                </div>
-
-                                <div className="form-group">
-                                    <label htmlFor="content">Конфигурация (json):</label>
-                                    <textarea className="form-control"
-                                              id="exampleFormControlTextarea1"
-                                              rows="4"
-                                              onChange={this.onChangeConfiguration}
-                                              value={this.state.configuration}
-                                              autoComplete="off"
-                                    >
-                                </textarea>
-                                </div>
-
-                                <div className="form-group top-buffer-10">
-                                    <button
-                                        className="btn btn-primary btn-block color-dark-blue"
-                                        disabled={!this.state.description || !this.state.configuration}
-                                    >
-                                        <span>Сохранить</span>
-                                    </button>
-                                </div>
-
-                                {this.state.message && (
-                                    <div className="form-group">
-                                        <div
-                                            className={
-                                                this.state.submittedSuccessfully
-                                                    ? "alert alert-success"
-                                                    : "alert alert-danger"
-                                            }
-                                            role="alert"
-                                        >
-                                            {this.state.message}
-                                        </div>
-                                    </div>
-                                )}
-
-                                <CheckButton
-                                    style={{display: "none"}}
+                                <Form
+                                    onSubmit={this.handleSaveRecord}
                                     ref={c => {
-                                        this.checkBtn = c
+                                        this.inputForm = c;
                                     }}
-                                />
-                            </Form>
-                        </div>
-                    </div>
+                                >
+                                    <div className="form-group">
+                                        <label htmlFor="title">Краткое описание:</label>
+                                        <Input
+                                            type="text"
+                                            autoComplete="off"
+                                            className="form-control"
+                                            name="description"
+                                            value={this.state.description}
+                                            onChange={this.onChangeDescription}
+                                        />
+                                    </div>
 
-                    <div className="col-sm-2 align-center">
-                        <Link to={"/pipelines/create"} className="nav-link card-link-custom color-orange">Запустить
-                            конвейер</Link>
-                        <Link to={"/pipelines/results"} className="nav-link card-link-custom color-orange">Запущенные
-                            конвейеры</Link>
-                    </div>
+                                    <div className="form-group">
+                                        <label htmlFor="content">Конфигурация (json):</label>
+                                        <textarea className="form-control"
+                                                id="exampleFormControlTextarea1"
+                                                rows="4"
+                                                onChange={this.onChangeConfiguration}
+                                                value={this.state.configuration}
+                                                autoComplete="off"
+                                        >
+                                    </textarea>
+                                    </div>
 
+                                    <div className="form-group top-buffer-10">
+                                        <button
+                                            className="btn btn-primary btn-block color-dark-blue"
+                                            disabled={!this.state.description || !this.state.configuration}
+                                        >
+                                            <span>Сохранить</span>
+                                        </button>
+                                    </div>
 
-                    <div className="col-sm-1"/>
+                                    {this.state.message && (
+                                        <div className="form-group">
+                                            <div
+                                                className={
+                                                    this.state.submittedSuccessfully
+                                                        ? "alert alert-success"
+                                                        : "alert alert-danger"
+                                                }
+                                                role="alert"
+                                            >
+                                                {this.state.message}
+                                            </div>
+                                        </div>
+                                    )}
 
-                </div>
-                <div>
-                    Уже имеющиеся конфигурации:
-                    {this.state.pipelines.map(el => (
-                        <div key={el.id} className="row top-buffer-10">
-                            <div className="col-sm-3 line-break">{el.name}</div>
-                            {/*<div className="col-sm-1">*/}
-                            {/*    <IconButton aria-label="delete"*/}
-                            {/*                size="small"*/}
-                            {/*                style={{width: 5, color: '#444',}}*/}
-                            {/*                onClick={() => this.handleClickOpen()}>*/}
-                            {/*        <DeleteIcon fontSize="small"/>*/}
-                            {/*    </IconButton>*/}
-                            {/*</div>*/}
-                            {/*<Dialog*/}
-                            {/*    open={this.state.open}*/}
-                            {/*    onClose={this.handleClose}*/}
-                            {/*    aria-labelledby="alert-dialog-title"*/}
-                            {/*    aria-describedby="alert-dialog-description"*/}
-                            {/*>*/}
-                            {/*    <DialogTitle id="alert-dialog-title">*/}
-                            {/*        {"Вы действительно хотите удалить конфигурацию?"}*/}
-                            {/*    </DialogTitle>*/}
-                            {/*    <DialogActions>*/}
-                            {/*        <Button onClick={this.handleClose}>Нет</Button>*/}
-                            {/*        <Button onClick={() => this.delete(el.id)}*/}
-                            {/*                autoFocus>*/}
-                            {/*            Да*/}
-                            {/*        </Button>*/}
-                            {/*    </DialogActions>*/}
-                            {/*</Dialog>*/}
-                        </div>
-                    ))}
-                </div>
+                                    <CheckButton
+                                        style={{display: "none"}}
+                                        ref={c => {
+                                            this.checkBtn = c
+                                        }}
+                                    />
+                                </Form>
+                            </div>
+                    </Grid>
+
+                    <Grid item>
+                            <Link to={"/pipelines/create"} className="nav-link card-link-custom color-orange" style={{maxWidth: "300px"}}>Запустить
+                                конвейер</Link>
+                            <Link to={"/pipelines/results"} className="nav-link card-link-custom color-orange" style={{maxWidth: "300px"}}>Запущенные
+                                конвейеры</Link>
+                    </Grid>
+                    <Grid container item direction="column" alignItems="center">
+                        Уже имеющиеся конфигурации:
+                        {this.state.pipelines.map(el => (
+                            <div key={el.id} style={{width: "100px", display: 'inline-block', wordWrap: 'break-word',}}>{el.name}</div>
+                        ))}
+                    </Grid>
+                </Grid>
             </div>
         );
     }

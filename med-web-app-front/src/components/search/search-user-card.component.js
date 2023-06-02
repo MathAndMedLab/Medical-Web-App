@@ -10,7 +10,7 @@ import GetAvgRating from "../../avg_rating/get-avg-rating";
 import StarRatings from "react-star-ratings";
 import getCorrectExperienceValue from "../user_profile/get-correct-experience-value";
 import {Hidden} from "@material-ui/core";
-
+import Typography from '@mui/material/Typography';
 
 
 const useStyles = theme => ({
@@ -23,6 +23,20 @@ const useStyles = theme => ({
 
     link: {
         color: "black", 
+        [theme.breakpoints.down("xs")]: {
+            width: '80px',
+        },
+        [theme.breakpoints.only("sm")]:{
+            width: '175px',
+        },
+        [theme.breakpoints.only("md")]:{
+            width: '125px',
+        },
+        "@media (min-width: 1280px)" :{
+            width: '200px',
+        },
+        display: 'inline-block', 
+        wordWrap: 'break-word',
         "@media (min-width : 0px)": {
             fontSize: theme.spacing(2)
         },
@@ -73,6 +87,10 @@ const useStyles = theme => ({
     image: {
         width: "100%",
         height: "100%"
+    },
+     
+    typo: {
+        width: "250px"
     }
 });
 
@@ -137,7 +155,7 @@ class UserCard extends Component {
 
             {this.user.initials !== null && <TableCell align={"left"}>
                 <Link to={"profile/" + this.user.username} className={classes.link}>
-                    {this.user.initials + " "}
+                    {this.user.initials + " " }
                 </Link>
                 {this.getInfoAboutDoctor(classes)}
             </TableCell>}
@@ -145,7 +163,8 @@ class UserCard extends Component {
             {this.user.initials !== null && <Hidden smDown>
                 <TableCell align={"center"}>
                     <Link to={"profile/" + this.user.username} className={classes.link}>
-                        {this.user.username}
+                            {this.user.username + " "}
+                        
                     </Link>
                 </TableCell>
             </Hidden>}

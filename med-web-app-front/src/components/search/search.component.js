@@ -10,7 +10,7 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import {
-    FormControl, FormLabel, Grid, IconButton, InputAdornment, Radio, RadioGroup, TextField, withStyles
+    FormControl, FormLabel, Grid, Hidden, IconButton, InputAdornment, Radio, RadioGroup, TextField, withStyles
 } from "@material-ui/core";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import SearchIcon from '@material-ui/icons/Search';
@@ -21,59 +21,225 @@ import GetAvgRating from "../../avg_rating/get-avg-rating";
 import diagnosesList from "../../specialties-of-doctors-and-diagnoses/diagnoses";
 import CreatableSelectSpecialties from "../../specialties-of-doctors-and-diagnoses/creatable-select-specialties";
 import CreatableSelectDiagnoses from "../../specialties-of-doctors-and-diagnoses/creatable-select-diagnoses";
+import TuneIcon from '@mui/icons-material/Tune';
+import clsx from "clsx"
+import Button from '@mui/material/Button';
 
 const StyledTableRow = withStyles((theme) => ({
     root: {
         '&:nth-of-type(odd)': {
             backgroundColor: "#e0e0e0",
 
-        }, height: 190
+        },
+
+        height: 190
     },
 }))(TableRow);
 
 const useStyles = theme => ({
     root: {
         "& .MuiPaper-root": {
-            width: 800, backgroundColor: '#ffffff'
+            backgroundColor: '#ffffff'
 
-        }, "& .MuiTableRow-root": {
+        }, 
+        
+        "& .MuiTableRow-root": {
             color: "black",
         }
-    }, input: {
-        [theme.breakpoints.down("xs")]: {
-            width: 285,
-        }, [theme.breakpoints.between("sm", "md")]: {
-            width: 650
-        }, "@media (min-width : 1280px)": {
-            width: 800,
-        }, marginBottom: theme.spacing(1.5), "& .MuiFormLabel-root": {
-            margin: 0, color: "black"
+    },
+
+    input: {
+        
+
+        marginBottom: theme.spacing(1.5),
+        
+        "& .MuiFormLabel-root": {
+            margin: 0,
+            color: "black"
         }
-    }, header: {
-        backgroundColor: '#3f51b5', color: 'white', [theme.breakpoints.down("xs")]: {
+    },
+    appBarSpacer: theme.mixins.toolbar,
+    appBarSpacer2: {
+        marginTop: 10,
+    },
+    gridApply: {
+        position: "fixed",
+        
+        bottom: "0%",
+        [theme.breakpoints.down("xs")]: {
+            left: "0%",
+        }, 
+
+        [theme.breakpoints.between("sm", "md")]: {
+            left: "56px",
+        },
+    },
+    buttonApply: {
+        [theme.breakpoints.down("xs")]: {
+            width: "100vw"
+        }, 
+
+        [theme.breakpoints.between("sm", "md")]: {
+            width: "calc(100vw - 56px)"
+        },
+    },
+
+    block: {
+
+        "@media (min-width : 0px)": {
+            width: theme.spacing(33),
+        },
+
+        "@media (min-width : 414px)": {
+            width: theme.spacing(40),
+        },
+
+        "@media (min-width : 600px)": {
+            width: theme.spacing(57),
+        },
+
+        "@media (min-width : 768px)": {
+            width: theme.spacing(79),
+        },
+
+        "@media (min-width : 960px)": {
+            width: theme.spacing(79.5),
+        },
+
+
+        "@media (min-width : 992px)": {
+            width: theme.spacing(106),
+        },
+
+        "@media (min-width : 1200px)": {
+            width: theme.spacing(132),
+        },
+        
+        "@media (min-width : 1280px)": {
+            width: 800,
+        },
+    },
+
+    header: {
+        backgroundColor: '#3f51b5', 
+        color: 'white',
+        [theme.breakpoints.down("xs")]: {
             fontSize: 13,
-        }, [theme.breakpoints.between("sm", "md")]: {
-            fontSize: 17,
-        }, "@media (min-width : 1280px)": {
+        }, 
+
+        [theme.breakpoints.between("sm", "md")]: {
             fontSize: 17,
         },
-    }, table: {
-        width: 800,
-    }, formControlLab: {
-        marginBottom: theme.spacing(0), marginTop: theme.spacing(0)
-    }, label: {
-        margin: theme.spacing(2, 0, 1), color: "black"
-    }, button: {
+
+        "@media (min-width : 1280px)": {
+            fontSize: 17,
+        },
+    },
+
+   
+
+    formControlLab: {
+        marginBottom: theme.spacing(0), 
+        marginTop: theme.spacing(0)
+    },
+
+    label: {
+        margin: theme.spacing(3, 0, 1), 
+        color: "black"
+    },
+    
+    button: {
         height: 55
-    }, inputAdornment: {
+    },
+
+    inputAdornment: {
         marginRight: theme.spacing(-1.8),
-    }, mainGrid: {
+    },
+
+    mainGrid: {
         display: 'flex',
-    }, paper: {
-        marginLeft: 50, paddingLeft: 10, paddingTop: 3, paddingRight: 25, marginTop: 0,
-    }, nextPaper: {
-        marginLeft: 50, paddingLeft: 10, paddingTop: 3, paddingRight: 25, marginTop: 15, paddingBottom: 3
-    }
+    },
+
+    paper: {
+        paddingLeft: 10, 
+        paddingTop: 10, 
+        paddingRight: 10, 
+        paddingBottom: 10,
+        width: "275px",
+        height: "210px"
+    },
+
+    search: {
+        marginBottom: theme.spacing(1),
+        "@media (min-width : 0px) and (max-width : 599px)": {
+            justifyContent: "center",
+        },
+        "@media (min-width : 600px)": {
+            gap: 6
+        },
+        "@media (min-width : 768px)": {
+            gap: 2
+        },
+        "@media (min-width : 960px)": {
+            gap: 6
+        },
+
+
+        "@media (min-width : 992px)": {
+            gap: 10
+        },
+
+        "@media (min-width : 1200px)": {
+            gap: 6
+        },
+        
+    },
+
+    mainSection: {
+        [theme.breakpoints.down("xs")]: {
+            justifyContent: "center",
+            alignItems: "center"
+        }, 
+    },
+    filterButton: {
+        marginTop: theme.spacing(0.5),
+        [theme.breakpoints.down("xs")]: {
+            position: "absolute",
+            zIndex: 500,
+        }, 
+        "@media (min-width : 0px) and (max-width : 389px)": {
+            
+            right: "0%",
+        },
+     
+
+        "@media (min-width : 390px) and (max-width : 413px)": {
+            
+            right: "2%",
+        },
+     
+        "@media (min-width : 414px) and (max-width : 429px)": {
+            
+            right: "0%",
+        },
+
+        "@media (min-width : 430px) and (max-width : 474px)": {
+            
+            right: "2%",
+        },
+        "@media (min-width : 475px) and (max-width : 519px)": {
+            
+            right: "4%",
+        },
+        "@media (min-width : 520px) and (max-width : 569px)": {
+           
+            right: "6%",
+        },
+        "@media (min-width : 570px) and (max-width : 599px)": {
+           
+            right: "8%",
+        },
+    },
 });
 
 
@@ -106,7 +272,9 @@ class Search extends Component {
             specializedDiagnoses: [],
             usersReviewsIndexes: [],
             usersReviews: [],
-            isSorted: false
+            isSorted: false,
+            isFilter: false,
+            screenWidth: window.innerWidth
         };
     }
 
@@ -118,6 +286,13 @@ class Search extends Component {
             minExperience: e.target.value
         });
     }
+
+    onChangeFilter() {
+        this.setState({
+            isFilter: !this.state.isFilter
+        });
+    }
+
 
     onChangeSelectedSpecialties(e) {
         this.setState({
@@ -386,249 +561,279 @@ class Search extends Component {
 
     componentDidMount() {
         this.getUsers();
+        window.addEventListener("resize", this.handleResize);
     }
 
-    printSearchParamsAboutDoctors(nextPaperClass, labelClass) {
-        if (this.state.searchParamsRole === "Врач") {
-            return (<span>
-                    <Paper className={nextPaperClass}>
-                        <FormLabel className={labelClass}>
-                        Специальность:
-                        </FormLabel>
-                            {CreatableSelectSpecialties(this.state.selectedSpecialties, this.onChangeSelectedSpecialties)}
-                        <FormLabel className={labelClass}>
-                        Ваш диагноз:
-                        </FormLabel>
-                            {CreatableSelectDiagnoses(this.state.specializedDiagnoses, this.onChangeSpecializedDiagnoses)}
-                        <br/>
-                    </Paper>
-                    <Paper className={nextPaperClass}>
-                    <Grid>
-                        <FormLabel className={labelClass}>
-                        Стаж: от <input required minLength="3" maxLength="8" size="8" value={this.state.minExperience}
-                                        onChange={this.onChangeMinExperience}/> лет
-                            </FormLabel>
-                        <input id="price_slider" style={{
-                            background: `linear-gradient(to right, #f50057 0% ${this.state.minExperience * 100 / 30}%, #ffffff ${this.state.minExperience * 100 / 30}%)`,
-                            border: 'solid 1px #82CFD0',
-                            borderRadius: '8px',
-                            height: '7px',
-                            width: '285px',
-                            WebkitAppearance: 'none'
-                        }} min="0" max="30" step="1" type="range" value={this.state.minExperience}
-                               onChange={this.onChangeMinExperience}/>
-                    </Grid>
-                    </Paper>
-                    <Paper className={nextPaperClass}>
-                        <Grid>
-                        <FormLabel className={labelClass}>
-                        Цена: от <input required minLength="3" maxLength="8" size="8" value={this.state.minPrice}
-                                        onChange={this.onChangeMinPrice}/> ₽
-                            </FormLabel>
-                        <input id="price_slider" style={{
-                            background: `linear-gradient(to right, #f50057 0% ${this.state.minPrice * 100 / 100000}%, #ffffff ${this.state.minPrice * 100 / 100000}%)`,
-                            border: 'solid 1px #82CFD0',
-                            borderRadius: '8px',
-                            height: '7px',
-                            width: '285px',
-                            WebkitAppearance: 'none'
-                        }} min="0" max="100000" step="100" type="range" value={this.state.minPrice}
-                               onChange={this.onChangeMinPrice}/>
-                        </Grid>
-                        <Grid>
-                        <FormLabel className={labelClass}>
-                        Цена: до <input required minLength="3" maxLength="8" size="8" value={this.state.maxPrice}
-                                        onChange={this.onChangeMaxPrice}/> ₽
-                            </FormLabel>
-                        <input id="price_slider" style={{
-                            background: `linear-gradient(to right, #f50057 0% ${this.state.maxPrice * 100 / 100000}%, #ffffff ${this.state.maxPrice * 100 / 100000}%)`,
-                            border: 'solid 1px #82CFD0',
-                            borderRadius: '8px',
-                            height: '7px',
-                            width: '285px',
-                            WebkitAppearance: 'none'
-                        }} min="0" max="100000" step="100" type="range" value={this.state.maxPrice}
-                               onChange={this.onChangeMaxPrice}/>
-                        </Grid>
-                    </Paper>
-                </span>
+    componentWillUnmount() {
+        window.removeEventListener("resize", this.handleResize);
+    } 
 
+
+    getFiltersAboutDoctors(classes) {
+        const paperSpeciality = <Paper className={classes.paper}>
+                                    <FormLabel style={{textAlign: "center", color: "black"}}>
+                                        Специальность:
+                                    </FormLabel>
+                                        {CreatableSelectSpecialties(this.state.selectedSpecialties, this.onChangeSelectedSpecialties)}
+                                    <FormLabel style={{textAlign: "center", color: "black"}}>
+                                        Ваш диагноз:
+                                    </FormLabel>
+                                        {CreatableSelectDiagnoses(this.state.specializedDiagnoses, this.onChangeSpecializedDiagnoses)}
+                                </Paper>;
+        const paperExp = <Paper className={classes.paper}>
+                            <Grid container direction="column"  justifyContent="center" alignItems="center" style={{width: "255px", height: "190px"}}>
+                                <FormLabel style={{textAlign: "center", color: "black"}}>
+                                    Стаж: от <input required minLength="3" maxLength="8" size="8" value={this.state.minExperience} onChange={this.onChangeMinExperience}/> лет
+                                </FormLabel>
+                                <input id="price_slider" style={{
+                                        background: `linear-gradient(to right, #f50057 0% ${this.state.minExperience * 100 / 30}%, #ffffff ${this.state.minExperience * 100 / 30}%)`,
+                                        border: 'solid 1px #82CFD0',
+                                        borderRadius: '8px',
+                                        height: '7px',
+                                        width: '225px',
+                                        WebkitAppearance: 'none',
+                                        marginTop: "25px",
+                                        marginBottom: "25px"
+                                    }} min="0" max="30" step="1" type="range" value={this.state.minExperience}
+                                        onChange={this.onChangeMinExperience}/> 
+                            </Grid>
+                        </Paper>;
+        const paperCost = <Paper className={classes.paper}>
+                            <Grid container direction="column"  justifyContent="center" alignItems="center" style={{width: "255px", height: "190px", gap: 10}}>
+                                <Grid item>
+                                    <FormLabel className={classes.label} style={{textAlign: "center"}}>
+                                        Цена: от <input required minLength="3" maxLength="8" size="8" value={this.state.minPrice}
+                                                onChange={this.onChangeMinPrice}/> ₽
+                                    </FormLabel>
+                                    <input id="price_slider" style={{
+                                        background: `linear-gradient(to right, #f50057 0% ${this.state.minPrice * 100 / 100000}%, #ffffff ${this.state.minPrice * 100 / 100000}%)`,
+                                        border: 'solid 1px #82CFD0',
+                                        borderRadius: '8px',
+                                        height: '7px',
+                                        width: '225px',
+                                        WebkitAppearance: 'none',
+                                        marginTop: "10px",
+                                    }} min="0" max="100000" step="100" type="range" value={this.state.minPrice}
+                                        onChange={this.onChangeMinPrice}/>
+                                </Grid>
+                                
+                                <Grid item>
+                                    <FormLabel className={classes.label} style={{textAlign: "center"}}>
+                                    Цена: до <input required minLength="3" maxLength="8" size="8" value={this.state.maxPrice}
+                                                onChange={this.onChangeMaxPrice}/> ₽
+                                    </FormLabel>
+                                    <input id="price_slider" style={{
+                                        background: `linear-gradient(to right, #f50057 0% ${this.state.maxPrice * 100 / 100000}%, #ffffff ${this.state.maxPrice * 100 / 100000}%)`,
+                                        border: 'solid 1px #82CFD0',
+                                        borderRadius: '8px',
+                                        height: '7px',
+                                        width: '225px',
+                                        WebkitAppearance: 'none',
+                                        marginTop: "10px",
+                                    }} min="0" max="100000" step="100" type="range" value={this.state.maxPrice}
+                                        onChange={this.onChangeMaxPrice}/>
+                                </Grid>
+                            </Grid>
+                        </Paper>;
+
+        return [paperSpeciality, paperExp, paperCost];
+        
+    }
+
+
+    getFiltersGeneral(classes) {
+        const paperRole = <Paper className={classes.paper}>
+                            <FormLabel className={classes.label} style={{textAlign: "center"}}>Параметры поиска:</FormLabel>
+                            <Grid container direction="column" justifyContent="center" className={classes.mainGrid} style={{marginTop: "20px"}}>
+                                <FormControl>
+                                    <RadioGroup value={this.state.searchParamsRole}
+                                                onChange={this.onChangeParamsRoleSearch}>
+                                        <FormControlLabel className={classes.formControlLab}
+                                                        control={<Radio/>}
+                                                        value="Все"
+                                                        label="по всем"
+                                        />
+                                        <FormControlLabel className={classes.formControlLab}
+                                                        control={<Radio/>}
+                                                        value="Врач"
+                                                        label="по врачам"
+                                                        labelPlacement='end'
+                                        />
+                                    </RadioGroup>
+                                </FormControl>
+                            </Grid>
+                        </Paper>;
+        const paperSort = <Paper className={classes.paper}>
+                            <FormLabel className={classes.label} style={{textAlign: "center"}}>
+                                Сортировать по:
+                            </FormLabel>
+                            <Grid container direction="column" justifyContent="center" className={classes.mainGrid} style={{marginTop: "20px"}}>
+                                <FormControl>
+                                    <RadioGroup value={this.state.usersSortType}
+                                                onChange={this.onChangeUsersSortType}>
+                                        <FormControlLabel className={classes.formControlLab}
+                                                        control={<Radio/>}
+                                                        value="alphabet"
+                                                        label="по алфавиту"
+                                        />
+                                        <FormControlLabel className={classes.formControlLab}
+                                                        control={<Radio/>}
+                                                        value="rating"
+                                                        label="по рейтингу"
+                                        />
+                                        <FormControlLabel className={classes.formControlLab}
+                                                        control={<Radio/>}
+                                                        value="reviewsCounter"
+                                                        label="по количеству отзывов"
+                                                        labelPlacement='end'
+                                        />
+                                    </RadioGroup>
+                                </FormControl>
+                            </Grid>
+                        </Paper>;
+        const paperSearch = <Paper className={classes.paper}>
+                            <FormLabel className={classes.label} style={{textAlign: "center"}}>
+                                Искать по:
+                            </FormLabel>
+                            <Grid container direction="column" justifyContent="center" className={classes.mainGrid} style={{marginTop: "20px"}}>
+                                <FormControl>
+                                    <RadioGroup value={this.state.searchParamsType}
+                                                onChange={this.onChangeParamsTypeSearch}>
+                                        <FormControlLabel className={classes.formControlLab}
+                                                        control={<Radio/>}
+                                                        value="login"
+                                                        label="по логину"
+                                        />
+                                        <FormControlLabel className={classes.formControlLab}
+                                                        control={<Radio/>}
+                                                        value="initials"
+                                                        label="по фамилии и имени"
+                                                        labelPlacement='end'
+                                        />
+                                    </RadioGroup>
+                                </FormControl>
+                            </Grid>
+                        </Paper>;
+
+        return [paperRole, paperSort, paperSearch];
+        
+    }
+
+  
+
+    
+    handleResize = () => {
+        this.setState({ screenWidth: window.innerWidth });
+    };
+
+
+
+    printFilters(classes){
+        const papersDoctor = this.getFiltersAboutDoctors(classes);
+        const papersGeneral = this.getFiltersGeneral(classes);
+        console.log(this.state.screenWidth)
+
+        if (this.state.screenWidth >= 1280) {
+            return (
+                    <Grid container item direction="column"  alignItems="center" style={{gap: 50, marginLeft: 50,  marginBottom: 1}}>
+                        {papersGeneral}
+                        {(this.state.searchParamsRole === "Врач") && papersDoctor}
+                    </Grid>
             )
         }
+        else {
+            return(
+                <Grid style={{height: "calc(100vh - 80px)", position:"relative"}}>
+                    <Grid container item justifyContent="center" alignItems="center" style={{gap: 50}}>
+                        {papersGeneral}
+                        {(this.state.searchParamsRole === "Врач") && papersDoctor}
+                    </Grid>
+                    <div className={classes.appBarSpacer}/>
+                    <div className={classes.appBarSpacer2}/>
+                    <Grid item className={classes.gridApply} >
+                        <Button variant="contained" className={classes.buttonApply} style={{ backgroundColor: "#3f51b5", borderRadius: "0" }} onClick={() => {this.onChangeFilter(); this.getUsers()}} >Применить</Button>
+                    </Grid>
+                </Grid>
+                
+            )
+        }
+        
     }
 
     render() {
         const {classes} = this.props;
-        return (<Grid className={classes.mainGrid}>
-            <Grid>
-                <div className="div-search">
-                    {/*<form className="form-search">*/}
+        return ( !this.state.isFilter ? <Grid className={classes.mainGrid}>
+            <Grid container item direction="column" className={classes.mainSection}>
+                <Grid container item className={classes.search}  >
                     <TextField
-                        className={classes.input}
-                        fullWidth
-                        id="content"
-                        label="Искать здесь..."
-                        name="content"
-                        autoComplete="off"
-                        variant="outlined"
-                        type="text"
-                        value={this.state.searchString}
-                        onChange={this.onChangeSearchString}
-                        InputProps={{
-                            endAdornment: <InputAdornment position="end" className={classes.inputAdornment}>
-                                {/*<Button*/}
-                                {/*    className={classes.button}*/}
-                                {/*    variant="contained"*/}
-                                {/*    color="primary"*/}
-                                {/*    onClick={this.getUsers}*/}
-                                {/*>*/}
-                                {/*    /!*<i className="fa fa-search" aria-hidden="true"/>*!/*/}
-                                {/*    <SearchIcon style={{color: "white"}}/>*/}
-                                {/*</Button>*/}
-                                <IconButton onClick={this.getUsers} title={"Найти"}>
-                                    <SearchIcon/>
-                                </IconButton>
-                            </InputAdornment>
-                        }}
+                    className={clsx(classes.input, classes.block)}
+                    id="content"
+                    label="Искать здесь..."
+                    name="content"
+                    autoComplete="off"
+                    variant="outlined"
+                    type="text"
+                    value={this.state.searchString}
+                    onChange={this.onChangeSearchString}
+                    InputProps={{
+                        endAdornment: <InputAdornment position="end" className={classes.inputAdornment}>
+                            <IconButton onClick={() => this.getUsers()} title={"Найти"}>
+                                <SearchIcon/>
+                            </IconButton>
+                        </InputAdornment>
+                    }}
                     />
-                    {/*<input className="input-search"
-                               type="text"
-                               placeholder="Искать здесь..."
-                               value={this.state.searchString}
-                               onChange={this.onChangeUsername}
-                        />
-                        <Button
-                            className={classes.button}
-                            variant="contained"
-                            color="primary"
-                                onClick={this.getUsers}
-                        >
-                            <i className="fa fa-search" aria-hidden="true"/>
-                            <SearchIcon style={{color: "white"}}/>
-                        </Button>
-                        </form>*/}
-                </div>
-                <Grid className={classes.mainGrid}>
-                    <Grid>
-                        <Grid className={classes.root}>
-                            <TableContainer component={Paper}>
-                                <Table className={classes.table} aria-label="spanning table">
-                                    <TableHead>
-                                        <TableRow>
-                                            <TableCell className={classes.header} align={"center"}>
-                                                Фотография
-                                            </TableCell>
-                                            <TableCell className={classes.header} align={"center"}>
-                                                ФИО
-                                            </TableCell>
-                                            <TableCell className={classes.header} align={"center"}>
-                                                Логин
-                                            </TableCell>
-                                            <TableCell className={classes.header} align={"center"}>
-                                                Роль
-                                            </TableCell>
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {this.state.isSorted && this.state.users && this.state.users.map((user, index) => (
-                                            <StyledTableRow
-                                                key={index}
-                                            >
-                                                <UserCard user={user}/>
-                                            </StyledTableRow>))}
-                                    </TableBody>
-                                </Table>
-                            </TableContainer>
-                        </Grid>
+                    <Grid item className={classes.filterButton}>
+                        <Hidden lgUp>
+                            <IconButton onClick={() => this.onChangeFilter()}>
+                                <TuneIcon />
+                            </IconButton>
+                        </Hidden>
                     </Grid>
-                    <Grid>
-                        {/*<div className="div-search">*/}
-                        {/*</div>*/}
-                    </Grid>
+                    
+                    
+                </Grid>
+                <Grid item className={clsx(classes.root, classes.block)}>
+                    <TableContainer component={Paper}>
+                        <Table aria-label="spanning table">
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell className={classes.header} align={"center"}>
+                                        Фотография
+                                    </TableCell>
+                                    <TableCell className={classes.header} align={"center"}>
+                                        ФИО
+                                    </TableCell>
+                                    <Hidden smDown>
+                                        <TableCell className={classes.header} align={"center"}>
+                                            Логин
+                                        </TableCell>
+                                    </Hidden>
+                                    
+                                    <Hidden smDown>
+                                        <TableCell className={classes.header} align={"center"}>
+                                            Роль
+                                        </TableCell>
+                                    </Hidden>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {this.state.isSorted && this.state.users && this.state.users.map((user, index) => (
+                                    <StyledTableRow
+                                        key={index}
+                                    >
+                                        <UserCard user={user}/>
+                                    </StyledTableRow>))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
                 </Grid>
             </Grid>
-            <Grid>
-                <Paper className={classes.paper}>
-                    <FormLabel className={classes.label}>Параметры поиска:</FormLabel>
-                    <Grid className={classes.mainGrid}>
-                        <FormControl>
-                            <RadioGroup value={this.state.searchParamsRole}
-                                        onChange={this.onChangeParamsRoleSearch}>
-                                <FormControlLabel className={classes.formControlLab}
-                                                  control={<Radio/>}
-                                                  value="Все"
-                                                  label="по всем"
-                                />
-                                {/*<FormControlLabel className={classes.formControlLab}*/}
-                                {/*                  control={<Radio/>}*/}
-                                {/*                  value="Пользователь"*/}
-                                {/*                  label="по пользователям"*/}
-                                {/*                  labelPlacement='end'*/}
-                                {/*/>*/}
-                                <FormControlLabel className={classes.formControlLab}
-                                                  control={<Radio/>}
-                                                  value="Врач"
-                                                  label="по врачам"
-                                                  labelPlacement='end'
-                                />
-                            </RadioGroup>
-                        </FormControl>
-                    </Grid>
-                </Paper>
-                <Paper className={classes.nextPaper}>
-                    <FormLabel className={classes.label}>
-                        Сортировать по:
-                    </FormLabel>
-                    <Grid>
-                        <FormControl>
-                            <RadioGroup value={this.state.usersSortType}
-                                        onChange={this.onChangeUsersSortType}>
-                                <FormControlLabel className={classes.formControlLab}
-                                                  control={<Radio/>}
-                                                  value="alphabet"
-                                                  label="по алфавиту"
-                                />
-                                <FormControlLabel className={classes.formControlLab}
-                                                  control={<Radio/>}
-                                                  value="rating"
-                                                  label="по рейтингу"
-                                />
-                                <FormControlLabel className={classes.formControlLab}
-                                                  control={<Radio/>}
-                                                  value="reviewsCounter"
-                                                  label="по количеству отзывов"
-                                                  labelPlacement='end'
-                                />
-                            </RadioGroup>
-                        </FormControl>
-                    </Grid>
-                </Paper>
-                <Paper className={classes.nextPaper}>
-                    <FormLabel className={classes.label}>
-                        Искать по:
-                    </FormLabel>
-                    <Grid>
-                        <FormControl>
-                            <RadioGroup value={this.state.searchParamsType}
-                                        onChange={this.onChangeParamsTypeSearch}>
-                                <FormControlLabel className={classes.formControlLab}
-                                                  control={<Radio/>}
-                                                  value="login"
-                                                  label="по логину"
-                                />
-                                <FormControlLabel className={classes.formControlLab}
-                                                  control={<Radio/>}
-                                                  value="initials"
-                                                  label="по фамилии и имени"
-                                                  labelPlacement='end'
-                                />
-                            </RadioGroup>
-                        </FormControl>
-                    </Grid>
-                </Paper>
-                {this.printSearchParamsAboutDoctors(classes.nextPaper, classes.label)}
-            </Grid>
-        </Grid>);
+            <Hidden mdDown>
+                {this.printFilters(classes)}
+            </Hidden>
+            
+        </Grid> : this.printFilters(classes));
     }
 }
 

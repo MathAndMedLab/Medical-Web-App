@@ -11,26 +11,10 @@ import diagnosesList from "../../specialties-of-doctors-and-diagnoses/diagnoses"
 import CreatableSelectSpecialties from "../../specialties-of-doctors-and-diagnoses/creatable-select-specialties";
 import CreatableSelectDiagnoses from "../../specialties-of-doctors-and-diagnoses/creatable-select-diagnoses";
 import NotificationCard from "./notification-card.component"
+
+
 const useStyles = theme => ({
-    paper: {
-        margin: theme.spacing(3, 5, 3, 5),
-    },
-    button: {
-        width: 300,
-        margin: theme.spacing(1),
-        backgroundColor: '#f50058',
-        color: '#fff',
-        '&:hover': {
-            backgroundColor: '#ff5983',
-            color: '#fff',
-        }
-    },
-    gridCreatableSelectStyle: {
-        zIndex: 999999,
-    },
-    nextGridCreatableSelectStyle: {
-        zIndex: 999998,
-    }
+   
 });
 
 const creatableSelectStyle = {
@@ -65,12 +49,12 @@ function UserNotifications(props) {
 
     return (
         user && notifications &&
-            <div>
+            <Grid container direction="column" alignItems="center">
                 <h5>Уведомления</h5>
                 {notifications.slice(0).reverse().map((n) => (
                     <NotificationCard notification={n}/>
                 ))}
-            </div>
+            </Grid>
     );
 }
 

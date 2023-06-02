@@ -9,6 +9,7 @@ import {Link} from "react-router-dom";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Modal from "react-bootstrap/Modal";
 import RecordService from "../../services/record.service";
+import clsx from "clsx"
 
 const useStyles = theme => ({
     palette: {
@@ -77,11 +78,56 @@ const useStyles = theme => ({
         [theme.breakpoints.down("xs")]: {
             width: 270,
         },
-        [theme.breakpoints.between("sm", "md")]: {
-            width: 650
+        
+        "@media (min-width : 451px)": {
+            width: 325,
+        },
+        "@media (min-width : 600px)": {
+            width: 375,
+        },
+        "@media (min-width : 960px)": {
+            width: 650,
         },
         "@media (min-width : 1280px)": {
             width: 800,
+        },
+    },
+    imageStyle: {
+        [theme.breakpoints.down("xs")]: {
+            width: 150,
+        },
+        
+        "@media (min-width : 451px)": {
+            width: 205,
+        },
+        "@media (min-width : 600px)": {
+            width: 255,
+        },
+        "@media (min-width : 960px)": {
+            width: 530,
+        },
+        "@media (min-width : 1280px)": {
+            width: 680,
+        },
+    },
+    textStyle:{
+        display: 'inline-block', 
+        wordWrap: 'break-word',
+        [theme.breakpoints.down("xs")]: {
+            maxWidth: 220,
+        },
+        
+        "@media (min-width : 451px)": {
+            maxWidth: 275,
+        },
+        "@media (min-width : 600px)": {
+            maxWidth: 325,
+        },
+        "@media (min-width : 960px)": {
+            maxWidth: 600,
+        },
+        "@media (min-width : 1280px)": {
+            maxWidth: 750,
         },
     },
     mainGrid: {
@@ -96,13 +142,21 @@ const useStyles = theme => ({
         [theme.breakpoints.down("xs")]: {
             width: 240,
         },
-        [theme.breakpoints.between("sm", "md")]: {
-            width: 620
+        "@media (min-width : 451px)": {
+            width: 295,
+        },
+        "@media (min-width : 600px)": {
+            width: 345,
+        },
+        "@media (min-width : 960px)": {
+            width: 620,
         },
         "@media (min-width : 1280px)": {
             width: 770,
         },
     },
+
+
     titleStyle: {
         size: 15,
     },
@@ -233,25 +287,25 @@ function RecordCardNew(props) {
             return;
         }
         return (
-            <span>
-                <span className={classes.spanStyleBold}>
+            <span  className={clsx( classes.textStyle)}>
+                <span className={clsx(classes.spanStyleBold, classes.textStyle)}>
                     {'Интересуемые специальности: '}
                 </span>
-                <span className={classes.spanStyle}>
+                <span className={clsx(classes.spanStyle, classes.textStyle)}>
                     {record.selectedSpecialties}
                 </span>
                 <br/>
-                <span className={classes.spanStyleBold}>
+                <span className={clsx(classes.spanStyleBold, classes.textStyle)}>
                     {'Диагнозы: '}
                 </span>
-                <span className={classes.spanStyle}>
+                <span className={clsx(classes.spanStyle, classes.textStyle)}>
                     {record.specializedDiagnoses}
                 </span>
                 <br/>
-                <span className={classes.spanStyleBold}>
+                <span className={clsx(classes.spanStyleBold, classes.textStyle)}>
                     {'Готов(-а) заплатить: '}
                 </span>
-                <span className={classes.spanStyle}>
+                <span className={clsx(classes.spanStyle, classes.textStyle)}>
                  {'до ' + record.maxPrice + ' ₽'}
                 </span>
                 <br/>
@@ -284,14 +338,14 @@ function RecordCardNew(props) {
     return (
         <Paper className={classes.paper} variant="outlined">
             <Grid container item={true} xs={12} sm direction={"column"} className={classes.mainGrid}>
-                <Grid className={classes.ggrid}>
-                    <Grid className={classes.gridCreatorName} title={record.creator.initials}>
-                        <Link style={{color: "black"}} to={"/profile/" + record.creator.username}>
+                <Grid className={clsx(classes.ggrid, classes.textStyle)}>
+                    <Grid className={clsx(classes.gridCreatorName)}  title={record.creator.initials}>
+                        <Link style={{color: "black" }} to={"/profile/" + record.creator.username}>
                             {record.creator.initials}
                         </Link>
                     </Grid>
                 </Grid>
-                    <Grid className={classes.ggrid}>
+                    <Grid className={clsx(classes.ggrid, classes.textStyle)}>
                         <Typography variant={"subtitle3"}>
                             {
                                 (((new Date(creationTime).getHours() < 10 && "0" + new Date(creationTime).getHours())
@@ -313,31 +367,31 @@ function RecordCardNew(props) {
                         />}
                         <DeleteModal/>
                     </Grid>
-                <Grid className={classes.ggrid}>
+                <Grid className={clsx(classes.ggrid, classes.textStyle)}>
                     {record.postType}
                 </Grid>
                 <Grid className={classes.grid}>
                     {isPreview ? (
-                        <Typography variant="h6" title={record.title}>{/*gutterBottom*/}
-                            <Link style={{color: "black"}} to={"/records/thread/" + record.id}>
+                        <Typography variant="h6" title={record.title} className={clsx(classes.content, classes.textStyle)}>{/*gutterBottom*/}
+                            <Link style={{color: "black"}}   to={"/records/thread/" + record.id}>
                                 {record.title}
                             </Link>
                         </Typography>
                     ) : (
-                        <Typography variant="h6">
+                        <Typography variant="h6" className={clsx(classes.content, classes.textStyle)}>
                             {record.title}
                         </Typography>)
                     }
                 </Grid>
                 <Grid className={classes.gridContent}>
-                    <Typography variant="body1" className={classes.content}>{/*gutterBottom*/}
+                    <Typography variant="body1" className={clsx(classes.content, classes.textStyle)}>{/*gutterBottom*/}
                         {getContent(record.content)}
                     </Typography>
                 </Grid>
                 <Grid className={classes.grid} container direction={"row"} spacing={1}>
                     {record.topics && record.topics.map(el => (
                         <Grid item key={el.id} color={"#616161"}>
-                            <Typography className={classes.tagsColor}>
+                            <Typography className={clsx(classes.tagsColor, classes.textStyle)}>
                                 {el.name}
                             </Typography>
                         </Grid>
@@ -347,21 +401,21 @@ function RecordCardNew(props) {
                 <br/>
                 {/*<div id={containerId} />*/}
                 {!isPreview && filePreviews.length > 0 &&
-                <Grid>
+                <Grid container justifyContent="center" style={{gap: 10}}>
                     {filePreviews.map((el, index) => (
-                        <Grid>
+                        <Grid item >
                             {
                                 record.attachments[index].uid ?
                                     <Tooltip title="Открыть в DICOM Viewer">
                                         <img onClick={() => openDicomViewer(record.attachments[index].uid)}
-                                             className="col-sm-8 top-buffer-10" key={el.id} alt="" src={el.image}
+                                             className={classes.imageStyle} key={el.id} alt="" src={el.image}
                                              style={{cursor: 'pointer'}}
                                         >
                                         </img>
                                     </Tooltip>
                                     :
                                     <img
-                                        className="col-sm-8 top-buffer-10" key={el.id} alt="" src={el.image}
+                                       className={classes.imageStyle} key={el.id} alt="" src={el.image}
                                     >
                                     </img>
                             }
@@ -371,17 +425,15 @@ function RecordCardNew(props) {
                 }
                 {!isPreview && record.attachments.map(el => (
                     // <img key={el.id} alt="" className="col-sm-6 top-buffer-10" src={el.image} />
-                    <div key={el.id} className="row top-buffer-10">
+                    <Grid container direction="column" alignItems="flex-start" key={el.id} >
                         {/*<div className="col-sm-5">{el.initialName}</div>*/}
-                        <div>
                             <button
-                                style={{marginLeft: "30px", borderStyle: "none", marginTop: "8px"}}
+                                style={{ borderStyle: "none", marginTop: "8px"}}
                                 className="btn-sm btn-primary color-white"
                                 onClick={() => download(el.id, el.initialName)}>
                                 <i className="fa fa-download"> Скачать {el.initialName}</i>
                             </button>
-                        </div>
-                    </div>
+                    </Grid>
                 ))}
                 {isPreview &&
                     <span>

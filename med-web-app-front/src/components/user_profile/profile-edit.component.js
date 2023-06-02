@@ -9,13 +9,14 @@ import specialtiesList from "../../specialties-of-doctors-and-diagnoses/specialt
 import diagnosesList from "../../specialties-of-doctors-and-diagnoses/diagnoses";
 import CreatableSelectSpecialties from "../../specialties-of-doctors-and-diagnoses/creatable-select-specialties";
 import CreatableSelectDiagnoses from "../../specialties-of-doctors-and-diagnoses/creatable-select-diagnoses";
+import {Link} from "react-router-dom";
+import { useHistory } from 'react-router-dom';
+
 const useStyles = theme => ({
     paper: {
-        margin: theme.spacing(3, 5, 3, 5),
+        margin: theme.spacing(3, 5, 0, 5),
     },
     button: {
-        width: 300,
-        margin: theme.spacing(1),
         backgroundColor: '#f50058',
         color: '#fff',
         '&:hover': {
@@ -24,10 +25,14 @@ const useStyles = theme => ({
         }
     },
     gridCreatableSelectStyle: {
-        zIndex: 999999,
+        zIndex: 1001,
+        display: 'inline-block', 
+        wordWrap: 'break-word',
     },
     nextGridCreatableSelectStyle: {
-        zIndex: 999998,
+        zIndex: 1000,
+        display: 'inline-block', 
+        wordWrap: 'break-word',
     }
 });
 
@@ -223,9 +228,11 @@ function EditProfile(props) {
         }
     }
 
+    
+
     return (
         user &&
-            <Card>
+            <Card style={{marginTop: "20px"}}>
                 <div className={classes.paper}>
             <Grid item container spacing={2}>
                 <Grid xs={12} item style={{fontSize: "17px"}}>
@@ -270,8 +277,8 @@ function EditProfile(props) {
                     />
                 </Grid>
                 {getFieldsForDoctor()}
-                <Grid xs={12} item style={{textAlign: 'center'}}>
-                    <Button className={classes.button} onClick={editProfilePost}> Сохранить все изменения </Button>
+                <Grid xs={12} item style={{textAlign: 'center', marginTop: "5px"}}>
+                    <Button fullWidth className={classes.button} component={Link} to={"/profile/" + user.username} onClick={editProfilePost}> Сохранить все изменения </Button>
                 </Grid>
                 <Grid xs={12} item style={{textAlign: 'center'}}>
                     {getInfoAboutFieldsCorrectness()}

@@ -2,15 +2,23 @@ import React, {useEffect, useState} from "react";
 import AuthService from "../../services/auth.service";
 import AttachmentService from "../../services/attachment.service";
 import Button from "@material-ui/core/Button";
-import {Divider, Grid, Paper, Typography, withStyles} from "@material-ui/core";
+import {Divider, Grid, Hidden, Paper, Typography, withStyles} from "@material-ui/core";
 import {Link} from "react-router-dom";
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/DeleteOutlined';
 import Modal from 'react-bootstrap/Modal';
 import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
+import ButtonDrawer from "../ButtonDrawer";
+import AccountBoxIcon from '@material-ui/icons/AccountBox';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import ViewListIcon from '@material-ui/icons/ViewList';
+import {IconButton} from "@material-ui/core"
 
 const useStyles = theme => ({
+    listIcon: {
+        marginTop: theme.spacing(3),
+    },
     button: {
         width: 200,
         margin: theme.spacing(1),
@@ -24,6 +32,7 @@ const useStyles = theme => ({
     paper: {
         marginTop: theme.spacing(3),
         padding: theme.spacing(1),
+        textAlign: "center",
         // display: 'flex',
     },
     paper2: {
@@ -32,7 +41,19 @@ const useStyles = theme => ({
     },
     mainGrid: {
         display: 'flex',
-        minWidth: 1000,
+        [theme.breakpoints.only("xs")]: {
+            gap: 10
+        },
+        [theme.breakpoints.only("sm")]: {
+            gap: 10
+        },
+        [theme.breakpoints.only("md")]: {
+            gap: 3
+        },
+       
+        "@media (min-width: 1280px)": {
+            gap: 50
+        },
     },
     grid: {
         margin: theme.spacing(1),
@@ -41,13 +62,47 @@ const useStyles = theme => ({
         display: 'flex',
     },
     grid2: {
-        margin: theme.spacing(1),
-        alignItems: 'center',
-        flexDirection: 'row',
+        marginTop: theme.spacing(3),
+        marginBottom: theme.spacing(3),
         display: 'flex',
+        gap: 10
     },
+    grid3: {
+        [theme.breakpoints.only("xs")]: {
+            gap: 10
+        },
+        [theme.breakpoints.only("sm")]: {
+            gap: 50
+        },
+        [theme.breakpoints.only("md")]: {
+            gap: 75
+        },
+       
+        "@media (min-width: 1280px)": {
+            gap: 100
+        },
+    },
+  
     title: {
         padding: theme.spacing(3),
+        textAlign: "center",
+        color: "black", 
+        [theme.breakpoints.down("xs")]: {
+            width: '200px',
+            fontSize: theme.spacing(2.75)
+        },
+        [theme.breakpoints.only("sm")]:{
+            width: '370px',
+            fontSize: theme.spacing(4)
+        },
+        [theme.breakpoints.up("md")]:{
+            width: '450px',
+            fontSize: theme.spacing(5)
+        },
+      
+        display: 'inline-block', 
+        wordWrap: 'break-word',
+       
     },
     download: {
         backgroundColor: '#f50057',
@@ -64,6 +119,15 @@ function ViewAttachmentsComponent(props) {
     const user = AuthService.getCurrentUser();
     const [currentUser, setCurrentUser] = useState(user)
     const [userFilesInfo, setUserFilesInfo] = useState([])
+    const links = ["/profile/" + AuthService.getCurrentUser().username, "/files/upload"];
+    const icons = [<AccountBoxIcon style={{ color: '#f50057' }}/>, <FileDownloadIcon style={{ color: '#f50057' }}/>]
+
+    const titles = ['Профиль', 'Загрузить файл']
+    const positions = ['right']
+    const icon = <ViewListIcon style={{ color: '#f50057' }} fontSize={"large"}/>
+
+
+
     useEffect(() => {
         AttachmentService.getAttachmentsForUser(currentUser.username).then((response) => {
             setUserFilesInfo(response.data)
@@ -94,8 +158,8 @@ function ViewAttachmentsComponent(props) {
             <Modal {...props} centered='true' dialogClassName="modal-90w"
                    aria-labelledby="contained-modal-title-vcenter">
                 <Modal.Header>
-                    <Modal.Title id="contained-modal-title-vcenter">
-                        Переименовать {props.name}{props.currentFileType}
+                    <Modal.Title id="contained-modal-title-vcenter" style={{ display: 'inline-block',  whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>
+                            Переименовать {props.name}{props.currentFileType}
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body className="show-grid">
@@ -133,9 +197,9 @@ function ViewAttachmentsComponent(props) {
 
         return (
             <>
-                <Button onClick={() => setModalShow(true)} title="Редактировать">
+                <IconButton style={{color : "#000"}} onClick={() => setModalShow(true)} title="Редактировать">
                     <EditIcon fontSize="medium"/>
-                </Button>
+                </IconButton>
 
                 <EditModal currentFileType={props.currentFileType} id={props.id} name={props.name} show={modalShow}
                            onHide={() => setModalShow(false)}/>
@@ -175,9 +239,9 @@ function ViewAttachmentsComponent(props) {
 
         return (
             <>
-                <Button title="Удалить" onClick={() => setModalShow(true)}>
+                <IconButton style={{color : "#000"}} title="Удалить" onClick={() => setModalShow(true)}>
                     <DeleteIcon fontSize="medium"/>
-                </Button>
+                </IconButton>
 
                 <DeleteModal id={props.id} name={props.name} show={modalShow} onHide={() => setModalShow(false)}/>
             </>
@@ -203,52 +267,60 @@ function ViewAttachmentsComponent(props) {
         var re = /(?:\.([^.]+))?$/;
         return re.exec(name)[0];
     }
+    
 
     return (
-        <Grid className={classes.mainGrid}>
-            <Grid container spacing={3}>
-                <Grid item xs/>
-                <Grid item xs={6}>
-                    <Paper className={classes.paper}>
-                        <Typography component="h1" className={classes.title} variant="h4">
-                            Загруженные файлы
-                        </Typography>
-                        <Divider/>
+        <Grid container className={classes.mainGrid} justifyContent="center" >
+            <Grid item xs={9} md={8} lg={6}>
+                <Paper className={classes.paper}>
+                    <span className={classes.title} >
+                        Загруженные файлы
+                    </span>
+                    {userFilesInfo.length != 0 ? <Divider/> : <> </>}
 
-                        {userFilesInfo.map(el => (
-                            <Grid key={el.id} className={classes.grid2}>
-                                <Grid item xs={5}>
+                    {userFilesInfo.map((el, index) => (
+                        <>
+                            <Grid direction="column" container key={el.id} className={classes.grid2} justifyContent="center">
+                                <Grid container item xs={12} justifyContent="center" className={classes.grid3}>
                                     <Typography variant={"subtitle1"}>
                                         {getName(el.initialName)}
                                     </Typography>
-                                </Grid>
-                                <Grid item xs={4}>
                                     <Typography variant={"subtitle1"}>
                                         {new Date(el.creationTime).toLocaleDateString()}
                                     </Typography>
                                 </Grid>
-                                <Button
-                                    variant="contained"
-                                    onClick={() => download(el.id, el.initialName)}
-                                    color="primary"
-                                    className={classes.download}
-                                >
-                                    Скачать
-                                </Button>
-
-                                <Edit id={el.id} name={getOnlyName(el.initialName)}
-                                      currentFileType={getOnlyType(el.initialName)} classes={classes}/>
-                                <Delete id={el.id} name={getName(el.initialName)}/>
+                                <Grid container item xs={12} justifyContent="center" className={classes.grid3}>
+                                    <Button
+                                        variant="contained"
+                                        onClick={() => download(el.id, el.initialName)}
+                                        color="primary"
+                                        className={classes.download}
+                                    >
+                                        Скачать
+                                    </Button>
+                                    <Edit id={el.id} name={getOnlyName(el.initialName)}
+                                        currentFileType={getOnlyType(el.initialName)} classes={classes}/>
+                                    <Delete id={el.id} name={getName(el.initialName)}/>
+                                </Grid>
                             </Grid>
-                        ))}
-                    </Paper>
-                </Grid>
-                <Grid item xs={4}>
+                            {index + 1 != userFilesInfo.length ? <Divider/> : <> </>}
+                        </>
+                        
+                    ))}
+                </Paper>
+            </Grid>
+            <Grid item>
+                <Hidden lgUp >
+                    <div className={classes.listIcon}>
+                        <ButtonDrawer links={links} icons={icons} titles={titles} positions={positions} icon={icon}/>
+                    </div>
+                </Hidden>
+                <Hidden mdDown>
                     <Paper className={classes.paper2}>
                         <Grid className={classes.grid}>
 
                             <Link to={"/profile/" + AuthService.getCurrentUser().username}
-                                  style={{textDecoration: 'none'}}>
+                                style={{textDecoration: 'none'}}>
                                 <Button className={classes.button}>
                                     Профиль
                                 </Button>
@@ -260,8 +332,9 @@ function ViewAttachmentsComponent(props) {
                             </Link>
                         </Grid>
                     </Paper>
-                </Grid>
+                </Hidden>
             </Grid>
+                
         </Grid>
 
     );

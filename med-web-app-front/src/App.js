@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react"
 import { Switch, Route, Link, Redirect, NavLink } from "react-router-dom"
 import "bootstrap/dist/css/bootstrap.min.css"
 import "./App.css"
-
 import Home from "./components/main/home.component"
 import HomePatient from "./components/main/home-patient.component"
 import HomeDoctor from "./components/main/home-doctor.component"
@@ -42,8 +41,9 @@ import HomeIcon from '@material-ui/icons/Home'
 import BallotIcon from '@material-ui/icons/Ballot'
 import ForumIcon from '@material-ui/icons/Forum'
 import SearchIcon from '@material-ui/icons/Search'
-import MessageIcon from '@material-ui/icons/Message'
+import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import AccountCircleRoundedIcon from '@material-ui/icons/AccountCircleRounded'
+import MedicationRoundedIcon from '@mui/icons-material/MedicationRounded';
 import Chat from "./components/messenger/chat.component"
 import SockJS from "sockjs-client"
 import {over} from "stompjs"
@@ -57,6 +57,9 @@ import {RemoveRedEye} from "@material-ui/icons";
 import {SwipeableDrawer} from "@mui/material";
 import NewHomeComponent from "./components/main/newHome.component";
 import ProfileEditComponent from "./components/user_profile/profile-edit.component";
+import { useLocation } from "react-router-dom";
+import Hidden from '@material-ui/core/Hidden';
+import background from "./components/main/backgroundHome.jpg";
 import UserNotificationsComponent from "./components/user_profile/notifications"
 
 const drawerWidth = 240
@@ -64,8 +67,16 @@ const drawerWidth = 240
 const useStyles = theme => ({
     root: {
         display: 'flex',
+        overflowX: 'hidden',
+    },
+    rootHome: {
+        backgroundImage: `url(${background})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center center',
+        height: '100vh',
     },
     drawerPaper: {
+        position: "fixed",
         whiteSpace: 'nowrap',
         [theme.breakpoints.down("xs")]: {
             width: 210,
@@ -91,6 +102,7 @@ const useStyles = theme => ({
         zIndex: theme.zIndex.drawer - 100,
     },
     drawerPaperClose: {
+        overflowX: 'hidden',
         transition: theme.transitions.create('width', {
             easing: theme.transitions.easing.easeIn,
             duration: theme.transitions.duration.leavingScreen,
@@ -99,12 +111,6 @@ const useStyles = theme => ({
         height: "100%",
     },
     leftIndent: {
-        "@media (max-width: 600px)": {
-            width: 0,
-        },
-        width: 60,
-    },
-    leftIndentOpen: {
         [theme.breakpoints.down("xs")]: {
             width: 100,
         },
@@ -112,9 +118,11 @@ const useStyles = theme => ({
             width: 150
         },
         "@media (min-width: 1280px)": {
-            width: 200
+            width: 200,
         },
+        zIndex: theme.zIndex.drawer+1,
     },
+
     active: {
         background: '#f4f4f4'
     },
@@ -128,15 +136,19 @@ const useStyles = theme => ({
         "@media (min-width : 400px)": {
             width: 250,
         },
+        "@media (min-width : 960px)": {
+            width: 220,
+
+        },
         "@media (min-width: 1280px)": {
-            width: 700,
+            width: 200,
             //marginRight: "70%",
         },
     },
     appBar: {
         top: 0,
         left: 0,
-        minWidth: 600,
+        minWidth: 30,
         minHeight: 64,
         maxHeight: 64,
         zIndex: theme.zIndex.drawer + 2,
@@ -159,12 +171,15 @@ const useStyles = theme => ({
     },
     menuButton: {
         [theme.breakpoints.down("xs")]: {
-            marginRight: 5
-        },
-        [theme.breakpoints.between("sm", "md")]: {
             marginRight: 10
         },
-        "@media (min-width: 1280px)": {
+        [theme.breakpoints.only("sm")]:{
+            marginRight: 20
+        },
+        [theme.breakpoints.only("md")]:{
+            marginRight: 27
+        },
+        "@media (min-width: 1280px)" :{
             marginRight: 34
         },
     },
@@ -172,7 +187,10 @@ const useStyles = theme => ({
         display: 'none',
     },
     toolbar: {
-        paddingRight: "0%",
+        [theme.breakpoints.down("xs")]: {
+            marginTop: theme.spacing(0.5),
+            marginLeft: theme.spacing(1),
+        },
     },
     toolbarIcon: {
         display: 'flex',
@@ -183,15 +201,19 @@ const useStyles = theme => ({
         ...theme.mixins.toolbar,
     },
     content: {
-        //width: `calc(100% - ${drawerWidth}px)`,
-        //marginLeft: drawerWidth,
+        "@media (min-width : 600px)": {
+            marginLeft: theme.spacing(7),
+        },
+    },
+    innerContent: {
     },
     contentClose: {
-        // width: '100%',
-        //marginLeft: '100px'
+        width: '100%',
+        marginLeft: '100px'
     },
-    contentOpen: {
-        // marginLeft: '250px',
+    contentOpen : {
+        width: '100%',
+        marginLeft: '250px',
     },
     noticeMsg: {
         backgroundColor: '#FF0040',
@@ -212,31 +234,26 @@ const useStyles = theme => ({
             padding: theme.spacing(0),
         },
     },
+    homeButton: {
+        flexGrow: 1,
+        margin:'auto',
+    },
+    
 })
 let stompClient = null;
 
+
+
+
 function App(props) {
-
-
-    const LeftMenuOpen = (width) => {
-        React.useEffect(() => {
-            const handleResizeWindow = () => setWidth(window.innerWidth);
-            // subscribe to window resize event "onComponentDidMount"
-            window.addEventListener("resize", handleResizeWindow);
-            return () => {
-                // unsubscribe "onComponentDestroy"
-                window.removeEventListener("resize", handleResizeWindow);
-            };
-        }, []);
-        return width >= 425;
-    }
-
-    const { classes } = props
+    const location = useLocation();
+    const {classes} = props
+    // const [showModeratorBoard, setShowModeratorBoard] = useState(false)
+    // const [showAdminBoard, setShowAdminBoard] = useState(false)
     const [currentUser, setCurrentUser] = useState(null)
     const [refresh, setRefresh] = useState({})
     const [width, setWidth] = React.useState(window.innerWidth);
-    const [open, setOpen] = useState(LeftMenuOpen(width));
-
+    const [open, setOpen] = useState(false);
     /**
      * Состояние allMessages имеет вид:
      * key - содержит логин пользователя с кем ведется переписка, value - содержит массив сообщений и переменную,
@@ -274,6 +291,15 @@ function App(props) {
             stompClient.unsubscribe()
         }
     }, [])
+
+    useEffect(() => {
+        if (location.pathname == "/login")
+        {
+            setCurrentUser(null)
+        }
+    }, [location.pathname])
+
+  
 
     /**
      * Получение всех непрочитанных сообщений, адресованных пользователю.
@@ -450,6 +476,22 @@ function App(props) {
         AuthService.logout(AuthService.getCurrentUser().username)
         setCurrentUser(null)
     }
+    
+    document.addEventListener('click', function() {
+        handleDrawerClose();
+    });
+
+    window.addEventListener('resize', (e) => {
+        setWidth(window.innerWidth);
+    });
+    
+    /*displayPageContent(path) {
+        console.log(path)
+        this.props.history.push({
+            pathname: path,
+        })
+        window.location.reload()
+    }*/
 
     function getPathForProfile() {
         const currentUser = AuthService.getCurrentUser()
@@ -468,6 +510,25 @@ function App(props) {
         }
     }
 
+    function isLogIn() {
+        const currentUser = AuthService.getCurrentUser()
+        if (currentUser) {
+            AuthService.checkTokenIsExpired(currentUser.token)
+                .then(() => {
+                    return true
+                })
+                .catch(error => {
+                        setCurrentUser(null)
+                        return false
+                    }
+                )
+        } 
+        else {
+            setCurrentUser(null)
+            return false
+        }
+    }
+
     function minusUnRead(num) {
         setNumberOfUnRead(prev => (prev - num))
     }
@@ -477,18 +538,6 @@ function App(props) {
             return (<ListItemButton
                 key={item.text}
                 component="a" href={item.href} target={"_blank"}
-                title={item.text}
-            >
-                <ListItemIcon>{item.icon}</ListItemIcon>
-                <ListItemText primary={item.text} />
-                <ListItemText primary={item.numberMsg} />
-            </ListItemButton>);
-        }
-        else if (item.text === 'Выход') {
-            return (<ListItemButton
-                key={item.text}
-                component={Link} to={item.path}
-                onClick={logOut}
                 title={item.text}
             >
                 <ListItemIcon>{item.icon}</ListItemIcon>
@@ -512,39 +561,34 @@ function App(props) {
     const menuItemsForUnregisteredUsers = [
         {
             text: 'Главная',
-            icon: <HomeIcon color="secondary" />,
-            path: '/home'
+            icon: <HomeIcon style={{ color: '#f50057' }}/>,
+            path: '/newHome'
         },
         {
             text: 'Посты',
-            icon: <ForumIcon color="secondary" />,
+            icon: <ForumIcon style={{ color: '#f50057' }} />,
             path: '/records/view'
         },
     ]
     const menuItemsForRegisteredUsers = [
         {
             text: 'Главная',
-            icon: <HomeIcon color="secondary" />,
+            icon: <HomeIcon style={{ color: '#f50057' }} />,
             path: '/newHome'
         },
         {
             text: 'Анализ снимков',
-            icon: <BallotIcon color="secondary" />,
+            icon: <BallotIcon style={{ color: '#f50057' }} />,
             path: '/pipelines/create'
         },
         {
             text: 'Форум',
-            icon: <ForumIcon color="secondary" />,
+            icon: <ForumIcon style={{ color: '#f50057' }} />,
             path: '/records/view'
         },
         {
-            text: 'Поиск',
-            icon: <SearchIcon color="secondary" />,
-            path: '/search'
-        },
-        {
             text: 'Сообщения',
-            icon: <MessageIcon color="secondary" />,
+            icon: <MailOutlineIcon style={{ color: '#f50057' }} />,
             path: '/msg',
             numberOfUnRead: numberOfUnRead,
             numberMsg: <Paper
@@ -559,109 +603,60 @@ function App(props) {
             icon: <RemoveRedEye style={{ color: '#f50057' }} />,
             href: "http://localhost:3000/local",
         },
-        {
-            text: 'Выход',
-            icon: <Logout style={{ color: '#f50057' }} />,
-            path: '/login',
-        },
-
     ]
 
 
-    const IconsForNotRegisteredUsers = () => {
-        const [width, setWidth] = React.useState(window.innerWidth);
-        const breakpoint_1 = 580;
-        React.useEffect(() => {
-            const handleResizeWindow = () => setWidth(window.innerWidth);
-            // subscribe to window resize event "onComponentDidMount"
-            window.addEventListener("resize", handleResizeWindow);
-            return () => {
-                // unsubscribe "onComponentDestroy"
-                window.removeEventListener("resize", handleResizeWindow);
-            };
-        }, []);
-        if (width > breakpoint_1) {
-            return (
-                <Grid container >
-                    <Grid item xs />
-                    <Grid item >
-                        <ListItemButton
-                            sx={{
-                                paddingTop: 0, paddingBottom: 0, '&:hover': {
-                                    color: "#ffffff",
-                                }
-                            }}
-                            component={Link} to={"/login"}
-                            title={"Войти"}
-                        >
-                            <ListItemText primary={"Войти"} />
-                        </ListItemButton>
-                    </Grid>
-                    <Grid item>
-                        <ListItemButton
-                            sx={{
-                                paddingTop: 0, paddingBottom: 0, '&:hover': {
-                                    color: "#ffffff",
-                                }
-                            }}
-                            component={Link} to={"/register"}
-                            title={"Регистрация"}
-                        >
-                            <ListItemText primary={"Регистрация"}
-                            />
-                        </ListItemButton>
-                    </Grid>
+    const IconsForNotRegisteredUsers = () =>{
+        return (
+            <Grid container >
+                <Grid item xs />
+                <Grid item >
+                    <ListItemButton
+                        sx={{
+                            paddingTop: 0, paddingBottom: 0, '&:hover': {
+                                color: "#ffffff",
+                            }
+                        }}
+                        component={Link} to={"/login"}
+                        title={"Войти"}
+                    >
+                        <ListItemText primary={"Войти"} />
+                    </ListItemButton>
                 </Grid>
-            );
-        }
-        else {
-            return (
-                <Grid container alignItems={"flex-start"} direction={'column'}>
-                    <Grid >
-                        <ListItemButton
-                            sx={{
-                                paddingTop: 0, paddingBottom: 0, '&:hover': {
-                                    color: "#ffffff",
-                                }
-                            }}
-                            component={Link} to={"/login"}
-                        >
-                            <ListItemText primary={"Войти"} />
-                        </ListItemButton>
-                    </Grid>
-                    <Grid >
-                        <ListItemButton
-                            sx={{
-                                paddingTop: 0, paddingBottom: 0, '&:hover': {
-                                    color: "#ffffff",
-                                }
-                            }}
-                            component={Link} to={"/register"}>
-
-                            <ListItemText primary={"Регистрация"} />
-                        </ListItemButton>
-                    </Grid>
+                <Grid item>
+                    <ListItemButton
+                        sx={{
+                            paddingTop: 0, paddingBottom: 0, '&:hover': {
+                                color: "#ffffff",
+                            }
+                        }}
+                        component={Link} to={"/register"}
+                        title={"Регистрация"}
+                    >
+                        <ListItemText primary={"Регистрация"}
+                        />
+                    </ListItemButton>
                 </Grid>
-            );
-        }
-
+            </Grid>
+        );
     }
 
 
     const IconsForRegistredUsers = (props) => {
         const username = props.username;
-        const [width, setWidth] = React.useState(window.innerWidth);
         const breakpoint_1 = 588;
-        React.useEffect(() => {
-            const handleResizeWindow = () => setWidth(window.innerWidth);
-            window.addEventListener("resize", handleResizeWindow);
-            return () => {
-                window.removeEventListener("resize", handleResizeWindow);
-            };
-        }, []);
-        if (width > breakpoint_1) {
+        if (width > breakpoint_1){
             return (<Grid container>
                 <Grid item xs />
+                <Grid item width={'50px'}>
+                    <Link to={'/search'}>
+                        <IconButton 
+                            title={"Поиск"}
+                            >
+                                <SearchIcon style={{color: "#fff" }}/>
+                        </IconButton>
+                    </Link>
+                </Grid>
                 <Grid item width={'50px'}>
                     <Link to={"/notifications"} style={{textDecoration: 'none', color: 'white'}}>
                         <IconButton color="inherit" title={"Уведомления"}>
@@ -671,48 +666,77 @@ function App(props) {
                         </IconButton>
                     </Link>
                 </Grid>
-                <Grid item width={'130px'}>
-                    <ListItemButton
-                        component={Link} to={getPathForProfile()}
-                        title={"Профиль"}
-                        sx={{ '&:hover': { color: "#ffffff" } }}
-                    >
-                        <AccountCircleRoundedIcon />
-                        <ListItemText primary={username} />
-                    </ListItemButton>
-                </Grid>
+                <Hidden smDown>
+                    <Grid item width={'130px'}>
+                        <ListItemButton
+                            component={Link} to={getPathForProfile()}
+                            title={"Профиль"}
+                            sx={{ '&:hover': { color: "#ffffff" } }}
+                        >
+                            <AccountCircleRoundedIcon />
+                            <ListItemText primary={username} />
+                        </ListItemButton>
+                    </Grid>
+                </Hidden>
+                <Hidden mdUp>
+                    <Grid item width={'50px'}>
+                        <Link to={getPathForProfile()}>
+                            <IconButton 
+                                title={"Профиль"}
+                                >
+                                    <AccountCircleRoundedIcon style={{color: "#fff" }}/>
+                            </IconButton>
+                        </Link>
+                    </Grid>
+                </Hidden>
+                
             </Grid>);
         }
         else {
-            return (
-                <Grid container alignItems={"center"} justifyContent={"flex-start"}
+            return(
+                <Grid container alignItems={"flex-end"} justifyContent={"flex-end"}
                       direction={"row"} >
-                    <Grid item width={'25px'} >
-                        <IconButton color="inherit" >
-                            <Badge badgeContent={4} color="secondary">
-                                <NotificationsIcon />
-                            </Badge>
-                        </IconButton>
+                    <Grid item width={'25px'}>
+                        <Link to={'/search'}>
+                            <IconButton 
+                                title={"Поиск"}
+                                >
+                                    <SearchIcon style={{color: "#fff" }}/>
+                            </IconButton>
+                        </Link>
                     </Grid>
-                    <Grid container xs={5} direction={"column"} justifyContent={"center"} alignItems={"flex-start"}>
+                    <Grid item width={'25px'} >
+                        <Link to={"/notifications"} style={{textDecoration: 'none', color: 'white'}}>
+                            <IconButton color="inherit" title={"Уведомления"}>
+                                <Badge badgeContent={currentUser.notificationIds.length} color="secondary">
+                                    <NotificationsIcon />
+                                </Badge>
+                            </IconButton>
+                        </Link>
+                    </Grid>
+                    <Hidden smDown>
                         <Grid item width={'100px'}>
                             <ListItemButton
                                 component={Link} to={getPathForProfile()}
                             >
-                                <AccountCircleRoundedIcon сolor="inherit" />
-                                <ListItemText primary={username} />
+                                <AccountCircleRoundedIcon сolor = "inherit"/>
+                                <Hidden smDown>
+                                    <ListItemText primary={username} />
+                                </Hidden>
                             </ListItemButton>
                         </Grid>
-
-                        {/*<Grid item width={'100px'} >
-                            <ListItemButton
-                                sx = {{paddingRight: 0, paddingTop : 0,paddingBottom : 0}}
-                                component={Link} to={"/login"}
-                                onClick={logOut}>
-                                <ListItemText primary={"Выйти"}/>
-                            </ListItemButton>
-                        </Grid>*/}
-                    </Grid>
+                    </Hidden>
+                    <Hidden mdUp>
+                        <Grid item width={'25px'}>
+                            <Link to={getPathForProfile()}>
+                                <IconButton 
+                                    title={"Профиль"}
+                                    >
+                                        <AccountCircleRoundedIcon style={{color: "#fff" }}/>
+                                </IconButton>
+                            </Link>
+                        </Grid>
+                    </Hidden>
                 </Grid>
             );
         }
@@ -720,34 +744,20 @@ function App(props) {
     }
 
 
-    function ContainerBorder() {
-        const [width, setWidth] = React.useState(window.innerWidth);
-        React.useEffect(() => {
-            const handleResizeWindow = () => setWidth(window.innerWidth);
-            // subscribe to window resize event "onComponentDidMount"
-            window.addEventListener("resize", handleResizeWindow);
-            return () => {
-                // unsubscribe "onComponentDestroy"
-                window.removeEventListener("resize", handleResizeWindow);
-            };
-        }, []);
+    function ContainerBorder(){
         return "container mt-3";
     }
 
-    function MyDrawer(props) {
+
+    function MyDrawer(props){
         const classes = props.classes;
         const open = props.open;
-        React.useEffect(() => {
-            const handleResizeWindow = () => setWidth(window.innerWidth);
-            window.addEventListener("resize", handleResizeWindow);
-            return () => {
-                window.removeEventListener("resize", handleResizeWindow);
-            };
-        }, []);
-        if (width <= 600) {
+        
+        if(width < 600){
             return (
                 <Drawer
                     height="100%"
+                    variant={"persistent"}
                     classes={{
                         paper: clsx(classes.drawerPaper, !open && classes.drawerPaperClose),
                     }}
@@ -792,48 +802,49 @@ function App(props) {
 
             );
         }
-        else {
-            return (
-                <Drawer
-                    height="100%"
-                    variant="permanent"
-                    classes={{
-                        paper: clsx(classes.drawerPaper, !open && classes.drawerPaperClose),
-                    }}
-                    open={open}
-                >
-                    {open && (<div className={classes.toolbarIcon}>
-                        <IconButton onClick={handleDrawerClose}>
-                            <ChevronLeftIcon />
-                        </IconButton>
-                    </div>)}
-                    {!open && (<div className={classes.toolbarIcon}>
-                        <IconButton onClick={handleDrawerOpen}>
-                            <ChevronRightRoundedIcon />
-                        </IconButton>
-                    </div>)}
-                    <Divider />
+        else{
+           return(
+               <Drawer
+                height="100%"
+                anchor="left"
+                variant= "permanent"
+                classes={{
+                    paper: clsx(classes.drawerPaper, !open && classes.drawerPaperClose),
+                }}
+                open={open}
+           >
+                {open && (<div className={classes.toolbarIcon}>
+                    <IconButton onClick={handleDrawerClose}>
+                        <ChevronLeftIcon/>
+                    </IconButton>
+                </div>)}
+                {!open && (<div className={classes.toolbarIcon}>
+                    <IconButton onClick={handleDrawerOpen}>
+                        <ChevronRightRoundedIcon/>
+                    </IconButton>
+                </div>)}
+                <Divider/>
 
-                    <List>
-                        {currentUser && (
-                            menuItemsForRegisteredUsers.map((item) => (
-                                LeftButtonComponentRender(item)
-                            )))
-                        }
-                        {!currentUser && (
-                            menuItemsForUnregisteredUsers.map((item) => (
-                                <ListItemButton
-                                    key={item.text}
-                                    component={Link} to={item.path}
-                                    title={item.text}
-                                >
-                                    <ListItemIcon>{item.icon}</ListItemIcon>
-                                    <ListItemText primary={item.text} />
-                                </ListItemButton>
-                            )))
-                        }
-                    </List>
-                </Drawer>);
+                <List>
+                    {currentUser && (
+                        menuItemsForRegisteredUsers.map((item) => (
+                            LeftButtonComponentRender(item)
+                        )))
+                    }
+                    {!currentUser && (
+                        menuItemsForUnregisteredUsers.map((item) => (
+                            <ListItemButton
+                                key={item.text}
+                                component={Link} to={item.path}
+                                title={item.text}
+                            >
+                                <ListItemIcon>{item.icon}</ListItemIcon>
+                                <ListItemText primary={item.text}/>
+                            </ListItemButton>
+                        )))
+                    }
+                </List>
+            </Drawer>);
         }
     }
 
@@ -849,29 +860,48 @@ function App(props) {
         return url.slice(0, num + 1) + "3000/local/";
     }
 
+    function IsHomePage() {
+        return (window.location.href.split('/')[4] === "newHome" || window.location.href.split('/')[4] === "")
+    }
+
+
     return (
-        <div className={classes.root}>
+        <div className={clsx(classes.root, (window.location.href.split('/')[4] === "newHome" || window.location.href.split('/')[4] === "") && classes.rootHome)}>
             <CssBaseline />
 
             <AppBar position="fixed" className={clsx(classes.appBar, false && classes.appBarShift)}>
-                <Toolbar className={classes.toolbar}>
+                <Toolbar className={classes.toolbar} >
                     <IconButton
                         edge="start"
                         color="inherit"
                         aria-label="open drawer"
-                        onClick={handleDrawerChange}
+                        onClick= {e => e.stopPropagation() || handleDrawerChange()}
                         className={clsx(classes.menuButton, false && classes.menuButtonHidden)}
                         title={"Меню"}
                     >
                         <MenuIcon />
                     </IconButton>
-                    <ListItemButton component={Link} to={"/newHome"} variant={"text"} className={classes.button} color={"inherit"}
-                                    disableGutters title={"На главную страницу"}>
-                        <Typography component="h1" variant="h6" color="inherit" noWrap
+                    <Hidden only="xs">
+                        <ListItemButton  component={Link} to={"/newHome"} variant={"text"} className={classes.button} color={"inherit"}
+                disableGutters title={"На главную страницу"}>
+                            <Typography component="h1" variant="h6" color="inherit" noWrap
                                     className={classes.title}>
-                            Medical web app
-                        </Typography>
-                    </ListItemButton>
+                                    Medical web app
+                            </Typography>
+                        </ListItemButton>
+                    </Hidden>
+                    <Hidden smUp>
+                        <Link to={'/newHome'} >
+                            <IconButton 
+                                title={"На главную страницу"}
+                                size="large"
+                                className={classes.homeButton}
+                                >
+                                    <MedicationRoundedIcon style={{color: "#fff" }}/>
+                            </IconButton>
+                        </Link>
+                    </Hidden>
+                    
                     {currentUser && (
                         <IconsForRegistredUsers username={currentUser.username} />
                     )}
@@ -882,19 +912,20 @@ function App(props) {
 
                 </Toolbar>
             </AppBar>
-
-            <Grid container>
-                <Grid item className={clsx(classes.leftIndent, open && classes.leftIndentOpen)}>
-                    <MyDrawer open={open} classes={classes} />
-                </Grid>
-                <Grid item xs className={clsx(classes.content, open && classes.contentOpen)}>
-                    <div className={classes.appBarSpacer} />
-                    <div className={classes.appBarSpacer2} />
-                    <div className={ContainerBorder()} style={{justifyContent : "center"}}>
+            <div >
+                 <MyDrawer open = {open} classes = {classes} id="menu_bar" className={clsx(classes.leftIndent)}/>
+            </div>
+            <Grid container className={classes.content}>
+                <Grid item xs className={(IsHomePage()) && clsx(ContainerBorder())}>
+                    <div className={classes.appBarSpacer}/>
+                    <div className={classes.appBarSpacer2}/>
+                    <div className={(!IsHomePage()) &&clsx(ContainerBorder())} >
                         <Switch>
-                            <Route exact path={["/", "/newHome"]} component={NewHomeComponent} />
-                            <Route exact path="/home/patient" component={HomePatient} />
-                            <Route exact path="/home/doctor" component={HomeDoctor} />
+                            <Route exact path={["/","/newHome"]} >
+                                <NewHomeComponent />
+                            </Route>
+                            <Route exact path="/home/patient" component={HomePatient}/>
+                            <Route exact path="/home/doctor" component={HomeDoctor}/>
                             <Route exact path="/login" component={Login} />
                             <Route exact path={["/msg", "/msg/:selected"]}>
                                 {((AuthService.getCurrentUser())) ?
@@ -931,10 +962,17 @@ function App(props) {
                                 {AuthService.getCurrentUser() ? <UploadAttachmentsComponent /> : <Redirect to="/login" />}
                             </Route>
                             <Route exact path="/records/view" component={ViewRecordsComponent} />
-                            <Route exact path="/records/create" component={CreateRecordComponent} />
-                            <Route path="/records/thread/:recordId" component={RecordThreadComponent} />
+                            <Route exact path="/records/create" component={CreateRecordComponent}>
+                                <CreateRecordComponent open={open}/>
+                            </Route>
+                            <Route path="/records/thread/:recordId" component={RecordThreadComponent} >
+                                <RecordThreadComponent open={open} recordId={window.location.href.split('/')[6]}/>
+                            </Route>
                             <Route exact path="/topics/create" component={TopicComponent}>
-                                {AuthService.getCurrentUser() ? <TopicComponent /> : <Redirect to="/login" />}
+                                {AuthService.getCurrentUser() ? <TopicComponent open = {open} /> : <Redirect to="/login" />}
+                            </Route>
+                            <Route exact path="/edit" component={ProfileEditComponent}>
+                                {AuthService.getCurrentUser() ? <ProfileEditComponent/> : <Redirect to="/login" />}
                             </Route>
                             <Route exact path={["/edit"]} render={(props) => (
                                 <ProfileEditComponent/>

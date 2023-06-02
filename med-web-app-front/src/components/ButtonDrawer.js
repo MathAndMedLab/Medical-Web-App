@@ -15,7 +15,7 @@ import {IconButton} from "@material-ui/core"
 type Anchor = 'bottom';
 
 
-export default function TemporaryDrawer(){
+export default function ButtonDrawer(props){
     const [state, setState] = React.useState({
         bottom: false
     });
@@ -34,6 +34,12 @@ export default function TemporaryDrawer(){
                 setState({ ...state, [anchor]: open });
             };
 
+    const links = props.links//["/edit", "/files/view", "/files/upload", '/login'];
+    const icons = props.icons//[<EditIcon style={{ color: '#f50057' }}/>, <FolderIcon style={{ color: '#f50057' }}/>, <FileDownloadIcon style={{ color: '#f50057' }}/>, <LogoutIcon style={{ color: '#f50057' }}/>]
+
+    const titles = props.titles //['Редактировать профиль', 'Мои файлы', 'Загрузить файл', 'Выход']
+    const positions = props.positions //['right']
+    const iconDrawer = props.icon // <SettingsIcon style={{ color: '#f50057' }} fontSize={"large"}/>
     const list = (anchor: Anchor) => (
         <Box
             sx={{ width: "100%" }}
@@ -41,13 +47,11 @@ export default function TemporaryDrawer(){
             onKeyDown={toggleDrawer(anchor, false)}
         >
             <List>
-                {['Создать пост', 'Страница тэгов'].map((text,index) => (
+                {titles.map((text,index) => (
                     <ListItem key = {text} disablePadding>
-                        <ListItemButton component={Link} to={
-                            index === 0 ? "/records/create" : "/topics/create"
-                        }>
+                        <ListItemButton component={Link} to={links[index]}>
                             <ListItemIcon>
-                                {index % 2 ===0 ? <PostAdd color = "secondary"/> : <Style color = "secondary" />}
+                                {icons[index]}
                             </ListItemIcon>
                         <ListItemText primary={text}/>
                         </ListItemButton>
@@ -58,10 +62,10 @@ export default function TemporaryDrawer(){
     );
     return (
         <div>
-            {(['right']).map((anchor) => (
+            {(positions).map((anchor) => (
                 <React.Fragment key={anchor} >
                 <IconButton onClick={toggleDrawer(anchor, true)} >
-                    <AddCircleOutlineSharp color = "secondary" fontSize={"large"}/>
+                    {iconDrawer}
                 </IconButton>
                 <Drawer
                 anchor={anchor}

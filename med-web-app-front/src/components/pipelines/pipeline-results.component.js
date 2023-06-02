@@ -11,8 +11,20 @@ import {
 import Button from "@material-ui/core/Button";
 import Grid from "@material-ui/core/Grid";
 import {Link} from "react-router-dom";
+import ViewListIcon from '@material-ui/icons/ViewList';
+import ButtonDrawer from "../ButtonDrawer";
+import {Hidden} from "@material-ui/core"
+import CachedIcon from '@material-ui/icons/Cached';
+import clsx from "clsx"
 
 const useStyles = theme => ({
+    results: {
+        display: 'inline-block', 
+        wordWrap: 'break-word',
+    },
+    listIcon: {
+        marginTop: theme.spacing(3),
+    },
     button: {
         width: 200,
         margin: theme.spacing(1),
@@ -29,7 +41,6 @@ const useStyles = theme => ({
     },
     mainGrid: {
         display: 'flex',
-        minWidth: 1000,
     },
     paper: {
         marginTop: theme.spacing(3),
@@ -39,7 +50,7 @@ const useStyles = theme => ({
         minHeight: 400,
     },
     paper2: {
-        margin: theme.spacing(3),
+        marginTop: theme.spacing(3),
         padding: theme.spacing(3),
         color: "black",
     },
@@ -51,6 +62,7 @@ const useStyles = theme => ({
     },
     title: {
         padding: theme.spacing(3),
+        
     },
 })
 
@@ -65,11 +77,21 @@ class PipelineResultsComponent extends Component {
         this.handleClose = this.handleClose.bind(this)
         const user = AuthService.getCurrentUser();
 
+        const links = ["/pipelines/create"];
+        const icons = [ <CachedIcon style={{ color: '#f50057' }}/>]
+        const titles = [ 'Запустить анализ']
+        const positions = ['right']
+        const icon = <ViewListIcon style={{ color: '#f50057' }} fontSize="large"/>
         this.state = {
             currentUser: user,
             pipelineJobs: [],
             message: "",
-            open: false
+            open: false,
+            links: links,
+            icons: icons,
+            titles: titles,
+            positions: positions,
+            icon: icon,
         };
     }
 
@@ -145,13 +167,11 @@ class PipelineResultsComponent extends Component {
         const {pipelineJobs} = this.state;
         const {classes} = this.props
         return (
-            <div>
-                <Grid item xs={12}  className={classes.mainGrid}>
-                    <Grid item xs/>
-                    <Grid item xs={7} >
+                <Grid container className={classes.mainGrid} justifyContent="center">
+                    <Grid item xs={9} md={8} lg={6} >
                         <Card className={classes.paper}>
                             <div className="row">
-                                <div className=" col-sm-12 align-content-center top-buffer-10">
+                                <div className={clsx("col-sm-12 align-content-center top-buffer-10", classes.results)}>
                                     <Typography component="h1" className={classes.title} variant="h4">
                                         Результаты:
                                     </Typography>
@@ -180,31 +200,6 @@ class PipelineResultsComponent extends Component {
                                                                         style={{marginLeft: 5}}>Скачать</Typography>
                                                         </Button>
                                                     </div>
-                                                   {/* <div className="col-sm-1">
-                                                        <IconButton aria-label="delete"
-                                                                    size="small"
-                                                                    style={{width: 5, color: '#444',}}
-                                                                    onClick={() => this.handleClickOpen()}>
-                                                            <DeleteIcon fontSize="small"/>
-                                                        </IconButton>
-                                                    </div>
-                                                    <Dialog
-                                                        open={this.state.open}
-                                                        onClose={this.handleClose}
-                                                        aria-labelledby="alert-dialog-title"
-                                                        aria-describedby="alert-dialog-description"
-                                                    >
-                                                        <DialogTitle id="alert-dialog-title">
-                                                            {"Вы действительно хотите удалить результат анализа?"}
-                                                        </DialogTitle>
-                                                        <DialogActions>
-                                                            <Button onClick={this.handleClose}>Нет</Button>
-                                                            <Button onClick={() => this.delete(el.id, el.outputId)}
-                                                                    autoFocus>
-                                                                Да
-                                                            </Button>
-                                                        </DialogActions>
-                                                    </Dialog>*/}
                                                 </div>
                                             ))}
                                         </div>
@@ -214,19 +209,26 @@ class PipelineResultsComponent extends Component {
                             </div>
                         </Card>
                     </Grid>
-                    <Grid item xs={4} >
-                        <Card className={classes.paper2}>
-                            <Grid className={classes.grid}>
-                                <Link to={"/pipelines/create"} style={{textDecoration: 'none'}}>
-                                    <Button className={classes.button}>
-                                        Запустить анализ
-                                    </Button>
-                                </Link>
-                            </Grid>
-                        </Card>
+                    <Grid item >
+                        <Hidden lgUp >
+                            <div className={classes.listIcon}>
+                                <ButtonDrawer links={this.state.links} icons={this.state.icons} titles={this.state.titles} positions={this.state.positions} icon={this.state.icon}/>
+                            </div>
+                        </Hidden>
+                        <Hidden mdDown>
+                            <Card className={classes.paper2}>
+                                <Grid className={classes.grid}>
+                                    <Link to={"/pipelines/create"} style={{textDecoration: 'none'}}>
+                                        <Button className={classes.button}>
+                                            Запустить анализ
+                                        </Button>
+                                    </Link>
+                                </Grid>
+                            </Card>
+                        </Hidden>
+                       
                     </Grid>
                 </Grid>
-            </div>
         );
     }
 }

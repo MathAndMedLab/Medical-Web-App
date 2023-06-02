@@ -9,18 +9,88 @@ import GetAllReviews from "../../requests_and_responses/review-request";
 import GetAvgRating from "../../avg_rating/get-avg-rating";
 import StarRatings from "react-star-ratings";
 import getCorrectExperienceValue from "../user_profile/get-correct-experience-value";
+import {Hidden} from "@material-ui/core";
+import Typography from '@mui/material/Typography';
+
 
 const useStyles = theme => ({
     root: {
         "& .MuiTypography-root": {
-            color: "black", fontSize: 17
+            color: "black", 
+            fontSize: 17
         },
-    }, link: {
-        color: "black", fontSize: 17
-    }, avatar: {
-        width: 150, height: 160, marginLeft: "auto", marginRight: "auto"
-    }, image: {
+    }, 
+
+    link: {
+        color: "black", 
+        [theme.breakpoints.down("xs")]: {
+            width: '80px',
+        },
+        [theme.breakpoints.only("sm")]:{
+            width: '175px',
+        },
+        [theme.breakpoints.only("md")]:{
+            width: '125px',
+        },
+        "@media (min-width: 1280px)" :{
+            width: '200px',
+        },
+        display: 'inline-block', 
+        wordWrap: 'break-word',
+        "@media (min-width : 0px)": {
+            fontSize: theme.spacing(2)
+        },
+        "@media (min-width : 600px)": {
+            fontSize: theme.spacing(2.25)
+        },
+        "@media (min-width : 768px)": {
+            fontSize: theme.spacing(3)
+        },
+    },
+    littleText: {
+        "@media (min-width : 0px) and (max-width : 599px)": {
+            fontSize: theme.spacing(1.5)
+        },
+        "@media (min-width : 600px) and (max-width : 768px)": {
+            fontSize: theme.spacing(1.75)
+        },
+    },
+
+    aboutText: {
+        "@media (min-width : 0px) and (max-width : 599px)": {
+            fontSize: theme.spacing(1.5)
+        },
+        "@media (min-width : 600px) and (max-width : 768px)": {
+            fontSize: theme.spacing(1.75)
+        },
+        textAlign: "left",
+    },
+
+    avatar: {
+        "@media (min-width : 0px)": {
+            width: 75, 
+            height: 85, 
+        },
+        "@media (min-width : 600px)": {
+            width: 125, 
+            height: 135, 
+        },
+        "@media (min-width : 768px)": {
+            width: 150, 
+            height: 160, 
+            
+        },
+        marginLeft: "auto", 
+        marginRight: "auto"
+    },
+     
+    image: {
+        width: "100%",
         height: "100%"
+    },
+     
+    typo: {
+        width: "250px"
     }
 });
 
@@ -41,15 +111,15 @@ class UserCard extends Component {
         })
     }
 
-    getInfoAboutDoctor() {
+    getInfoAboutDoctor(classes) {
         if (this.user.role === "Врач") {
             return (<span>
-                <div style={{textAlign: "left"}}>{this.user.specialization}</div>
-                <div style={{textAlign: "left"}}>{"\n Специализация на болезнях: " + this.user.specializedDiagnoses}</div>
-                <div style={{textAlign: "left"}}>{"\nМесто работы: " + this.user.workplace}</div>
-                <div style={{textAlign: "left"}}>{"\nОбразование: " + this.user.education}</div>
-                <div style={{textAlign: "left"}}>{getCorrectExperienceValue(this.user.experience)}</div>
-                <div style={{textAlign: "left"}}>{"\nОт " + this.user.price + " рублей"}</div>
+                <div className={classes.aboutText}>{this.user.specialization}</div>
+                <div className={classes.aboutText}>{"\n Специализация на болезнях: " + this.user.specializedDiagnoses}</div>
+                <div className={classes.aboutText}>{"\nМесто работы: " + this.user.workplace}</div>
+                <div className={classes.aboutText}>{"\nОбразование: " + this.user.education}</div>
+                <div className={classes.aboutText}>{getCorrectExperienceValue(this.user.experience)}</div>
+                <div className={classes.aboutText}>{"\nОт " + this.user.price + " рублей"}</div>
             </span>)
         }
     }
@@ -63,7 +133,16 @@ class UserCard extends Component {
                         <img alt='' className={classes.image} src={`data:image/jpeg;base64,${this.user.avatar}`}/> :
                         <PhotoCameraOutlinedIcon style={{fontSize: 60}}/>}
                 </Avatar>
-                <div>Отзывов:{this.state.reviews.length}</div>
+                {this.user.initials !== null && <Hidden mdUp>
+                    <Link to={"profile/" + this.user.username} className={classes.link}>
+                        {this.user.username}
+                    </Link>
+                </Hidden>}
+                <Hidden mdUp>
+                    <div className={classes.littleText}>{this.user.role}</div>
+                </Hidden>
+
+                <div className={classes.littleText}>Отзывов:{this.state.reviews.length}</div>
                 <div><StarRatings rating={GetAvgRating(this.state.reviews, this.state.reviews.length)}
                                   starRatedColor="orange"
                                   numberOfStars={5}
@@ -71,25 +150,32 @@ class UserCard extends Component {
                                   starDimension="20px"
                                   starSpacing="1px"
                 /></div>
-                {this.user.active}
+                <div className={classes.littleText}>{this.user.active}</div>
             </TableCell>
 
             {this.user.initials !== null && <TableCell align={"left"}>
                 <Link to={"profile/" + this.user.username} className={classes.link}>
-                    {this.user.initials + " "}
+                    {this.user.initials + " " }
                 </Link>
-                {this.getInfoAboutDoctor()}
+                {this.getInfoAboutDoctor(classes)}
             </TableCell>}
 
-            {this.user.initials !== null && <TableCell align={"center"}>
-                <Link to={"profile/" + this.user.username} className={classes.link}>
-                    {this.user.username}
-                </Link>
-            </TableCell>}
+            {this.user.initials !== null && <Hidden smDown>
+                <TableCell align={"center"}>
+                    <Link to={"profile/" + this.user.username} className={classes.link}>
+                            {this.user.username + " "}
+                        
+                    </Link>
+                </TableCell>
+            </Hidden>}
 
-            <TableCell align={"center"}>
-                {this.user.role}
-            </TableCell>
+            <Hidden smDown>
+                 <TableCell align={"center"}>
+                    <div className={classes.littleText}>{this.user.role}</div>
+                </TableCell>
+            </Hidden>
+
+           
 
         </React.Fragment>);
     }

@@ -27,13 +27,23 @@ const useStyles = theme => ({
         margin: theme.spacing(1),
     },
     mainGrid: {
-        minWidth: 668,
+        
     },
     paper: {
         marginTop: theme.spacing(3),
-        marginLeft: theme.spacing(1),
         padding: theme.spacing(1),
         color: "black",
+        "@media (min-width: 768px)": {
+            maxWidth: "638px"
+        },
+       
+        "@media (min-width: 960px)": {
+           maxWidth: "631px"
+        },
+       
+        "@media (min-width: 1280px)": {
+            maxWidth: "678px"
+        },
         // display: 'flex',
     },
     submit: {
@@ -145,7 +155,7 @@ class reviewComponent extends Component {
     render() {
         const {classes} = this.props;
         return (
-            <Grid xs={8} item>
+            <Grid xs={12} item>
                 <Grid className={classes.mainGrid}>
                     {(this.state.targetId !== AuthService.getCurrentUser().id || this.state.reviews.length !== 0) &&
                         <Card className={classes.paper}>

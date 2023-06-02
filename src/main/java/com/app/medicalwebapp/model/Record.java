@@ -64,4 +64,16 @@ public class Record {
             inverseJoinColumns = { @JoinColumn(name = "file_id") }
     )
     Set<FileObject> attachments = new HashSet<>();
+
+    @Column(name="postType")
+    private String postType;
+
+    @Column(name="maxPrice")
+    private int maxPrice;
+
+    @Column(name="selectedSpecialties")
+    private String selectedSpecialties;
+
+    @Column(name="specializedDiagnoses")
+    private String specializedDiagnoses;
 }

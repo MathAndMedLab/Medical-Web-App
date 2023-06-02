@@ -27,6 +27,7 @@ import FolderIcon from '@mui/icons-material/Folder';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import LogoutIcon from '@mui/icons-material/Logout';
 import SettingsIcon from '@material-ui/icons/Settings';
+import NotificationService from "../../services/notification.service";
 
 const useStyles = theme => ({
     txtField: {
@@ -226,7 +227,11 @@ function Profile(props) {
         ProfileService.getProfile(username1).then(
             async response => {
                 const user = response.data;
-                console.log(user)
+
+                let currUser = AuthService.getCurrentUser();
+                currUser.notificationIds = user.notificationIds;
+                localStorage.setItem("user", JSON.stringify(currUser));
+
                 if (user.avatar) {
                     const base64Data = user.avatar
                     const base64Response = await fetch(`data:application/json;base64,${base64Data}`)
@@ -240,10 +245,13 @@ function Profile(props) {
                     setReviews(result)
                     setReviewsCounter(result.length)
                 })
+
+
             })
             .catch((e) => {
                 console.log(e);
             });
+
     }
 
     function refreshList() {

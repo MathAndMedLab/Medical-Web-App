@@ -25,6 +25,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
 
 @CrossOrigin(origins = "*", maxAge = 604800)
 @RestController
@@ -58,10 +59,16 @@ public class AuthController {
                 .collect(Collectors.toList());
 
         Optional<User> user = userRepository.findByUsernameAndRoleNotLike(signInRequest.getUsername(), "Модератор");
+        List<Long> notificationIds = new ArrayList<>();
         if (user.isPresent()) {
             User user2 = user.get();
             user2.setActive(Active.ONLINE);
             userRepository.save(user2);
+            if (user2.getNotificationIds() != null) {
+                for (Long id : user2.getNotificationIds()) {
+                    notificationIds.add(id);
+                }
+            }
         }
         return ResponseEntity.ok(new JwtResponse(jwt,
                 userDetails.getId(),
@@ -70,6 +77,7 @@ public class AuthController {
                 userDetails.getRate(),
                 userDetails.getStatus(),
                 userDetails.getRegisteredDate(),
+                notificationIds,
                 userDetails.getInitials())
         );
     }
@@ -92,6 +100,7 @@ public class AuthController {
         user.setRole(signUpRequest.getChosenRole());
         user.setPassword(encoder.encode(signUpRequest.getPassword()));
         user.setActive(Active.OFFLINE);
+        user.setNotificationIds(null);
 
         //Only for doctors.
         user.setSpecialization(signUpRequest.getSpecialization());

@@ -19,12 +19,20 @@ import {Link} from "react-router-dom";
 import {IconButton} from "@material-ui/core"
 import {ListItemButton} from "@mui/material";
 import {ArrowBack} from "@material-ui/icons";
+import NotificationService from "../../services/notification.service"
+import { FormLabel, Radio, RadioGroup} from "@material-ui/core"
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import HighlightOffIcon from '@mui/icons-material/HighlightOff'
 import AttachFileIcon from "@mui/icons-material/AttachFile"
 import Modal from 'react-bootstrap/Modal'
 import Upload from "../messenger/upload-files.component"
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import CreatableSelectSpecialties from "../../specialties-of-doctors-and-diagnoses/creatable-select-specialties";
+import CreatableSelectDiagnoses from "../../specialties-of-doctors-and-diagnoses/creatable-select-diagnoses";
+import CreatableSelect from "react-select/creatable";
+import diagnosesList from "../../specialties-of-doctors-and-diagnoses/diagnoses";
+import UserService from "../../services/user.service";
 
 /**
  * Стили для компонентов mui и react.
@@ -201,7 +209,23 @@ const useStyles = theme => ({
     modalWindow: {
         zIndex: 3000
     },
+    formControlLab: {
+        marginBottom: theme.spacing(0), marginTop: theme.spacing(0)
+    },
+    creatableSelectGrid: {
+        zIndex: 999999,
+    },
+    creatableSelectGridNext: {
+        zIndex: 999998,
+    },
 })
+
+const creatableSelectStyle = {
+    control: base => ({
+        ...base,
+        minHeight: 55
+    })
+};
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -242,7 +266,13 @@ class CreateRecordComponent extends Component {
         this.fileInput = React.createRef();
         this.handleCloseModalDevice = this.handleCloseModalDevice.bind(this);
         this.handleCloseModalProfile = this.handleCloseModalProfile.bind(this);
-
+        this.onChangePostType = this.onChangePostType.bind(this);
+        this.drawDoctorSearchParams = this.drawDoctorSearchParams.bind(this);
+        this.onChangeMaxPrice = this.onChangeMaxPrice.bind(this);
+        this.onChangeSelectedSpecialties = this.onChangeSelectedSpecialties.bind(this);
+        this.onChangeSpecializedDiagnoses = this.onChangeSpecializedDiagnoses.bind(this);
+        this.getAllUsers = this.getAllUsers.bind(this);
+        this.getAllUsers();
         this.state = {
             content: "",
             title: "",
@@ -261,10 +291,16 @@ class CreateRecordComponent extends Component {
             modalShowUploadProfile: false,
             uploadMenuState: true,
             dragEnter: false,
+            postType: "Обсуждение",
+            maxPrice: 100000,
+            selectedSpecialties: [],
+            specializedDiagnoses: [],
+            allUsers: []
         };
     }
 
     /**
+     *
      * Удаление прикрепленных файлов к посту
      * @param index 
      */
@@ -424,6 +460,40 @@ class CreateRecordComponent extends Component {
         }
     }
 
+    onChangePostType(e) {
+        if (e.target.value !== "Поиск специалиста") {
+            this.setState({
+                maxPrice: 100000,
+                selectedSpecialties: [],
+                specializedDiagnoses: []
+            })
+        }
+        this.setState({
+            postType: e.target.value
+        })
+    }
+
+    onChangeSelectedSpecialties(e) {
+        this.setState({
+            selectedSpecialties: e
+        });
+    }
+
+    onChangeSpecializedDiagnoses(e) {
+        this.setState({
+            specializedDiagnoses: e
+        });
+    }
+
+    onChangeMaxPrice(e) {
+        if (isNaN(e.target.value)) {
+            return;
+        }
+        this.setState({
+            maxPrice: e.target.value
+        });
+    }
+
     /**
      * Метод принимает выбранные теги из списка тегов
      * @param event
@@ -431,14 +501,14 @@ class CreateRecordComponent extends Component {
     handleTopics(event) {
         let topicIds = [];
         this.state.availableTopics.map(topic => {
-            if (event.target.value.find(x => x.value === topic.value)) {
+            if (event.find(x => x.value === topic.value)) {
                 topicIds.push(topic.value)
             }
         });
 
         this.setState({
             selectedTopicsId: topicIds,
-            selectedTopicsValue: event.target.value
+            selectedTopicsValue: event
         })
 
     }
@@ -469,7 +539,18 @@ class CreateRecordComponent extends Component {
         })
     }
 
-    
+    async getAllUsers() {
+        UserService.getAllByUsername("")
+            .then(async (response) => {
+                const users = response.data;
+                this.setState({
+                    allUsers: users,
+                });
+            })
+            .catch((e) => {
+                console.log(e);
+            });
+    }
 
     /**
      * Метод отвечает за создание постов
@@ -496,8 +577,34 @@ class CreateRecordComponent extends Component {
                 fileNameUidAndStringBase64.push(fileNameUidBase64)
             }
         }
+        let isDoctorSearch = this.state.postType === "Поиск специалиста";
 
-        RecordService.saveRecord(this.state.title, this.state.contentCorrect, this.state.selectedTopicsId, this.state.selectedFilesId, fileNameUidAndStringBase64).then(
+        let specializationStr = "";
+        let specializedDiagnosesStr = "";
+
+        if (isDoctorSearch) {
+            if (this.state.selectedSpecialties.length > 0) {
+                this.state.selectedSpecialties.forEach(item => specializationStr += (item.value + ', '));
+                specializationStr = specializationStr.substring(0, specializationStr.length - 2);
+            }
+            else {
+                specializationStr = "Не указано"
+            }
+
+            if (this.state.specializedDiagnoses.length > 0) {
+                this.state.specializedDiagnoses.forEach(item => specializedDiagnosesStr += (item.value + ', '))
+                specializedDiagnosesStr = specializedDiagnosesStr.substring(0, specializedDiagnosesStr.length - 2);
+            }
+            else {
+                specializationStr = "Не указано"
+            }
+        }
+
+        RecordService.saveRecord(this.state.title, this.state.contentCorrect, this.state.selectedTopicsId, this.state.selectedFilesId, fileNameUidAndStringBase64,
+            this.state.postType,
+            isDoctorSearch ? this.state.maxPrice : null,
+            isDoctorSearch ? specializationStr : null,
+            isDoctorSearch ? specializedDiagnosesStr : null).then(
             () => {
                 this.setState({
                     submittedSuccessfully: true,
@@ -505,13 +612,53 @@ class CreateRecordComponent extends Component {
                     content: "",
                     contentCorrect: "",
                     contentPresence: false,
-                    title: "",
                     selectedFilesId: [],
                     selectedFilesValue: [],
                     selectedFilesUpload: [],
                     selectedTopicsId: [],
                     selectedTopicsValue: [],
                 });
+
+                // Отправка уведомлений всем подходящим врачам.
+                if (this.state.postType !== "Поиск специалиста") {
+                    return;
+                }
+
+                RecordService.getAll(1, 1, this.state.title, "").then((response) => {
+                    let userIds = [];
+                    this.state.allUsers.map((user) => {
+                        if (!(user.role === "Врач")) {
+                            return;
+                        }
+                        let isPriceOkay = user.price <= this.state.maxPrice;
+                        let isSpecializationsOkay = false;
+                        let userSpecializations = user.specialization.split(', ');
+                        this.state.selectedSpecialties.map((s) => {
+                            let specialization = s.value;
+                            if (userSpecializations.includes(specialization)) {
+                                isSpecializationsOkay = true;
+                            }
+                        })
+
+                        let isDiagnosesOkay = false;
+                        let userDiagnoses = user.specializedDiagnoses.split(', ');
+                        this.state.specializedDiagnoses.map((s) => {
+                            let diagnoses = s.value;
+                            if (userDiagnoses.includes(diagnoses)) {
+                                isDiagnosesOkay = true;
+                            }
+                        })
+                        if (AuthService.getCurrentUser().id !== user.id && isPriceOkay && (isSpecializationsOkay || isDiagnosesOkay)) {
+                            userIds.push(user.id);
+                        }
+                    })
+                    let data = "Взгляните на новый пост на форуме с заголовком <<" + this.state.title + ">>, он может Вас заинтересовать!";
+                    NotificationService.saveNotification(data, "Пост на форуме", "/records/thread/" + response.data.records[0].id, userIds);
+                    this.setState({
+                        title: "",
+                    });
+                })
+                    .catch((e) => console.log(e));
             },
             error => {
                 const resMessage =
@@ -524,8 +671,7 @@ class CreateRecordComponent extends Component {
                     contentPresence: false,
                 });
             }
-        );
-
+        )
     }
 
     componentDidMount() {
@@ -556,6 +702,33 @@ class CreateRecordComponent extends Component {
                     console.log(error);
                 }
             );
+    }
+
+    drawDoctorSearchParams(creatableSelectGridClass, creatableSelectGridNextClass) {
+        if (this.state.postType !== "Поиск специалиста") {
+            return;
+        }
+        return (
+            <span>
+                <FormLabel>
+                    Специальность:
+                </FormLabel>
+                <Grid item xs={12} className={creatableSelectGridClass}>
+                    {CreatableSelectSpecialties(this.state.selectedSpecialties, this.onChangeSelectedSpecialties)}
+                </Grid>
+                <FormLabel>
+                    Ваш диагноз:
+                </FormLabel>
+                <Grid item xs={12} className={creatableSelectGridNextClass}>
+                    {CreatableSelectDiagnoses(this.state.specializedDiagnoses, this.onChangeSpecializedDiagnoses)}
+                </Grid>
+                <br/>
+                <FormLabel>
+                    Готов(-а) заплатить: до <input required minLength="3" maxLength="8" size="8" value={this.state.maxPrice}
+                                    onChange={this.onChangeMaxPrice}/> ₽
+                </FormLabel>
+            </span>
+        )
     }
 
     render() {
@@ -606,31 +779,45 @@ class CreateRecordComponent extends Component {
                             onChange={this.onChangeContent}
                         />
 
+                        <FormControl>
+                            <RadioGroup value={this.state.postType}
+                                        onChange={this.onChangePostType}>
+                                <FormControlLabel className={classes.formControlLab}
+                                                    control={<Radio/>}
+                                                    value="Обсуждение"
+                                                    label="Обсуждение"
+                                />
+                                <FormControlLabel className={classes.formControlLab}
+                                                    control={<Radio/>}
+                                                    value="Поиск специалиста"
+                                                    label="Поиск специалиста"
+                                                    labelPlacement='end'
+                                />
+                            </RadioGroup>
+                        </FormControl>
+                        {this.drawDoctorSearchParams(classes.creatableSelectGrid, classes.creatableSelectGridNext)}
+
                         <FormControl className={classes.formControl}>
-                            <InputLabel id="selected-topics">Выбрать ключевые слова</InputLabel>
-                            <Select
-                                className={classes.root}
-                                multiple
-                                title={"Прикрепить тэги"}
-                                labelId="selected-topics"
-                                value={this.state.selectedTopicsValue}
-                                onChange={this.handleTopics}
-                                input={<Input id="select-multiple-chip-for-topics"/>}
-                                renderValue={(selected) => (
-                                    <div className={classes.chips}>
-                                        {selected.map((value) => (
-                                            <Chip key={value} label={value.label} className={classes.chip}/>
-                                        ))}
-                                    </div>
-                                )}
-                                MenuProps={MenuProps}
-                            >
-                                {this.state.availableTopics.map(x => (
-                                    <MenuItem key={x.value} value={x} id={x.value}>
-                                        {x.label}
-                                    </MenuItem>
-                                ))}
-                            </Select>
+                                <br/>
+                                <CreatableSelect
+                                    maxMenuHeight={190}
+                                    placeholder="Выберите ключевые слова..."
+                                    noOptionsMessage={() => "Выбраны все ключевые слова."}
+                                    value={this.state.selectedTopicsValue}
+                                    onChange={this.handleTopics}
+                                    isSearchable={false}
+                                    styles={creatableSelectStyle}
+                                    isMulti
+                                    options={this.state.availableTopics}
+                                    renderValue={(selected) => (
+                                        <div className={classes.chips}>
+                                            {selected.map((value) => (
+                                                <Chip key={value} label={value.label} className={classes.chip}/>
+                                            ))}
+                                        </div>
+                                    )}
+                                    MenuProps={MenuProps}
+                                />
                         </FormControl>
 
                         { this.state.uploadMenuState ? (
@@ -672,7 +859,6 @@ class CreateRecordComponent extends Component {
                                             centered="true"
                                             aria-labelledby="contained-modal-title-vcenter"
                                             onHide={this.handleCloseModalDevice}
-                                            className={classes.modalWindow}
                                         >
                                             <Modal.Header>
                                                 <Modal.Title id="contained-modal-title-vcenter">
@@ -721,7 +907,6 @@ class CreateRecordComponent extends Component {
                                             centered="true"
                                             aria-labelledby="contained-modal-title-vcenter"
                                             onHide={this.handleCloseModalProfile}
-                                            className={classes.modalWindow}
                                         >
                                             <Modal.Header>
                                                 <Modal.Title id="contained-modal-title-vcenter">

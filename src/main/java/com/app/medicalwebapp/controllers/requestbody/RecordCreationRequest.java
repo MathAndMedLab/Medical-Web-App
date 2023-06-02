@@ -15,12 +15,19 @@ public class RecordCreationRequest {
     @NotNull
     String content;
 
-    Long parentId;
-
     List<Long> topics;
 
     List<Long> files;
 
     List<RecordFileRequest> newFiles;
-    
+
+    String postType;
+
+    int maxPrice;
+
+    String selectedSpecialties;
+
+    String specializedDiagnoses;
+
+    Long parentId;
 }

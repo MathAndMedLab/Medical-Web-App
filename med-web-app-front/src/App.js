@@ -60,6 +60,7 @@ import ProfileEditComponent from "./components/user_profile/profile-edit.compone
 import { useLocation } from "react-router-dom";
 import Hidden from '@material-ui/core/Hidden';
 import background from "./components/main/backgroundHome.jpg";
+import UserNotificationsComponent from "./components/user_profile/notifications"
 
 const drawerWidth = 240
 
@@ -657,11 +658,13 @@ function App(props) {
                     </Link>
                 </Grid>
                 <Grid item width={'50px'}>
-                    <IconButton color="inherit" title={"Уведомления"}>
-                        <Badge badgeContent={3} color="secondary">
-                            <NotificationsIcon />
-                        </Badge>
-                    </IconButton>
+                    <Link to={"/notifications"} style={{textDecoration: 'none', color: 'white'}}>
+                        <IconButton color="inherit" title={"Уведомления"}>
+                            <Badge badgeContent={currentUser.notificationIds.length} color="secondary">
+                                <NotificationsIcon />
+                            </Badge>
+                        </IconButton>
+                    </Link>
                 </Grid>
                 <Hidden smDown>
                     <Grid item width={'130px'}>
@@ -703,11 +706,13 @@ function App(props) {
                         </Link>
                     </Grid>
                     <Grid item width={'25px'} >
-                        <IconButton color="inherit" >
-                            <Badge badgeContent={4} color="secondary">
-                                <NotificationsIcon />
-                            </Badge>
-                        </IconButton>
+                        <Link to={"/notifications"} style={{textDecoration: 'none', color: 'white'}}>
+                            <IconButton color="inherit" title={"Уведомления"}>
+                                <Badge badgeContent={currentUser.notificationIds.length} color="secondary">
+                                    <NotificationsIcon />
+                                </Badge>
+                            </IconButton>
+                        </Link>
                     </Grid>
                     <Hidden smDown>
                         <Grid item width={'100px'}>
@@ -969,6 +974,13 @@ function App(props) {
                             <Route exact path="/edit" component={ProfileEditComponent}>
                                 {AuthService.getCurrentUser() ? <ProfileEditComponent/> : <Redirect to="/login" />}
                             </Route>
+                            <Route exact path={["/edit"]} render={(props) => (
+                                <ProfileEditComponent/>
+                            )} />
+                            <Route exact path={["/notifications"]} render={(props) => (
+                                <UserNotificationsComponent/>
+                            )} />
+
                             <Route component={NotExist} />
                         </Switch>
                     </div>
